@@ -1,13 +1,12 @@
-import { useTaskStore } from '@/app/providers/zustand';
-import { QuadrantPriority } from '@/entities/categoryBlock/ui/CategoryBlock';
+import { useTaskStore } from '@/app/providers/store/zustand';
+import { QuadrantPriority, QuadrantPriorityKey } from '@/entities/quadrant';
 import { useState } from 'react';
 
 export const AddTaskForm = () => {
   const { addTask } = useTaskStore();
   const [taskText, setTaskText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<QuadrantPriority>(
-    QuadrantPriority.UrgentImportant,
-  );
+  const [selectedCategory, setSelectedCategory] =
+    useState<QuadrantPriorityKey>('ImportantUrgent');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +28,13 @@ export const AddTaskForm = () => {
       <select
         value={selectedCategory}
         onChange={(e) =>
-          setSelectedCategory(e.target.value as QuadrantPriority)
+          setSelectedCategory(e.target.value as QuadrantPriorityKey)
         }
         className="rounded border p-2"
       >
-        {Object.values(QuadrantPriority).map((priority) => (
-          <option key={priority} value={priority}>
-            {priority}
+        {Object.entries(QuadrantPriority).map(([key, label]) => (
+          <option key={key} value={key}>
+            {label}
           </option>
         ))}
       </select>
