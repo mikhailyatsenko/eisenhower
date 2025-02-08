@@ -1,6 +1,6 @@
-import { QuadrantPriorityKey } from '../types/quadrantTypes';
+import { TaskPriorityKey } from '../types/quadrantTypes';
 
-export enum QuadrantPriority {
+export enum TaskPriority {
   ImportantUrgent = 'Urgent & Important',
   ImportantNotUrgent = 'Important & Not Urgent',
   NotImportantUrgent = 'Urgent & Not Important',
@@ -8,7 +8,7 @@ export enum QuadrantPriority {
 }
 
 // Colors for each quadrant
-export const priorityColorClasses: Record<QuadrantPriorityKey, string> = {
+export const priorityColorClasses: Record<TaskPriorityKey, string> = {
   ImportantUrgent: 'bg-red-500',
   ImportantNotUrgent: 'bg-yellow-500',
   NotImportantUrgent: 'bg-blue-500',
