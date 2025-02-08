@@ -1,6 +1,6 @@
 import { TaskPriorityKey } from './quadrantTypes';
 
 export interface TaskState {
-  task: Record<TaskPriorityKey, string[]>;
+  tasks: Record<TaskPriorityKey, string[]>;
   addTask: (priority: TaskPriorityKey, task: string) => void;
 }

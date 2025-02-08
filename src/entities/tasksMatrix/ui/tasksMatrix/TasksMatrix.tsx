@@ -1,8 +1,8 @@
-import { Quadrant } from '../quadrant/Quadrant';
-import { useTaskStore } from '../../model/store/tasksStore';
 import { TaskPriority } from '../../model/consts/tasksMatrixConsts';
-import { TaskPriorityKey } from '../../model/types/quadrantTypes';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
+import { useTaskStore } from '../../model/store/tasksStore';
+import { TaskPriorityKey } from '../../model/types/quadrantTypes';
+import { Quadrant } from '../quadrant/Quadrant';
 
 export const TasksMatrix = () => {
   const tasks = useTaskStore(getAllTasks);

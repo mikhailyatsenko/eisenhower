@@ -1,4 +1,3 @@
-import { priorityColorClasses } from '../../model/consts/tasksMatrixConsts';
 import { TaskPriorityKey } from '../../model/types/quadrantTypes';
 
 interface CategoryBlockProps {
@@ -6,6 +5,13 @@ interface CategoryBlockProps {
   priority: TaskPriorityKey;
   task: string[];
 }
+
+export const priorityColorClasses: Record<TaskPriorityKey, string> = {
+  ImportantUrgent: 'bg-red-200',
+  ImportantNotUrgent: 'bg-yellow-200',
+  NotImportantUrgent: 'bg-blue-200',
+  NotImportantNotUrgent: 'bg-green-200',
+};
 
 export const Quadrant: React.FC<CategoryBlockProps> = ({
   title,
