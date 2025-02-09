@@ -1,11 +1,13 @@
+'use client';
+
 import { useState } from 'react';
-import { TaskPriority, TaskPriorityKey } from '@/entities/tasksMatrix';
-import { addTaskAction } from '@/entities/tasksMatrix';
+import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
+import { addTaskAction } from '@/entities/taskMatrix';
 
 export const AddTaskForm = () => {
   const [taskText, setTaskText] = useState('');
   const [selectedCategory, setSelectedCategory] =
-    useState<TaskPriorityKey>('ImportantUrgent');
+    useState<MatrixKey>('ImportantUrgent');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +28,10 @@ export const AddTaskForm = () => {
       />
       <select
         value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value as TaskPriorityKey)}
+        onChange={(e) => setSelectedCategory(e.target.value as MatrixKey)}
         className="rounded border p-2"
       >
-        {Object.entries(TaskPriority).map(([key, label]) => (
+        {Object.entries(MatrixQuadrants).map(([key, label]) => (
           <option key={key} value={key}>
             {label}
           </option>
