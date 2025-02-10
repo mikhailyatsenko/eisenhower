@@ -28,7 +28,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 50 : 'auto',
-    // opacity: isDragging ? 1 : undefined,
+    // width: isDragging ? '30px' : 'auto',
   };
 
   return (

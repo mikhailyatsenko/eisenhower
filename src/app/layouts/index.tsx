@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '../styles';
+import { cookies } from 'next/headers';
+import { ThemeToggle } from '@/features/toggleTheme';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,16 +20,24 @@ export const metadata: Metadata = {
   description: 'Organize your priorities and workload',
 };
 
-export function RootLayout({
+export async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const themeCookie = (await cookieStore).get('theme');
+  const serverThemeCookie = themeCookie?.value as 'dark' | 'light' | undefined;
+
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={serverThemeCookie === 'dark' ? serverThemeCookie : ''}
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <ThemeToggle serverThemeCookie={serverThemeCookie} />
         {children}
       </body>
     </html>
