@@ -13,14 +13,22 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   quadrantKey,
   index,
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: task,
-      data: { quadrantKey, index },
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task,
+    data: { quadrantKey, index },
+  });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 50 : 'auto',
+    // opacity: isDragging ? 1 : undefined,
   };
 
   return (
@@ -29,7 +37,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {...listeners}
       {...attributes}
       style={style}
-      className="p-2"
+      className={`p-2 ${isDragging ? 'bg-gray-300' : ''}`}
     >
       {task}
     </li>

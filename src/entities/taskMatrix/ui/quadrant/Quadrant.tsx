@@ -10,6 +10,7 @@ interface CategoryBlockProps {
   title: string;
   quadrantKey: MatrixKey;
   tasks: string[];
+  isActive: boolean;
 }
 
 export const priorityColorClasses: Record<MatrixKey, string> = {
@@ -23,20 +24,17 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   title,
   quadrantKey,
   tasks,
+  isActive,
 }) => {
-  const { isOver, setNodeRef } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id: quadrantKey,
     data: { quadrantKey },
   });
-  const style = {
-    backgroundColor: isOver ? 'lightgreen' : priorityColorClasses[quadrantKey],
-  };
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className="rounded-2xl p-6 text-white shadow-lg"
+      className={`${priorityColorClasses[quadrantKey]} ${isActive ? 'bg-opacity-75' : ''} rounded-2xl p-6 text-white shadow-lg`}
     >
       <h2 className="mb-2 text-xl font-semibold">{title}</h2>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>

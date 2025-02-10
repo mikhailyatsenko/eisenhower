@@ -1,16 +1,21 @@
 'use client';
 
-import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
+import {
+  DndContext,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverEvent,
+  closestCenter,
+  DragOverlay,
+} from '@dnd-kit/core';
 import {
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { useState } from 'react';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
 import {
@@ -20,9 +25,12 @@ import {
 } from '../../model/store/tasksStore';
 import { MatrixKey } from '../../model/types/quadrantTypes';
 import { Quadrant } from '../quadrant/Quadrant';
+import { TaskItem } from '../taskItem/TaskItem';
 
 export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
+  const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -30,8 +38,23 @@ export const TaskMatrix = () => {
     }),
   );
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+    setActiveQuadrant(activeQuadrant);
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const overQuadrant = event.over?.data.current?.quadrantKey as MatrixKey;
+    if (overQuadrant && overQuadrant !== activeQuadrant) {
+      setActiveQuadrant(overQuadrant);
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveQuadrant(null);
+    setActiveId(null);
     if (!over) return;
 
     const activeQuadrant = active.data.current?.quadrantKey as MatrixKey;
@@ -63,18 +86,28 @@ export const TaskMatrix = () => {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         {Object.entries(MatrixQuadrants).map(([key, label]) => (
-          <SortableContext key={key} items={tasks[key as MatrixKey]}>
-            <Quadrant
-              key={key}
-              title={label}
-              quadrantKey={key as MatrixKey}
-              tasks={tasks[key as MatrixKey]}
-            />
-          </SortableContext>
+          <Quadrant
+            key={key}
+            title={label}
+            quadrantKey={key as MatrixKey}
+            tasks={tasks[key as MatrixKey]}
+            isActive={activeQuadrant === key}
+          />
         ))}
+        <DragOverlay>
+          {activeId ? (
+            <TaskItem
+              task={activeId}
+              quadrantKey={activeQuadrant as MatrixKey}
+              index={0}
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
