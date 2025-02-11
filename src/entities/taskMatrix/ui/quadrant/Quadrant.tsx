@@ -34,9 +34,11 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`${priorityColorClasses[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} relative m-1 min-h-80 w-[calc(50%-8px)] rounded-md p-6 text-gray-100 dark:border dark:bg-black`}
+      className={`${priorityColorClasses[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} relative m-1 min-h-40 w-[calc(50%-8px)] rounded-md p-6 text-gray-100 sm:min-h-80 dark:border dark:bg-black`}
     >
-      <h2 className="absolute top-1 right-2 mb-2 text-sm">{title}</h2>
+      <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] sm:text-sm">
+        {title}
+      </h2>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
         <ul className="list-none">
           {tasks.map((task, index) => (
