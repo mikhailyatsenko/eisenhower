@@ -1,11 +1,13 @@
+'use client';
+
 import { useState } from 'react';
-import { TaskPriority, TaskPriorityKey } from '@/entities/tasksMatrix';
-import { addTaskAction } from '@/entities/tasksMatrix';
+import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
+import { addTaskAction } from '@/entities/taskMatrix';
 
 export const AddTaskForm = () => {
   const [taskText, setTaskText] = useState('');
   const [selectedCategory, setSelectedCategory] =
-    useState<TaskPriorityKey>('ImportantUrgent');
+    useState<MatrixKey>('ImportantUrgent');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,20 +24,20 @@ export const AddTaskForm = () => {
         value={taskText}
         onChange={(e) => setTaskText(e.target.value)}
         placeholder="Enter task"
-        className="w-full rounded border p-2"
+        className="w-full rounded-sm border p-2"
       />
       <select
         value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value as TaskPriorityKey)}
-        className="rounded border p-2"
+        onChange={(e) => setSelectedCategory(e.target.value as MatrixKey)}
+        className="rounded-sm border p-2"
       >
-        {Object.entries(TaskPriority).map(([key, label]) => (
+        {Object.entries(MatrixQuadrants).map(([key, label]) => (
           <option key={key} value={key}>
             {label}
           </option>
         ))}
       </select>
-      <button type="submit" className="rounded bg-blue-500 p-2 text-white">
+      <button type="submit" className="rounded-sm bg-blue-500 p-2 text-white">
         Add
       </button>
     </form>
