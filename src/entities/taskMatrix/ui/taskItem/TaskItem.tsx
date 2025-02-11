@@ -28,7 +28,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 50 : 'auto',
-    // width: isDragging ? '30px' : 'auto',
   };
 
   return (
@@ -37,7 +36,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`p-2 ${isDragging ? 'bg-gray-300' : ''}`}
+      className={`p-1 ${isDragging ? '!bg-gray-300' : ''} cursor-grab list-none`}
     >
       {task}
     </li>

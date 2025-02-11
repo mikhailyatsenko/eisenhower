@@ -24,12 +24,12 @@ export const AddTaskForm = () => {
         value={taskText}
         onChange={(e) => setTaskText(e.target.value)}
         placeholder="Enter task"
-        className="w-full rounded border p-2"
+        className="w-full rounded-sm border p-2"
       />
       <select
         value={selectedCategory}
         onChange={(e) => setSelectedCategory(e.target.value as MatrixKey)}
-        className="rounded border p-2"
+        className="rounded-sm border p-2"
       >
         {Object.entries(MatrixQuadrants).map(([key, label]) => (
           <option key={key} value={key}>
@@ -37,7 +37,7 @@ export const AddTaskForm = () => {
           </option>
         ))}
       </select>
-      <button type="submit" className="rounded bg-blue-500 p-2 text-white">
+      <button type="submit" className="rounded-sm bg-blue-500 p-2 text-white">
         Add
       </button>
     </form>

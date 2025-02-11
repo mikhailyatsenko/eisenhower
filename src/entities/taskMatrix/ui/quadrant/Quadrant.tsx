@@ -14,10 +14,10 @@ interface CategoryBlockProps {
 }
 
 export const priorityColorClasses: Record<MatrixKey, string> = {
-  ImportantUrgent: 'bg-red-200',
-  ImportantNotUrgent: 'bg-yellow-200',
-  NotImportantUrgent: 'bg-blue-200',
-  NotImportantNotUrgent: 'bg-green-200',
+  ImportantUrgent: 'bg-red-200 dark:border-red-300',
+  ImportantNotUrgent: 'bg-amber-200 dark:border-amber-300',
+  NotImportantUrgent: 'bg-blue-200 dark:border-blue-300',
+  NotImportantNotUrgent: 'bg-green-200 dark:border-green-300',
 };
 
 export const Quadrant: React.FC<CategoryBlockProps> = ({
@@ -34,11 +34,11 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`${priorityColorClasses[quadrantKey]} ${isActive ? 'bg-opacity-75' : ''} rounded-2xl p-6 text-white shadow-lg`}
+      className={`${priorityColorClasses[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} relative m-1 min-h-80 w-[calc(50%-8px)] rounded-md p-6 text-gray-100 dark:border dark:bg-black`}
     >
-      <h2 className="mb-2 text-xl font-semibold">{title}</h2>
+      <h2 className="absolute top-1 right-2 mb-2 text-sm">{title}</h2>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-        <ul className="list-disc pl-4">
+        <ul className="list-none">
           {tasks.map((task, index) => (
             <TaskItem
               key={task}
