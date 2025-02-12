@@ -11,6 +11,7 @@ interface CategoryBlockProps {
   quadrantKey: MatrixKey;
   tasks: string[];
   isActive: boolean;
+  isDimmed: boolean;
 }
 
 export const priorityColorClasses: Record<MatrixKey, string> = {
@@ -25,6 +26,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   quadrantKey,
   tasks,
   isActive,
+  isDimmed,
 }) => {
   const { setNodeRef } = useDroppable({
     id: quadrantKey,
@@ -34,23 +36,25 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`${priorityColorClasses[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} relative m-1 min-h-40 w-[calc(50%-8px)] rounded-md p-6 text-gray-100 sm:min-h-80 dark:border dark:bg-black`}
+      className={`${priorityColorClasses[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} ${isDimmed ? 'opacity-50' : ''} relative m-1 h-40 w-[calc(50%-8px)] rounded-md p-6 text-gray-100 sm:h-80 dark:border dark:bg-black`}
     >
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] sm:text-sm">
         {title}
       </h2>
-      <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-        <ul className="list-none">
-          {tasks.map((task, index) => (
-            <TaskItem
-              key={task}
-              task={task}
-              quadrantKey={quadrantKey}
-              index={index}
-            />
-          ))}
-        </ul>
-      </SortableContext>
+      <div className="h-full w-full overflow-x-hidden overflow-y-auto">
+        <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
+          <ul className="flex list-none flex-col gap-4">
+            {tasks.map((task, index) => (
+              <TaskItem
+                key={task}
+                task={task}
+                quadrantKey={quadrantKey}
+                index={index}
+              />
+            ))}
+          </ul>
+        </SortableContext>
+      </div>
     </div>
   );
 };
