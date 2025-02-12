@@ -2,13 +2,11 @@
 
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
-// import { initTheme, applyTheme } from '../../utils/themeSwitcher';
 
 type Theme = 'light' | 'dark';
 
 interface ThemeToggleProps {
   serverThemeCookie?: Theme;
-  // toggleTheme: () => void;
 }
 
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({

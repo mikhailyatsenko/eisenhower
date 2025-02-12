@@ -8,6 +8,13 @@ interface TaskItemProps {
   index: number;
 }
 
+export const colors: Record<MatrixKey, string> = {
+  ImportantUrgent: 'bg-red-300',
+  ImportantNotUrgent: 'bg-amber-300',
+  NotImportantUrgent: 'bg-blue-300',
+  NotImportantNotUrgent: 'bg-green-300',
+};
+
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   quadrantKey,
@@ -36,7 +43,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`p-1 ${isDragging ? '!bg-gray-300' : ''} cursor-grab list-none`}
+      className={`p-1 ${isDragging ? 'opacity-0' : ''} min-h-12 ${colors[quadrantKey]} flex cursor-grab list-none items-center justify-center rounded-md text-gray-100`}
     >
       {task}
     </li>

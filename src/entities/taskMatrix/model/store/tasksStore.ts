@@ -11,6 +11,12 @@ export const useTaskStore = create<TaskState>()(
       NotImportantUrgent: [],
       NotImportantNotUrgent: [],
     },
+    selectedCategory: 'ImportantUrgent',
+    taskText: '',
+
+    setSelectedCategory: (category) => set({ selectedCategory: category }),
+    setTaskText: (text) => set({ taskText: text }),
+
     addTask: (quadrantKey, task) =>
       set((state) => {
         state.tasks[quadrantKey].push(task);

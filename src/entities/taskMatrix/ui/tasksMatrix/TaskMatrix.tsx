@@ -31,6 +31,8 @@ export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
   const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const selectedCategory = useTaskStore((state) => state.selectedCategory);
+  const taskText = useTaskStore((state) => state.taskText);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -83,6 +85,10 @@ export const TaskMatrix = () => {
 
   return (
     <div className="relative flex w-full flex-wrap pt-6">
+      <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
+        <div className="w-1/2 text-center">Urgent</div>
+        <div className="w-1/2 text-center">Not Urgent</div>
+      </div>
       <div className="absolute flex h-full w-6 -translate-x-full flex-col">
         <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
           Important
@@ -91,10 +97,7 @@ export const TaskMatrix = () => {
           Not Important
         </div>
       </div>
-      <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
-        <div className="w-1/2 text-center">Important</div>
-        <div className="w-1/2 text-center">Not Important</div>
-      </div>
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -109,6 +112,7 @@ export const TaskMatrix = () => {
             quadrantKey={key as MatrixKey}
             tasks={tasks[key as MatrixKey]}
             isActive={activeQuadrant === key}
+            isDimmed={taskText.trim() !== '' && selectedCategory !== key}
           />
         ))}
         <DragOverlay>

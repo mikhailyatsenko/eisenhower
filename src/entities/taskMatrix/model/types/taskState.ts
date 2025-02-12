@@ -2,6 +2,12 @@ import { MatrixKey } from './quadrantTypes';
 
 export interface TaskState {
   tasks: Record<MatrixKey, string[]>;
+  selectedCategory: MatrixKey;
+  taskText: string;
+
+  setSelectedCategory: (category: MatrixKey) => void;
+
+  setTaskText: (text: string) => void;
 
   addTask: (quadrantKey: MatrixKey, task: string) => void;
 
