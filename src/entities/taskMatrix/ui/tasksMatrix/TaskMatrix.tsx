@@ -83,20 +83,44 @@ export const TaskMatrix = () => {
     }
   };
 
+  const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
+    null,
+  );
+  const [animateQuadrants, setAnimateQuadrants] = useState<MatrixKey[]>([]);
+
+  const handleToggleExpand = (quadrant: MatrixKey) => {
+    console.log('animate');
+    setAnimateQuadrants(
+      Object.keys(MatrixQuadrants).filter(
+        (key) => key !== quadrant,
+      ) as MatrixKey[],
+    );
+
+    setTimeout(() => {
+      setAnimateQuadrants([]);
+    }, 1000);
+
+    setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
+  };
+
   return (
     <div className="relative flex w-full flex-wrap pt-6">
-      <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
-        <div className="w-1/2 text-center">Urgent</div>
-        <div className="w-1/2 text-center">Not Urgent</div>
-      </div>
-      <div className="absolute flex h-full w-6 -translate-x-full flex-col">
-        <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
-          Important
+      {!expandedQuadrant && (
+        <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
+          <div className="w-1/2 text-center">Urgent</div>
+          <div className="w-1/2 text-center">Not Urgent</div>
         </div>
-        <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
-          Not Important
+      )}
+      {!expandedQuadrant && (
+        <div className="absolute flex h-full w-6 -translate-x-full flex-col">
+          <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
+            Important
+          </div>
+          <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
+            Not Important
+          </div>
         </div>
-      </div>
+      )}
 
       <DndContext
         sensors={sensors}
@@ -105,10 +129,14 @@ export const TaskMatrix = () => {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        {Object.entries(MatrixQuadrants).map(([key, label]) => (
+        {Object.entries(MatrixQuadrants).map(([key]) => (
           <Quadrant
+            isAnimateNotExpandedQuadrant={animateQuadrants.includes(
+              key as MatrixKey,
+            )}
+            handleToggleExpand={handleToggleExpand}
+            expandedQuadrant={expandedQuadrant}
             key={key}
-            title={label}
             quadrantKey={key as MatrixKey}
             tasks={tasks[key as MatrixKey]}
             isActive={activeQuadrant === key}
