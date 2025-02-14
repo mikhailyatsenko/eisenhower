@@ -7,6 +7,8 @@ import {
   DragOverEvent,
   closestCenter,
   DragOverlay,
+  DropAnimation,
+  defaultDropAnimation,
 } from '@dnd-kit/core';
 import {
   KeyboardSensor,
@@ -22,6 +24,7 @@ import {
   useTaskStore,
   moveTaskToQuadrantAction,
   reorderTasksAction,
+  dragOverQuadrantAction,
 } from '../../model/store/tasksStore';
 import { MatrixKey } from '../../model/types/quadrantTypes';
 import { Quadrant } from '../quadrant/Quadrant';
@@ -46,11 +49,15 @@ export const TaskMatrix = () => {
     setActiveId(event.active.id as string);
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const overQuadrant = event.over?.data.current?.quadrantKey as MatrixKey;
-    if (overQuadrant && overQuadrant !== activeQuadrant) {
-      setActiveQuadrant(overQuadrant);
+  const handleDragOver = ({ active, over }: DragOverEvent) => {
+    const activeQuadrant = active.data.current?.quadrantKey as MatrixKey;
+    const overQuadrant = over?.data.current?.quadrantKey as MatrixKey;
+
+    if (!activeQuadrant || !overQuadrant || activeQuadrant === overQuadrant) {
+      return;
     }
+
+    dragOverQuadrantAction(active.id as string, activeQuadrant, overQuadrant);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -81,6 +88,10 @@ export const TaskMatrix = () => {
       const task = active.id as string;
       moveTaskToQuadrantAction(task, activeQuadrant, overQuadrant);
     }
+  };
+
+  const dropAnimation: DropAnimation = {
+    ...defaultDropAnimation,
   };
 
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
@@ -143,7 +154,7 @@ export const TaskMatrix = () => {
             isDimmed={taskText.trim() !== '' && selectedCategory !== key}
           />
         ))}
-        <DragOverlay>
+        <DragOverlay dropAnimation={dropAnimation}>
           {activeId ? (
             <TaskItem
               task={activeId}
