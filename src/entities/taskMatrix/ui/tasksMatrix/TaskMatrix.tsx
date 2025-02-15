@@ -51,6 +51,30 @@ export const TaskMatrix = () => {
     if (overQuadrant && overQuadrant !== activeQuadrant) {
       setActiveQuadrant(overQuadrant);
     }
+
+    if (overQuadrant && activeQuadrant !== overQuadrant) {
+      const activeIndex = event.active.data.current?.index;
+      const overIndex = event.over?.data.current?.index;
+
+      if (
+        activeIndex !== undefined &&
+        overIndex !== undefined &&
+        activeIndex !== overIndex
+      ) {
+        const updatedTasks = [...tasks[overQuadrant]];
+        const [movedTask] = updatedTasks.splice(activeIndex, 1);
+        updatedTasks.splice(overIndex, 0, movedTask);
+
+        useTaskStore.setState((state) => {
+          if (
+            JSON.stringify(state.tasks[overQuadrant]) !==
+            JSON.stringify(updatedTasks)
+          ) {
+            state.tasks[overQuadrant] = updatedTasks;
+          }
+        });
+      }
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -64,7 +88,7 @@ export const TaskMatrix = () => {
 
     if (activeQuadrant && overQuadrant && activeQuadrant === overQuadrant) {
       const activeIndex = active.data.current?.index;
-      const overIndex = over.data.current?.index;
+      const overIndex = active.data.current?.index;
 
       if (
         activeIndex !== undefined &&
@@ -79,7 +103,8 @@ export const TaskMatrix = () => {
       activeQuadrant !== overQuadrant
     ) {
       const task = active.id as string;
-      moveTaskToQuadrantAction(task, activeQuadrant, overQuadrant);
+      const overIndex = over.data.current?.index;
+      moveTaskToQuadrantAction(task, activeQuadrant, overQuadrant, overIndex);
     }
   };
 

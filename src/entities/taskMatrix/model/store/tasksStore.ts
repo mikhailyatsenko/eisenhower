@@ -47,8 +47,18 @@ export const moveTaskToQuadrantAction = (
   task: string,
   fromQuadrant: MatrixKey,
   toQuadrant: MatrixKey,
+  toIndex: number,
 ) => {
-  useTaskStore.getState().moveTaskToQuadrant(task, fromQuadrant, toQuadrant);
+  useTaskStore.setState((state) => {
+    const fromTasks = state.tasks[fromQuadrant];
+    const toTasks = state.tasks[toQuadrant];
+
+    const taskIndex = fromTasks.indexOf(task);
+    if (taskIndex > -1) {
+      fromTasks.splice(taskIndex, 1);
+      toTasks.splice(toIndex, 0, task);
+    }
+  });
 };
 export const reorderTasksAction = (
   quadrantKey: MatrixKey,
