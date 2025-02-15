@@ -51,6 +51,10 @@ export const TaskMatrix = () => {
   const handleDragOver = (event: DragOverEvent) => {
     const overQuadrant = event.over?.data.current?.quadrantKey as MatrixKey;
     const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+
+    if (overQuadrant && overQuadrant !== activeQuadrant) {
+      setActiveQuadrant(overQuadrant);
+    }
     const task = event.active.id as string;
 
     if (activeQuadrant && overQuadrant && activeQuadrant !== overQuadrant) {
