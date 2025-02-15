@@ -22,4 +22,10 @@ export interface TaskState {
     startIndex: number,
     endIndex: number,
   ) => void;
+
+  dragOverQuadrant: (
+    task: string,
+    fromQuadrant: MatrixKey,
+    toQuadrant: MatrixKey,
+  ) => void;
 }
