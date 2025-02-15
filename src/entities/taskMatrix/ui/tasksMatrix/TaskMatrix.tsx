@@ -22,6 +22,7 @@ import {
   useTaskStore,
   moveTaskToQuadrantAction,
   reorderTasksAction,
+  dragOverQuadrantAction,
 } from '../../model/store/tasksStore';
 import { MatrixKey } from '../../model/types/quadrantTypes';
 import { Quadrant } from '../quadrant/Quadrant';
@@ -42,14 +43,22 @@ export const TaskMatrix = () => {
 
   const handleDragStart = (event: DragStartEvent) => {
     const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+
     setActiveQuadrant(activeQuadrant);
     setActiveId(event.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const overQuadrant = event.over?.data.current?.quadrantKey as MatrixKey;
+    const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+
     if (overQuadrant && overQuadrant !== activeQuadrant) {
       setActiveQuadrant(overQuadrant);
+    }
+    const task = event.active.id as string;
+
+    if (activeQuadrant && overQuadrant && activeQuadrant !== overQuadrant) {
+      dragOverQuadrantAction(task, activeQuadrant, overQuadrant);
     }
   };
 
@@ -79,7 +88,8 @@ export const TaskMatrix = () => {
       activeQuadrant !== overQuadrant
     ) {
       const task = active.id as string;
-      moveTaskToQuadrantAction(task, activeQuadrant, overQuadrant);
+      const overIndex = over.data.current?.index;
+      moveTaskToQuadrantAction(task, activeQuadrant, overQuadrant, overIndex);
     }
   };
 

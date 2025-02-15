@@ -30,6 +30,25 @@ export const useTaskStore = create<TaskState>()(
         newTasks[toQuadrant] = [...newTasks[toQuadrant], task];
         return { tasks: newTasks };
       }),
+
+    dragOverQuadrant: (task, fromQuadrant, toQuadrant) =>
+      set((state) => {
+        const newTasks = { ...state.tasks };
+        const activeItems = newTasks[fromQuadrant];
+        const overItems = newTasks[toQuadrant];
+
+        const activeIndex = activeItems.findIndex((item) => item === task);
+        const overIndex = overItems.findIndex((item) => item !== task);
+
+        newTasks[fromQuadrant] = activeItems.filter((item) => item !== task);
+        newTasks[toQuadrant] = [
+          ...overItems.slice(0, overIndex),
+          activeItems[activeIndex],
+          ...overItems.slice(overIndex),
+        ];
+
+        return { tasks: newTasks };
+      }),
     reorderTasks: (quadrantKey, startIndex, endIndex) =>
       set((state) => {
         const newTasks = [...state.tasks[quadrantKey]];
@@ -47,8 +66,18 @@ export const moveTaskToQuadrantAction = (
   task: string,
   fromQuadrant: MatrixKey,
   toQuadrant: MatrixKey,
+  toIndex: number,
 ) => {
-  useTaskStore.getState().moveTaskToQuadrant(task, fromQuadrant, toQuadrant);
+  useTaskStore.setState((state) => {
+    const fromTasks = state.tasks[fromQuadrant];
+    const toTasks = state.tasks[toQuadrant];
+
+    const taskIndex = fromTasks.indexOf(task);
+    if (taskIndex > -1) {
+      fromTasks.splice(taskIndex, 1);
+      toTasks.splice(toIndex, 0, task);
+    }
+  });
 };
 export const reorderTasksAction = (
   quadrantKey: MatrixKey,
@@ -56,4 +85,12 @@ export const reorderTasksAction = (
   endIndex: number,
 ) => {
   useTaskStore.getState().reorderTasks(quadrantKey, startIndex, endIndex);
+};
+
+export const dragOverQuadrantAction = (
+  task: string,
+  fromQuadrant: MatrixKey,
+  toQuadrant: MatrixKey,
+) => {
+  useTaskStore.getState().dragOverQuadrant(task, fromQuadrant, toQuadrant);
 };
