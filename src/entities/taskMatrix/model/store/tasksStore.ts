@@ -21,35 +21,21 @@ export const useTaskStore = create<TaskState>()(
       set((state) => {
         state.tasks[quadrantKey].push(task);
       }),
-    moveTaskToQuadrant: (task, fromQuadrant, toQuadrant) =>
-      set((state) => {
-        const newTasks = { ...state.tasks };
-        newTasks[fromQuadrant] = newTasks[fromQuadrant].filter(
-          (t) => t !== task,
-        );
-        newTasks[toQuadrant] = [...newTasks[toQuadrant], task];
-        return { tasks: newTasks };
-      }),
 
     dragOverQuadrant: (task, fromQuadrant, toQuadrant) =>
       set((state) => {
-        const newTasks = { ...state.tasks };
-        const activeItems = newTasks[fromQuadrant];
-        const overItems = newTasks[toQuadrant];
+        const activeItems = state.tasks[fromQuadrant];
+        const overItems = state.tasks[toQuadrant];
 
         const activeIndex = activeItems.findIndex((item) => item === task);
-        const overIndex = overItems.findIndex((item) => item !== task);
 
-        newTasks[fromQuadrant] = activeItems.filter((item) => item !== task);
-        newTasks[toQuadrant] = [
-          ...overItems.slice(0, overIndex),
-          activeItems[activeIndex],
-          ...overItems.slice(overIndex),
-        ];
-
-        return { tasks: newTasks };
+        if (activeIndex !== -1) {
+          const [movedTask] = activeItems.splice(activeIndex, 1);
+          overItems.push(movedTask);
+        }
       }),
-    reorderTasks: (quadrantKey, startIndex, endIndex) =>
+
+    dragEnd: (quadrantKey, startIndex, endIndex) =>
       set((state) => {
         const newTasks = [...state.tasks[quadrantKey]];
         const [removed] = newTasks.splice(startIndex, 1);
@@ -62,29 +48,13 @@ export const useTaskStore = create<TaskState>()(
 export const addTaskAction = (quadrantKey: MatrixKey, task: string) => {
   useTaskStore.getState().addTask(quadrantKey, task);
 };
-export const moveTaskToQuadrantAction = (
-  task: string,
-  fromQuadrant: MatrixKey,
-  toQuadrant: MatrixKey,
-  toIndex: number,
-) => {
-  useTaskStore.setState((state) => {
-    const fromTasks = state.tasks[fromQuadrant];
-    const toTasks = state.tasks[toQuadrant];
 
-    const taskIndex = fromTasks.indexOf(task);
-    if (taskIndex > -1) {
-      fromTasks.splice(taskIndex, 1);
-      toTasks.splice(toIndex, 0, task);
-    }
-  });
-};
-export const reorderTasksAction = (
+export const dragEndAction = (
   quadrantKey: MatrixKey,
   startIndex: number,
   endIndex: number,
 ) => {
-  useTaskStore.getState().reorderTasks(quadrantKey, startIndex, endIndex);
+  useTaskStore.getState().dragEnd(quadrantKey, startIndex, endIndex);
 };
 
 export const dragOverQuadrantAction = (

@@ -20,8 +20,7 @@ import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
 import {
   useTaskStore,
-  moveTaskToQuadrantAction,
-  reorderTasksAction,
+  dragEndAction,
   dragOverQuadrantAction,
 } from '../../model/store/tasksStore';
 import { MatrixKey } from '../../model/types/quadrantTypes';
@@ -42,55 +41,49 @@ export const TaskMatrix = () => {
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
 
-    setActiveQuadrant(activeQuadrant);
+    setActiveQuadrant(activeArea);
     setActiveId(event.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    const overQuadrant = event.over?.data.current?.quadrantKey as MatrixKey;
-    const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+    const overArea = event.over?.data.current?.quadrantKey as MatrixKey;
+    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
 
-    if (overQuadrant && overQuadrant !== activeQuadrant) {
-      setActiveQuadrant(overQuadrant);
+    if (overArea && overArea !== activeArea) {
+      setActiveQuadrant(overArea);
     }
     const task = event.active.id as string;
 
-    if (activeQuadrant && overQuadrant && activeQuadrant !== overQuadrant) {
-      dragOverQuadrantAction(task, activeQuadrant, overQuadrant);
+    if (activeArea && overArea && activeArea !== overArea) {
+      dragOverQuadrantAction(task, activeArea, overArea);
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = ({ over, active }: DragEndEvent) => {
+    const overArea = over?.data.current?.quadrantKey as MatrixKey;
+    const activeArea = active.data.current?.quadrantKey as MatrixKey;
+
+    if (!overArea || !activeArea) {
+      setActiveQuadrant(null);
+      setActiveId(null);
+      return;
+    }
+
+    const activeIndex = active.data.current?.index;
+    const overIndex = over?.data.current?.index;
+
+    if (
+      activeIndex !== undefined &&
+      overIndex !== undefined &&
+      activeIndex !== overIndex
+    ) {
+      dragEndAction(overArea, activeIndex, overIndex);
+    }
+
     setActiveQuadrant(null);
     setActiveId(null);
-    if (!over) return;
-
-    const activeQuadrant = active.data.current?.quadrantKey as MatrixKey;
-    const overQuadrant = over.data.current?.quadrantKey as MatrixKey;
-
-    if (activeQuadrant && overQuadrant && activeQuadrant === overQuadrant) {
-      const activeIndex = active.data.current?.index;
-      const overIndex = over.data.current?.index;
-
-      if (
-        activeIndex !== undefined &&
-        overIndex !== undefined &&
-        activeIndex !== overIndex
-      ) {
-        reorderTasksAction(activeQuadrant, activeIndex, overIndex);
-      }
-    } else if (
-      activeQuadrant &&
-      overQuadrant &&
-      activeQuadrant !== overQuadrant
-    ) {
-      const task = active.id as string;
-      const overIndex = over.data.current?.index;
-      moveTaskToQuadrantAction(task, activeQuadrant, overQuadrant, overIndex);
-    }
   };
 
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
@@ -99,7 +92,6 @@ export const TaskMatrix = () => {
   const [animateQuadrants, setAnimateQuadrants] = useState<MatrixKey[]>([]);
 
   const handleToggleExpand = (quadrant: MatrixKey) => {
-    console.log('animate');
     setAnimateQuadrants(
       Object.keys(MatrixQuadrants).filter(
         (key) => key !== quadrant,
