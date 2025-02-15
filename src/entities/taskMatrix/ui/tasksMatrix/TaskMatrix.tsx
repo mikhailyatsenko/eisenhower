@@ -22,6 +22,7 @@ import {
   useTaskStore,
   moveTaskToQuadrantAction,
   reorderTasksAction,
+  dragOverQuadrantAction,
 } from '../../model/store/tasksStore';
 import { MatrixKey } from '../../model/types/quadrantTypes';
 import { Quadrant } from '../quadrant/Quadrant';
@@ -42,38 +43,18 @@ export const TaskMatrix = () => {
 
   const handleDragStart = (event: DragStartEvent) => {
     const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+
     setActiveQuadrant(activeQuadrant);
     setActiveId(event.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const overQuadrant = event.over?.data.current?.quadrantKey as MatrixKey;
-    if (overQuadrant && overQuadrant !== activeQuadrant) {
-      setActiveQuadrant(overQuadrant);
-    }
+    const activeQuadrant = event.active.data.current?.quadrantKey as MatrixKey;
+    const task = event.active.id as string;
 
-    if (overQuadrant && activeQuadrant !== overQuadrant) {
-      const activeIndex = event.active.data.current?.index;
-      const overIndex = event.over?.data.current?.index;
-
-      if (
-        activeIndex !== undefined &&
-        overIndex !== undefined &&
-        activeIndex !== overIndex
-      ) {
-        const updatedTasks = [...tasks[overQuadrant]];
-        const [movedTask] = updatedTasks.splice(activeIndex, 1);
-        updatedTasks.splice(overIndex, 0, movedTask);
-
-        useTaskStore.setState((state) => {
-          if (
-            JSON.stringify(state.tasks[overQuadrant]) !==
-            JSON.stringify(updatedTasks)
-          ) {
-            state.tasks[overQuadrant] = updatedTasks;
-          }
-        });
-      }
+    if (activeQuadrant && overQuadrant && activeQuadrant !== overQuadrant) {
+      dragOverQuadrantAction(task, activeQuadrant, overQuadrant);
     }
   };
 
@@ -88,7 +69,7 @@ export const TaskMatrix = () => {
 
     if (activeQuadrant && overQuadrant && activeQuadrant === overQuadrant) {
       const activeIndex = active.data.current?.index;
-      const overIndex = active.data.current?.index;
+      const overIndex = over.data.current?.index;
 
       if (
         activeIndex !== undefined &&
