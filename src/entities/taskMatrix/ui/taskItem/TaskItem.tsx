@@ -43,7 +43,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`p-1 ${isDragging ? 'opacity-0' : ''} min-h-12 ${colors[quadrantKey]} flex cursor-grab list-none items-center justify-center rounded-md text-gray-100`}
+      className={`my-1 p-1 ${isDragging ? 'opacity-0' : ''} min-h-10 ${colors[quadrantKey]} flex cursor-grab list-none items-center justify-center rounded-md text-gray-100`}
     >
       {task}
     </li>
