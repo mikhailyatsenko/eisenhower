@@ -57,12 +57,12 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`${quadrantColors[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} ${isDimmed ? 'opacity-50' : ''} m-1 ${expandedQuadrant === null ? 'h-40 w-[calc(50%-8px)]' : isExpanded ? 'order-first h-80 w-full' : `h-1 w-1`} relative rounded-md p-6 text-gray-100 transition-all duration-300 ease-in-out sm:h-80 dark:border dark:bg-black ${isAnimateNotExpandedQuadrant ? 'animate-from-hide-to-show' : ''}`}
+      className={`${quadrantColors[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} ${isDimmed ? 'opacity-50' : ''} m-1 ${expandedQuadrant === null ? 'h-40 w-[calc(50%-8px)]' : isExpanded ? 'order-first h-80 w-full !pb-8' : `h-1 w-1`} relative overflow-hidden rounded-md p-6 text-gray-100 transition-all duration-300 ease-in-out sm:h-80 dark:border dark:bg-black ${isAnimateNotExpandedQuadrant ? 'animate-from-hide-to-show' : ''}`}
     >
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
         {titleMap[quadrantKey]}
       </h2>
-      <div className="h-full w-full overflow-x-hidden overflow-y-auto">
+      <div className={`h-full w-full overflow-x-hidden overflow-y-auto`}>
         <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
           <ul
             className={`list-none flex-col ${isExpanded ? 'flex' : 'hidden'} sm:flex`}
@@ -77,7 +77,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
             ))}
           </ul>
           <div
-            className={`flex h-full w-full items-center justify-center ${isExpanded ? 'flex' : 'sm:hidden'}`}
+            className={`flex h-full w-full items-center justify-center text-gray-500 ${isExpanded ? 'hidden' : 'flex'}`}
           >
             {tasks.length > 0 ? (
               <button
@@ -87,11 +87,21 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
                 Show {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
               </button>
             ) : (
-              'No tasks'
+              'Empty'
             )}
           </div>
         </SortableContext>
       </div>
+      {isExpanded && (
+        <button
+          onClick={() => handleToggleExpand(quadrantKey)}
+          className={`absolute bottom-0 left-0 flex h-8 w-full cursor-pointer items-center justify-center bg-gray-500 opacity-60 hover:opacity-85 dark:bg-gray-300`}
+        >
+          <p className="opacity- text-background text-sm font-bold">
+            Collapse Quadrant
+          </p>
+        </button>
+      )}
     </div>
   );
 };
