@@ -8,14 +8,10 @@ import {
   closestCenter,
   DragOverlay,
 } from '@dnd-kit/core';
-import {
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useState } from 'react';
+import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
 import {
@@ -34,7 +30,10 @@ export const TaskMatrix = () => {
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
   const taskText = useTaskStore((state) => state.taskText);
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
+      activationConstraint: { delay: 100, tolerance: 5 },
+    }),
+    useSensor(TouchSensor, {
       activationConstraint: { delay: 100, tolerance: 5 },
     }),
     useSensor(KeyboardSensor, {

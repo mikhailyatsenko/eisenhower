@@ -38,6 +38,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   } = useSortable({
     id: task.id,
     data: { quadrantKey, index },
+    disabled: isEditing,
   });
 
   const style = {
@@ -54,21 +55,25 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const handleEdit = (e: React.MouseEvent) => {
-    console.log('edit');
     e.stopPropagation();
+    e.preventDefault();
     setIsEditing(true);
   };
 
   const handleSave = () => {
     editTaskAction(quadrantKey, task.id, editText);
     setIsEditing(false);
-    console.log('save');
   };
-  console.log(isEditing);
 
   const handleCancel = () => {
     setEditText(task.text);
     setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    }
   };
 
   return (
@@ -77,25 +82,32 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`relative my-1 p-1 ${isDragging ? 'opacity-0' : ''} min-h-10 ${colors[quadrantKey]} group cursor-grab list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
+      className={`relative my-1 p-1 ${isDragging ? 'opacity-0' : ''} min-h-10 ${colors[quadrantKey]} group ${!isEditing ? 'cursor-grab' : ''} list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
     >
       {isEditing ? (
         <form className="flex w-full flex-col" onSubmit={handleSave}>
           <input
+            autoFocus
             type="text"
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="mb-2 rounded-md p-1 text-gray-900"
           />
           <div className="flex justify-between">
             <button
               type="submit"
-              onMouseDown={handleSave}
+              onClick={handleSave}
               className="z-30 text-green-600"
+              data-no-dnd="true"
             >
               Save
             </button>
-            <button onMouseDown={handleCancel} className="text-red-600">
+            <button
+              onClick={handleCancel}
+              className="text-red-600"
+              data-no-dnd="true"
+            >
               Cancel
             </button>
           </div>
@@ -112,8 +124,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
             <div className="flex items-center gap-1">
               <button
-                onMouseDown={handleEdit}
+                onClick={handleEdit}
                 className="opacity-0 group-hover:opacity-100"
+                data-no-dnd="true"
               >
                 <EditIcon
                   className="cursor-pointer fill-gray-600 hover:fill-gray-200"
@@ -122,8 +135,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                 />
               </button>
               <button
-                onMouseDown={handleDelete}
+                onClick={handleDelete}
                 className="opacity-0 group-hover:opacity-100"
+                data-no-dnd="true"
               >
                 <DeleteIcon
                   className="cursor-pointer fill-gray-600 hover:fill-gray-200"
