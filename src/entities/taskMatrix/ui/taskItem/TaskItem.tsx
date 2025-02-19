@@ -54,6 +54,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const handleEdit = (e: React.MouseEvent) => {
+    console.log('edit');
     e.stopPropagation();
     setIsEditing(true);
   };
@@ -61,7 +62,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   const handleSave = () => {
     editTaskAction(quadrantKey, task.id, editText);
     setIsEditing(false);
+    console.log('save');
   };
+  console.log(isEditing);
 
   const handleCancel = () => {
     setEditText(task.text);
@@ -77,7 +80,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       className={`relative my-1 p-1 ${isDragging ? 'opacity-0' : ''} min-h-10 ${colors[quadrantKey]} group cursor-grab list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
     >
       {isEditing ? (
-        <div className="flex w-full flex-col">
+        <form className="flex w-full flex-col" onSubmit={handleSave}>
           <input
             type="text"
             value={editText}
@@ -85,14 +88,18 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             className="mb-2 rounded-md p-1 text-gray-900"
           />
           <div className="flex justify-between">
-            <button onClick={handleSave} className="text-green-600">
+            <button
+              type="submit"
+              onMouseDown={handleSave}
+              className="z-30 text-green-600"
+            >
               Save
             </button>
-            <button onClick={handleCancel} className="text-red-600">
+            <button onMouseDown={handleCancel} className="text-red-600">
               Cancel
             </button>
           </div>
-        </div>
+        </form>
       ) : (
         <>
           <div className="w-full py-2 text-center leading-5 text-black">
