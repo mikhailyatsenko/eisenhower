@@ -3,12 +3,12 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { MatrixKey } from '../../model/types/quadrantTypes';
+import { MatrixKey, Task } from '../../model/types/quadrantTypes';
 import { TaskItem } from '../taskItem/TaskItem';
 
 interface CategoryBlockProps {
   quadrantKey: MatrixKey;
-  tasks: string[];
+  tasks: Task[];
   isActive: boolean;
   isDimmed: boolean;
   isAnimateNotExpandedQuadrant: boolean;
@@ -69,7 +69,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
           >
             {tasks.map((task, index) => (
               <TaskItem
-                key={task}
+                key={task.id}
                 task={task}
                 quadrantKey={quadrantKey}
                 index={index}

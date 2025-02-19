@@ -23,7 +23,7 @@ import {
   dragEndAction,
   dragOverQuadrantAction,
 } from '../../model/store/tasksStore';
-import { MatrixKey } from '../../model/types/quadrantTypes';
+import { MatrixKey, Task } from '../../model/types/quadrantTypes';
 import { Quadrant } from '../quadrant/Quadrant';
 import { TaskItem } from '../taskItem/TaskItem';
 
@@ -34,7 +34,9 @@ export const TaskMatrix = () => {
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
   const taskText = useTaskStore((state) => state.taskText);
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      // activationConstraint: { delay: 25, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -54,10 +56,10 @@ export const TaskMatrix = () => {
     if (overArea && overArea !== activeArea) {
       setActiveQuadrant(overArea);
     }
-    const task = event.active.id as string;
+    const taskId = event.active.id as string;
 
     if (activeArea && overArea && activeArea !== overArea) {
-      dragOverQuadrantAction(task, activeArea, overArea);
+      dragOverQuadrantAction(taskId, activeArea, overArea);
     }
   };
 
@@ -148,7 +150,11 @@ export const TaskMatrix = () => {
         <DragOverlay>
           {activeId ? (
             <TaskItem
-              task={activeId}
+              task={
+                tasks[activeQuadrant as MatrixKey].find(
+                  (t) => t.id === activeId,
+                ) as Task
+              }
               quadrantKey={activeQuadrant as MatrixKey}
               index={0}
             />

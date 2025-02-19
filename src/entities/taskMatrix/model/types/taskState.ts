@@ -1,7 +1,7 @@
-import { MatrixKey } from './quadrantTypes';
+import { MatrixKey, Task } from './quadrantTypes';
 
 export interface TaskState {
-  tasks: Record<MatrixKey, string[]>;
+  tasks: Record<MatrixKey, Task[]>;
   selectedCategory: MatrixKey;
   taskText: string;
 
@@ -9,7 +9,11 @@ export interface TaskState {
 
   setTaskText: (text: string) => void;
 
-  addTask: (quadrantKey: MatrixKey, task: string) => void;
+  addTask: (quadrantKey: MatrixKey, taskText: string) => void;
+
+  editTask: (quadrantKey: MatrixKey, taskId: string, newText: string) => void;
+
+  deleteTask: (quadrantKey: MatrixKey, taskId: string) => void;
 
   dragEnd: (
     quadrantKey: MatrixKey,
@@ -18,7 +22,7 @@ export interface TaskState {
   ) => void;
 
   dragOverQuadrant: (
-    task: string,
+    taskId: string,
     fromQuadrant: MatrixKey,
     toQuadrant: MatrixKey,
   ) => void;
