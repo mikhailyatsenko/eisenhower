@@ -45,8 +45,10 @@ export const AddTaskForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsValid(taskText.trim().length > 0);
+    const isValid = taskText.trim().length > 0;
+    setIsValid(isValid);
     if (isValid) {
+      console.log(isValid);
       addTaskAction(selectedCategory, taskText);
       setTaskText('');
     }
