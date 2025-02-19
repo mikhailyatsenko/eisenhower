@@ -1,9 +1,10 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
+import { isTouchDevice } from '@/shared/utils/isTouchDevice';
 import { deleteTaskAction, editTaskAction } from '../../model/store/tasksStore';
 import { MatrixKey, Task } from '../../model/types/quadrantTypes';
 
@@ -27,6 +28,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
+  const [touchDevice, setTouchDevice] = useState(false);
+
+  useEffect(() => {
+    setTouchDevice(isTouchDevice());
+  }, []);
 
   const {
     attributes,
@@ -92,7 +98,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="mb-2 rounded-md p-1 text-gray-900"
+            className="mb-2 rounded-md px-3 py-1 text-gray-900"
           />
           <div className="flex justify-between">
             <button
@@ -114,31 +120,25 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         </form>
       ) : (
         <>
-          <div className="w-full py-2 text-center leading-5 text-black">
+          <div className="w-full p-2 text-center leading-5 text-black">
             {task.text}
           </div>
           <div className="flex items-center justify-between border-t border-gray-500 px-1.5 pt-1 text-gray-600">
-            <p className="text-sm font-bold italic">
+            <p className="text-[0.7rem] font-bold italic sm:text-sm">
               {format(task.createdAt, 'dd.MM.yyyy HH:mm')}
             </p>
 
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleEdit}
-                className="opacity-0 group-hover:opacity-100"
-                data-no-dnd="true"
-              >
+            <div
+              className={`flex items-center gap-1 ${touchDevice ? '' : 'sm:opacity-0 sm:group-hover:opacity-100'}`}
+            >
+              <button onClick={handleEdit} className="" data-no-dnd="true">
                 <EditIcon
                   className="cursor-pointer fill-gray-600 hover:fill-gray-200"
                   width="18px"
                   height="18px"
                 />
               </button>
-              <button
-                onClick={handleDelete}
-                className="opacity-0 group-hover:opacity-100"
-                data-no-dnd="true"
-              >
+              <button onClick={handleDelete} data-no-dnd="true">
                 <DeleteIcon
                   className="cursor-pointer fill-gray-600 hover:fill-gray-200"
                   width="18px"

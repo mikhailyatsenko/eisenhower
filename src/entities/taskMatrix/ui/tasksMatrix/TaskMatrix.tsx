@@ -30,12 +30,8 @@ export const TaskMatrix = () => {
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
   const taskText = useTaskStore((state) => state.taskText);
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: { delay: 100, tolerance: 5 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 100, tolerance: 5 },
-    }),
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
