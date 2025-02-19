@@ -10,7 +10,7 @@ import {
 } from '@dnd-kit/core';
 import { KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
@@ -101,6 +101,23 @@ export const TaskMatrix = () => {
 
     setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 640) {
+        setExpandedQuadrant(null);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Check the width initially
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <div className="relative flex w-full flex-wrap pt-6">

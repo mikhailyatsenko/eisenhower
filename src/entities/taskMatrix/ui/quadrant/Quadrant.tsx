@@ -97,9 +97,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
           onClick={() => handleToggleExpand(quadrantKey)}
           className={`absolute bottom-0 left-0 flex h-8 w-full cursor-pointer items-center justify-center bg-gray-500 opacity-60 hover:opacity-85 dark:bg-gray-300`}
         >
-          <p className="opacity- text-background text-sm font-bold">
-            Collapse Quadrant
-          </p>
+          <p className="opacity- text-background text-sm">Collapse Quadrant</p>
         </button>
       )}
     </div>
