@@ -20,6 +20,10 @@ export const useTaskStore = create<TaskState>()(
 
     addTask: (quadrantKey, taskText) =>
       set((state) => {
+        if (taskText.length > 200) {
+          console.warn('Task text exceeds 200 characters limit');
+          return;
+        }
         const newTask: Task = {
           id: uuidv4(),
           text: taskText,
