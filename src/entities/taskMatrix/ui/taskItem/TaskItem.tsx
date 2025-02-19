@@ -29,10 +29,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
   const [touchDevice, setTouchDevice] = useState(false);
+  const [isValid, setIsValid] = useState(true);
 
   useEffect(() => {
     setTouchDevice(isTouchDevice());
   }, []);
+
+  useEffect(() => {
+    setIsValid(editText.length > 0 && editText.length <= 200);
+  }, [editText]);
 
   const {
     attributes,
@@ -66,9 +71,12 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    editTaskAction(quadrantKey, task.id, editText);
-    setIsEditing(false);
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isValid) {
+      editTaskAction(quadrantKey, task.id, editText);
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
@@ -77,8 +85,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
+    if (e.key === 'Enter' && isValid) {
+      handleSave(e);
     }
   };
 
@@ -91,7 +99,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       className={`relative my-1 p-1 ${isDragging ? 'opacity-0' : ''} min-h-10 ${colors[quadrantKey]} group ${!isEditing ? 'cursor-grab' : ''} list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
     >
       {isEditing ? (
-        <form className="flex w-full flex-col" onSubmit={handleSave}>
+        <form
+          className="flex w-full flex-col"
+          autoComplete="off"
+          onSubmit={handleSave}
+        >
           <input
             autoFocus
             type="text"
@@ -100,12 +112,18 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             onKeyDown={handleKeyDown}
             className="mb-2 rounded-md px-3 py-1 text-gray-900"
           />
+          {!isValid && (
+            <p className="text-xs text-red-900">
+              Task text must be between 1 and 200 characters.
+            </p>
+          )}
           <div className="flex justify-between">
             <button
               type="submit"
               onClick={handleSave}
-              className="z-30 text-green-600"
+              className={`z-30 text-green-600 ${!isValid ? 'cursor-not-allowed opacity-50' : ''}`}
               data-no-dnd="true"
+              disabled={!isValid}
             >
               Save
             </button>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
 import { addTaskAction } from '@/entities/taskMatrix';
 import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
@@ -44,7 +45,8 @@ export const AddTaskForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (taskText.trim()) {
+    setIsValid(taskText.trim().length > 0);
+    if (isValid) {
       addTaskAction(selectedCategory, taskText);
       setTaskText('');
     }
@@ -54,8 +56,18 @@ export const AddTaskForm = () => {
     setSelectedCategory(key); // Update the global store
   };
 
+  const [isValid, setIsValid] = useState(true);
+
+  useEffect(() => {
+    setIsValid(taskText.length <= 200);
+  }, [taskText]);
+
   return (
-    <form onSubmit={handleSubmit} className="mx-auto mb-4 max-w-md gap-2">
+    <form
+      onSubmit={handleSubmit}
+      autoComplete="off"
+      className="mx-auto mb-4 max-w-md gap-2"
+    >
       <div className="space-y-3">
         <input
           className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-200 bg-transparent px-0 py-3 text-sm focus:border-blue-500 focus:border-x-transparent focus:border-t-transparent focus:border-b-blue-500 focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:border-b-neutral-600 dark:focus:ring-neutral-600"
@@ -64,6 +76,11 @@ export const AddTaskForm = () => {
           id="addTask"
           placeholder="Enter task"
         />
+        {!isValid && (
+          <p className="text-xs text-red-400">
+            Task text must be between 1 and 200 characters.
+          </p>
+        )}
       </div>
 
       <div className="flex items-center justify-end gap-2 py-3">
@@ -86,7 +103,8 @@ export const AddTaskForm = () => {
 
         <button
           type="submit"
-          className={`${colors[selectedCategory].border} ${colors[selectedCategory].hover} text-foreground cursor-pointer rounded-sm border-2 px-3 py-1.5 text-sm font-medium hover:text-white`}
+          disabled={!isValid}
+          className={`${colors[selectedCategory].border} ${colors[selectedCategory].hover} text-foreground cursor-pointer rounded-sm border-2 px-3 py-1.5 text-sm font-medium hover:text-white disabled:opacity-50`}
         >
           Add task
         </button>
