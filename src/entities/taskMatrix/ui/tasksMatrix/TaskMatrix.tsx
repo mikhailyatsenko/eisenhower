@@ -35,7 +35,7 @@ export const TaskMatrix = () => {
   const taskText = useTaskStore((state) => state.taskText);
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // activationConstraint: { delay: 25, tolerance: 5 },
+      activationConstraint: { delay: 100, tolerance: 5 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
