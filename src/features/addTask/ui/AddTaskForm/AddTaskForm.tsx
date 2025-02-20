@@ -58,6 +58,16 @@ export const AddTaskForm = () => {
     setSelectedCategory(key); // Update the global store
   };
 
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLSpanElement>,
+    key: MatrixKey,
+  ) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      handleCategoryChange(key);
+    }
+  };
+
   const [isValid, setIsValid] = useState(true);
 
   useEffect(() => {
@@ -77,6 +87,7 @@ export const AddTaskForm = () => {
           onChange={(e) => setTaskText(e.target.value)} // Update the global store
           id="addTask"
           placeholder="Enter task"
+          tabIndex={1} // Set tabIndex for the input
         />
         {!isValid && (
           <p className="text-xs text-red-400">
@@ -86,19 +97,21 @@ export const AddTaskForm = () => {
       </div>
 
       <div className="flex items-center justify-end gap-2 py-3">
-        {Object.keys(MatrixQuadrants).map((key) => (
+        {Object.keys(MatrixQuadrants).map((key, index) => (
           <label key={key} className="flex cursor-pointer items-center gap-2">
             <input
               type="radio"
               name="category"
               checked={selectedCategory === key}
-              onChange={() => handleCategoryChange(key as MatrixKey)} // Use the new handler
+              onChange={() => handleCategoryChange(key as MatrixKey)}
               key={key}
               value={key}
               className="peer hidden"
             />
             <span
+              tabIndex={index + 1}
               className={`h-5 w-5 rounded-full border-2 ${colors[key as MatrixKey].peerCheckedBg} ${colors[key as MatrixKey].border}`}
+              onKeyDown={(e) => handleKeyDown(e, key as MatrixKey)}
             ></span>
           </label>
         ))}
@@ -107,6 +120,7 @@ export const AddTaskForm = () => {
           type="submit"
           disabled={!isValid}
           className={`${colors[selectedCategory].border} ${colors[selectedCategory].hover} text-foreground cursor-pointer rounded-sm border-2 px-3 py-1.5 text-sm font-medium hover:text-white disabled:opacity-50`}
+          tabIndex={5}
         >
           Add task
         </button>
