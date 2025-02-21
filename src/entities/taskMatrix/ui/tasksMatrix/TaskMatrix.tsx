@@ -7,6 +7,8 @@ import {
   DragOverEvent,
   closestCenter,
   DragOverlay,
+  DropAnimation,
+  defaultDropAnimation,
 } from '@dnd-kit/core';
 import { KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
@@ -84,21 +86,40 @@ export const TaskMatrix = () => {
     setActiveId(null);
   };
 
+  const dropAnimation: DropAnimation = {
+    ...defaultDropAnimation,
+  };
+
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+      if (window.innerWidth >= 640) {
+        setExpandedQuadrant(null);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
     null,
   );
-  const [animateQuadrants, setAnimateQuadrants] = useState<MatrixKey[]>([]);
+  const [isAnimateQuadrants, setIsAnimateQuadrants] = useState<boolean>(false);
 
   const handleToggleExpand = (quadrant: MatrixKey) => {
-    setAnimateQuadrants(
-      Object.keys(MatrixQuadrants).filter(
-        (key) => key !== quadrant,
-      ) as MatrixKey[],
-    );
+    setIsAnimateQuadrants(true);
 
     setTimeout(() => {
-      setAnimateQuadrants([]);
-    }, 1000);
+      setIsAnimateQuadrants(false);
+    }, 400);
 
     setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
   };
@@ -112,7 +133,6 @@ export const TaskMatrix = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Check the width initially
     handleResize();
 
     return () => {
@@ -121,7 +141,7 @@ export const TaskMatrix = () => {
   }, []);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Render a loading indicator while loading
+    return <div>Loading...</div>;
   }
 
   return (
@@ -152,9 +172,7 @@ export const TaskMatrix = () => {
       >
         {Object.entries(MatrixQuadrants).map(([key]) => (
           <Quadrant
-            isAnimateNotExpandedQuadrant={animateQuadrants.includes(
-              key as MatrixKey,
-            )}
+            isAnimateQuadrants={isAnimateQuadrants}
             handleToggleExpand={handleToggleExpand}
             expandedQuadrant={expandedQuadrant}
             key={key}
@@ -164,7 +182,7 @@ export const TaskMatrix = () => {
             isDimmed={taskText.trim() !== '' && selectedCategory !== key}
           />
         ))}
-        <DragOverlay>
+        <DragOverlay dropAnimation={isSmallScreen ? null : dropAnimation}>
           {activeId ? (
             <TaskItem
               task={

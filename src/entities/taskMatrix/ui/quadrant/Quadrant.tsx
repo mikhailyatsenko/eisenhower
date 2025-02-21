@@ -11,7 +11,7 @@ interface CategoryBlockProps {
   tasks: Task[];
   isActive: boolean;
   isDimmed: boolean;
-  isAnimateNotExpandedQuadrant: boolean;
+  isAnimateQuadrants: boolean;
   expandedQuadrant: MatrixKey | null;
   handleToggleExpand: (quadrant: MatrixKey) => void;
 }
@@ -44,7 +44,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   isActive,
   isDimmed,
   expandedQuadrant,
-  isAnimateNotExpandedQuadrant,
+  isAnimateQuadrants,
   handleToggleExpand,
 }) => {
   const { setNodeRef } = useDroppable({
@@ -53,11 +53,12 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   });
 
   const isExpanded = expandedQuadrant === quadrantKey;
+  console.log('isExpanded', isExpanded);
 
   return (
     <div
       ref={setNodeRef}
-      className={`${quadrantColors[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} ${isDimmed ? 'opacity-20' : ''} m-1 ${expandedQuadrant === null ? 'h-40 w-[calc(50%-8px)]' : isExpanded ? 'order-first h-80 w-full !pb-8' : `h-1 w-1`} relative overflow-hidden rounded-md p-6 text-gray-100 transition-all duration-300 ease-in-out sm:h-80 dark:border dark:bg-black ${isAnimateNotExpandedQuadrant ? 'animate-from-hide-to-show' : ''}`}
+      className={`${quadrantColors[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} ${isDimmed ? 'opacity-20' : ''} ${expandedQuadrant === null ? 'h-40 w-[calc(50%-8px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-8 w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-6 text-gray-100 ease-in-out sm:h-80 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
     >
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
         {titleMap[quadrantKey]}
@@ -65,7 +66,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
       <div className={`h-full w-full overflow-x-hidden overflow-y-auto`}>
         <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
           <ul
-            className={`list-none flex-col ${isExpanded ? 'flex' : 'hidden'} sm:flex`}
+            className={`list-none flex-col ${isExpanded ? 'flex pb-8' : 'hidden'} sm:flex`}
           >
             {tasks.map((task, index) => (
               <TaskItem
@@ -97,7 +98,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
           onClick={() => handleToggleExpand(quadrantKey)}
           className={`absolute bottom-0 left-0 flex h-8 w-full cursor-pointer items-center justify-center bg-gray-500 opacity-60 hover:opacity-85 dark:bg-gray-300`}
         >
-          <p className="opacity- text-background text-sm">Collapse Quadrant</p>
+          <p className="text-background text-sm">Collapse Quadrant</p>
         </button>
       )}
     </div>
