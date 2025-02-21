@@ -7,7 +7,7 @@ import { TaskState } from '../types/taskState';
 
 export const useTaskStore = create<TaskState>()(
   persist(
-    immer((set) => ({
+    immer((set, get) => ({
       tasks: {
         ImportantUrgent: [],
         ImportantNotUrgent: [],
@@ -16,6 +16,7 @@ export const useTaskStore = create<TaskState>()(
       },
       selectedCategory: 'ImportantUrgent',
       taskText: '',
+      isLoading: true, 
 
       setSelectedCategory: (category) => set({ selectedCategory: category }),
       setTaskText: (text) => set({ taskText: text }),
@@ -71,9 +72,14 @@ export const useTaskStore = create<TaskState>()(
             (t: Task) => t.id !== taskId,
           );
         }),
+
+      setLoading: (loading) => set({ isLoading: loading }), // Add setLoading action
     })),
     {
-      name: 'task-store', // unique name for the storage
+      name: 'task-store',
+      onRehydrateStorage: () => (state) => {
+        state?.setLoading(false); // Set loading to true before rehydration
+      },
     },
   ),
 );

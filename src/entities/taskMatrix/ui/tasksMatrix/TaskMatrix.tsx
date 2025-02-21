@@ -25,6 +25,7 @@ import { TaskItem } from '../taskItem/TaskItem';
 
 export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
+  const isLoading = useTaskStore((state) => state.isLoading); // Get the loading state
   const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
@@ -118,6 +119,10 @@ export const TaskMatrix = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Render a loading indicator while loading
+  }
 
   return (
     <div className="relative flex w-full flex-wrap pt-6">
