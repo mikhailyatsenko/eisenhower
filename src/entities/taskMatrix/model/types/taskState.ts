@@ -4,6 +4,7 @@ export interface TaskState {
   tasks: Record<MatrixKey, Task[]>;
   selectedCategory: MatrixKey;
   taskText: string;
+  isLoading: boolean; // Add isLoading state
 
   setSelectedCategory: (category: MatrixKey) => void;
 
@@ -26,4 +27,6 @@ export interface TaskState {
     fromQuadrant: MatrixKey,
     toQuadrant: MatrixKey,
   ) => void;
+
+  setLoading: (loading: boolean) => void; // Add setLoading action
 }
