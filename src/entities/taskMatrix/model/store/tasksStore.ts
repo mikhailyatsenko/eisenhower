@@ -7,7 +7,7 @@ import { TaskState } from '../types/taskState';
 
 export const useTaskStore = create<TaskState>()(
   persist(
-    immer((set, get) => ({
+    immer((set) => ({
       tasks: {
         ImportantUrgent: [],
         ImportantNotUrgent: [],
@@ -16,7 +16,7 @@ export const useTaskStore = create<TaskState>()(
       },
       selectedCategory: 'ImportantUrgent',
       taskText: '',
-      isLoading: true, 
+      isLoading: true,
 
       setSelectedCategory: (category) => set({ selectedCategory: category }),
       setTaskText: (text) => set({ taskText: text }),
@@ -73,7 +73,7 @@ export const useTaskStore = create<TaskState>()(
           );
         }),
 
-      setLoading: (loading) => set({ isLoading: loading }), 
+      setLoading: (loading) => set({ isLoading: loading }),
     })),
     {
       name: 'task-store',
