@@ -73,12 +73,12 @@ export const useTaskStore = create<TaskState>()(
           );
         }),
 
-      setLoading: (loading) => set({ isLoading: loading }), // Add setLoading action
+      setLoading: (loading) => set({ isLoading: loading }), 
     })),
     {
       name: 'task-store',
       onRehydrateStorage: () => (state) => {
-        state?.setLoading(false); // Set loading to true before rehydration
+        state?.setLoading(false);
       },
     },
   ),
