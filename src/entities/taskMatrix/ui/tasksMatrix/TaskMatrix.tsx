@@ -95,9 +95,6 @@ export const TaskMatrix = () => {
   useEffect(() => {
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth < 640);
-      if (window.innerWidth >= 640) {
-        setExpandedQuadrant(null);
-      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -125,20 +122,10 @@ export const TaskMatrix = () => {
   };
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 640) {
-        setExpandedQuadrant(null);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+    if (expandedQuadrant && tasks[expandedQuadrant].length === 0) {
+      setExpandedQuadrant(null);
+    }
+  }, [tasks, expandedQuadrant]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -174,7 +161,7 @@ export const TaskMatrix = () => {
           <Quadrant
             isAnimateQuadrants={isAnimateQuadrants}
             handleToggleExpand={handleToggleExpand}
-            expandedQuadrant={expandedQuadrant}
+            expandedQuadrant={isSmallScreen ? expandedQuadrant : null}
             key={key}
             quadrantKey={key as MatrixKey}
             tasks={tasks[key as MatrixKey]}
