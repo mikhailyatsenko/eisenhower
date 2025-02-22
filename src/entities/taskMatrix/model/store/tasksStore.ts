@@ -17,7 +17,7 @@ export const useTaskStore = create<TaskState>()(
       selectedCategory: 'ImportantUrgent',
       taskText: '',
       isLoading: true,
-      isDragging: false,
+      // isDragging: false,
 
       setSelectedCategory: (category) => set({ selectedCategory: category }),
       setTaskText: (text) => set({ taskText: text }),
@@ -45,7 +45,7 @@ export const useTaskStore = create<TaskState>()(
 
       dragOverQuadrant: (taskId, fromQuadrant, toQuadrant) =>
         set((state) => {
-          state.isDragging = true;
+          // state.isDragging = true;
           const activeItems = state.tasks[fromQuadrant];
           const overItems = state.tasks[toQuadrant];
 
@@ -66,8 +66,8 @@ export const useTaskStore = create<TaskState>()(
           // newTasks.splice(endIndex, 0, removed);
           state.tasks = newTasks;
 
-          state.isDragging = false;
-          console.log('dragEnd', state.isDragging);
+          // state.isDragging = false;
+          // console.log('dragEnd', state.isDragging);
         }),
 
       deleteTask: (quadrantKey, taskId) =>
