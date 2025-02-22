@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { MatrixKey, Task } from '../types/quadrantTypes';
-import { TaskState } from '../types/taskState';
+import { Tasks, TaskState } from '../types/taskState';
 
 export const useTaskStore = create<TaskState>()(
   persist(
@@ -17,6 +17,7 @@ export const useTaskStore = create<TaskState>()(
       selectedCategory: 'ImportantUrgent',
       taskText: '',
       isLoading: true,
+      isDragging: false,
 
       setSelectedCategory: (category) => set({ selectedCategory: category }),
       setTaskText: (text) => set({ taskText: text }),
@@ -24,7 +25,6 @@ export const useTaskStore = create<TaskState>()(
       addTask: (quadrantKey, taskText) =>
         set((state) => {
           if (taskText.length > 200) {
-            console.warn('Task text exceeds 200 characters limit');
             return;
           }
           const newTask: Task = {
@@ -45,6 +45,7 @@ export const useTaskStore = create<TaskState>()(
 
       dragOverQuadrant: (taskId, fromQuadrant, toQuadrant) =>
         set((state) => {
+          state.isDragging = true;
           const activeItems = state.tasks[fromQuadrant];
           const overItems = state.tasks[toQuadrant];
 
@@ -58,12 +59,15 @@ export const useTaskStore = create<TaskState>()(
           }
         }),
 
-      dragEnd: (quadrantKey, startIndex, endIndex) =>
+      dragEnd: (newTasks: Tasks) =>
         set((state) => {
-          const newTasks = [...state.tasks[quadrantKey]];
-          const [removed] = newTasks.splice(startIndex, 1);
-          newTasks.splice(endIndex, 0, removed);
-          state.tasks[quadrantKey] = newTasks;
+          // const newTasks = [...state.tasks[quadrantKey]];
+          // const [removed] = newTasks.splice(startIndex, 1);
+          // newTasks.splice(endIndex, 0, removed);
+          state.tasks = newTasks;
+
+          state.isDragging = false;
+          console.log('dragEnd', state.isDragging);
         }),
 
       deleteTask: (quadrantKey, taskId) =>
@@ -96,12 +100,8 @@ export const editTaskAction = (
   useTaskStore.getState().editTask(quadrantKey, taskId, newText);
 };
 
-export const dragEndAction = (
-  quadrantKey: MatrixKey,
-  startIndex: number,
-  endIndex: number,
-) => {
-  useTaskStore.getState().dragEnd(quadrantKey, startIndex, endIndex);
+export const dragEndAction = (newTasks: Tasks) => {
+  useTaskStore.getState().dragEnd(newTasks);
 };
 
 export const dragOverQuadrantAction = (

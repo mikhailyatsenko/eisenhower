@@ -11,11 +11,14 @@ import {
   defaultDropAnimation,
 } from '@dnd-kit/core';
 import { KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect, useState } from 'react';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
-import { getAllTasks } from '../../model/selectors/tasksSelector';
+import {
+  getAllTasks,
+  getIsDragging,
+} from '../../model/selectors/tasksSelector';
 import {
   useTaskStore,
   dragEndAction,
@@ -27,6 +30,7 @@ import { TaskItem } from '../taskItem/TaskItem';
 
 export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
+  const isDragging = useTaskStore(getIsDragging);
   const isLoading = useTaskStore((state) => state.isLoading); // Get the loading state
   const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -54,6 +58,7 @@ export const TaskMatrix = () => {
     if (overArea && overArea !== activeArea) {
       setActiveQuadrant(overArea);
     }
+
     const taskId = event.active.id as string;
 
     if (activeArea && overArea && activeArea !== overArea) {
@@ -71,15 +76,24 @@ export const TaskMatrix = () => {
       return;
     }
 
-    const activeIndex = active.data.current?.index;
-    const overIndex = over?.data.current?.index;
+    const activeIndex = tasks[activeArea].findIndex(
+      (task) => task.id === active.id,
+    );
+    const overIndex = tasks[overArea].findIndex((task) => task.id === over?.id);
+    console.log(activeIndex, overIndex);
 
     if (
       activeIndex !== undefined &&
       overIndex !== undefined &&
       activeIndex !== overIndex
     ) {
-      dragEndAction(overArea, activeIndex, overIndex);
+      console.log('dragEndAction выполняется');
+
+      const newTasks = {
+        ...tasks,
+        [overArea]: arrayMove(tasks[overArea], activeIndex, overIndex),
+      };
+      dragEndAction(newTasks);
     }
 
     setActiveQuadrant(null);
@@ -122,10 +136,14 @@ export const TaskMatrix = () => {
   };
 
   useEffect(() => {
-    if (expandedQuadrant && tasks[expandedQuadrant].length === 0) {
+    if (
+      !isDragging &&
+      expandedQuadrant &&
+      tasks[expandedQuadrant].length === 0
+    ) {
       setExpandedQuadrant(null);
     }
-  }, [tasks, expandedQuadrant]);
+  }, [tasks, expandedQuadrant, isDragging]);
 
   if (isLoading) {
     return <div>Loading...</div>;
