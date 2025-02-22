@@ -53,7 +53,6 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   });
 
   const isExpanded = expandedQuadrant === quadrantKey;
-  console.log('isExpanded', isExpanded);
 
   return (
     <div
