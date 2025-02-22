@@ -15,10 +15,7 @@ import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect, useState } from 'react';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
-import {
-  getAllTasks,
-  getIsDragging,
-} from '../../model/selectors/tasksSelector';
+import { getAllTasks } from '../../model/selectors/tasksSelector';
 import {
   useTaskStore,
   dragEndAction,
@@ -30,7 +27,7 @@ import { TaskItem } from '../taskItem/TaskItem';
 
 export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
-  const isDragging = useTaskStore(getIsDragging);
+
   const isLoading = useTaskStore((state) => state.isLoading); // Get the loading state
   const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -44,7 +41,10 @@ export const TaskMatrix = () => {
     }),
   );
 
+  const [isDragging, setIsDragging] = useState(false);
+
   const handleDragStart = (event: DragStartEvent) => {
+    setIsDragging(true);
     const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
 
     setActiveQuadrant(activeArea);
@@ -69,6 +69,8 @@ export const TaskMatrix = () => {
   const handleDragEnd = ({ over, active }: DragEndEvent) => {
     const overArea = over?.data.current?.quadrantKey as MatrixKey;
     const activeArea = active.data.current?.quadrantKey as MatrixKey;
+
+    setIsDragging(false);
 
     if (!overArea || !activeArea) {
       setActiveQuadrant(null);

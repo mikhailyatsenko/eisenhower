@@ -7,7 +7,7 @@ export interface TaskState {
   selectedCategory: MatrixKey;
   taskText: string;
   isLoading: boolean;
-  isDragging: boolean;
+  // isDragging: boolean;
 
   setSelectedCategory: (category: MatrixKey) => void;
 
