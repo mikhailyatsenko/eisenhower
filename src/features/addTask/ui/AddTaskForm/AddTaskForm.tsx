@@ -4,35 +4,16 @@ import { useEffect, useState } from 'react';
 import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
 import { addTaskAction } from '@/entities/taskMatrix';
 import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
+import { colors } from '../../lib/colors';
 
-const colors: Record<
-  MatrixKey,
-  { bg: string; hover: string; peerCheckedBg: string; border: string }
-> = {
-  ImportantUrgent: {
-    bg: 'bg-red-300',
-    hover: 'hover:bg-red-400',
-    peerCheckedBg: 'peer-checked:bg-red-400',
-    border: 'border-red-200',
-  },
-  ImportantNotUrgent: {
-    bg: 'bg-amber-300',
-    hover: 'hover:bg-amber-400',
-    peerCheckedBg: 'peer-checked:bg-amber-400',
-    border: 'border-amber-200',
-  },
-  NotImportantUrgent: {
-    bg: 'bg-blue-300',
-    hover: 'hover:bg-blue-400',
-    peerCheckedBg: 'peer-checked:bg-blue-400',
-    border: 'border-blue-200',
-  },
-  NotImportantNotUrgent: {
-    bg: 'bg-green-300',
-    hover: 'hover:bg-green-400',
-    peerCheckedBg: 'peer-checked:bg-green-400',
-    border: 'border-green-200',
-  },
+const useFormValidation = (taskText: string) => {
+  const [isValid, setIsValid] = useState(true);
+
+  useEffect(() => {
+    setIsValid(taskText.length <= 200);
+  }, [taskText]);
+
+  return isValid;
 };
 
 export const AddTaskForm = () => {
@@ -43,16 +24,11 @@ export const AddTaskForm = () => {
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
   const taskText = useTaskStore((state) => state.taskText);
 
-  const [isValid, setIsValid] = useState(true);
-
-  useEffect(() => {
-    setIsValid(taskText.length <= 200);
-  }, [taskText]);
+  const isValid = useFormValidation(taskText);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const isValid = taskText.trim().length > 0;
-    setIsValid(isValid);
     if (isValid) {
       addTaskAction(selectedCategory, taskText);
       setTaskText('');
