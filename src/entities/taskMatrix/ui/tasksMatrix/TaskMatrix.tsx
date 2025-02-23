@@ -28,7 +28,7 @@ import { TaskItem } from '../taskItem/TaskItem';
 export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
 
-  const isLoading = useTaskStore((state) => state.isLoading); // Get the loading state
+  const isLoading = useTaskStore((state) => state.isLoading);
   const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
@@ -82,15 +82,12 @@ export const TaskMatrix = () => {
       (task) => task.id === active.id,
     );
     const overIndex = tasks[overArea].findIndex((task) => task.id === over?.id);
-    console.log(activeIndex, overIndex);
 
     if (
       activeIndex !== undefined &&
       overIndex !== undefined &&
       activeIndex !== overIndex
     ) {
-      console.log('dragEndAction выполняется');
-
       const newTasks = {
         ...tasks,
         [overArea]: arrayMove(tasks[overArea], activeIndex, overIndex),
