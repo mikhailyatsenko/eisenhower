@@ -2,17 +2,16 @@
 
 import {
   DndContext,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverEvent,
   closestCenter,
   DragOverlay,
   DropAnimation,
   defaultDropAnimation,
 } from '@dnd-kit/core';
 import { KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
+import { useDragEvents } from '@/entities/taskMatrix/lib/hooks/useDragEvents';
+import { useWindowSize } from '@/shared/hooks/useWindowSize';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
@@ -34,11 +33,20 @@ export const TaskMatrix = () => {
   const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
     null,
   );
   const [isAnimateQuadrants, setIsAnimateQuadrants] = useState<boolean>(false);
+
+  const { isSmallScreen } = useWindowSize();
+  const { handleDragStart, handleDragOver, handleDragEnd } = useDragEvents({
+    setActiveQuadrant,
+    setActiveId,
+    setIsDragging,
+    tasks,
+    dragEndAction,
+    dragOverQuadrantAction,
+  });
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -48,77 +56,9 @@ export const TaskMatrix = () => {
     }),
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setIsDragging(true);
-    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
-    setActiveQuadrant(activeArea);
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const overArea = event.over?.data.current?.quadrantKey as MatrixKey;
-    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
-
-    if (overArea && overArea !== activeArea) {
-      setActiveQuadrant(overArea);
-    }
-
-    const taskId = event.active.id as string;
-
-    if (activeArea && overArea && activeArea !== overArea) {
-      dragOverQuadrantAction(taskId, activeArea, overArea);
-    }
-  };
-
-  const handleDragEnd = ({ over, active }: DragEndEvent) => {
-    const overArea = over?.data.current?.quadrantKey as MatrixKey;
-    const activeArea = active.data.current?.quadrantKey as MatrixKey;
-
-    setIsDragging(false);
-
-    if (!overArea || !activeArea) {
-      setActiveQuadrant(null);
-      setActiveId(null);
-      return;
-    }
-
-    const activeIndex = tasks[activeArea].findIndex(
-      (task) => task.id === active.id,
-    );
-    const overIndex = tasks[overArea].findIndex((task) => task.id === over?.id);
-
-    if (
-      activeIndex !== undefined &&
-      overIndex !== undefined &&
-      activeIndex !== overIndex
-    ) {
-      const newTasks = {
-        ...tasks,
-        [overArea]: arrayMove(tasks[overArea], activeIndex, overIndex),
-      };
-      dragEndAction(newTasks);
-    }
-
-    setActiveQuadrant(null);
-    setActiveId(null);
-  };
-
   const dropAnimation: DropAnimation = {
     ...defaultDropAnimation,
   };
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 640);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
 
   useEffect(() => {
     if (!isSmallScreen) {
@@ -154,20 +94,20 @@ export const TaskMatrix = () => {
   return (
     <div className="relative flex w-full flex-wrap pt-6">
       {!expandedQuadrant && (
-        <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
-          <div className="w-1/2 text-center">Urgent</div>
-          <div className="w-1/2 text-center">Not Urgent</div>
-        </div>
-      )}
-      {!expandedQuadrant && (
-        <div className="absolute flex h-full w-6 -translate-x-full flex-col">
-          <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
-            Important
+        <>
+          <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
+            <div className="w-1/2 text-center">Urgent</div>
+            <div className="w-1/2 text-center">Not Urgent</div>
           </div>
-          <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
-            Not Important
+          <div className="absolute flex h-full w-6 -translate-x-full flex-col">
+            <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
+              Important
+            </div>
+            <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
+              Not Important
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       <DndContext
