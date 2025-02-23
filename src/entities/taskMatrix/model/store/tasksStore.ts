@@ -5,15 +5,17 @@ import { immer } from 'zustand/middleware/immer';
 import { MatrixKey, Task } from '../types/quadrantTypes';
 import { Tasks, TaskState } from '../types/taskState';
 
+const initialState: Tasks = {
+  ImportantUrgent: [],
+  ImportantNotUrgent: [],
+  NotImportantUrgent: [],
+  NotImportantNotUrgent: [],
+};
+
 export const useTaskStore = create<TaskState>()(
   persist(
     immer((set) => ({
-      tasks: {
-        ImportantUrgent: [],
-        ImportantNotUrgent: [],
-        NotImportantUrgent: [],
-        NotImportantNotUrgent: [],
-      },
+      tasks: initialState,
       selectedCategory: 'ImportantUrgent',
       taskText: '',
       isLoading: true,
@@ -23,9 +25,7 @@ export const useTaskStore = create<TaskState>()(
 
       addTask: (quadrantKey, taskText) =>
         set((state) => {
-          if (taskText.length > 200) {
-            return;
-          }
+          if (taskText.length > 200) return;
           const newTask: Task = {
             id: uuidv4(),
             text: taskText,
@@ -37,9 +37,7 @@ export const useTaskStore = create<TaskState>()(
       editTask: (quadrantKey, taskId, newText) =>
         set((state) => {
           const task = state.tasks[quadrantKey].find((t) => t.id === taskId);
-          if (task) {
-            task.text = newText;
-          }
+          if (task) task.text = newText;
         }),
 
       dragOverQuadrant: (taskId, fromQuadrant, toQuadrant) =>
