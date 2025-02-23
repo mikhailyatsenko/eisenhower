@@ -6,7 +6,7 @@ import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
 import { isTouchDevice } from '@/shared/utils/isTouchDevice';
 import { deleteTaskAction, editTaskAction } from '../../model/store/tasksStore';
-import { MatrixKey, Task } from '../../model/types/quadrantTypes';
+import { MatrixKey, Task } from '../../model/types/taskMatrixTypes';
 
 interface TaskItemProps {
   task: Task;

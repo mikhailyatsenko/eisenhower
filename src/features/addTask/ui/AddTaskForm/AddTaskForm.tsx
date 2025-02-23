@@ -3,64 +3,44 @@
 import { useEffect, useState } from 'react';
 import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
 import { addTaskAction } from '@/entities/taskMatrix';
-import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
+import {
+  getSelectedCategory,
+  getTaskText,
+} from '@/entities/taskMatrix/model/selectors/uiSelectors';
+import {
+  setSelectedCategoryAction,
+  setTaskTextAction,
+  useUIStore,
+} from '@/entities/taskMatrix/model/store/uiStore';
+import { colors } from '../../lib/colors';
 
-const colors: Record<
-  MatrixKey,
-  { bg: string; hover: string; peerCheckedBg: string; border: string }
-> = {
-  ImportantUrgent: {
-    bg: 'bg-red-300',
-    hover: 'hover:bg-red-400',
-    peerCheckedBg: 'peer-checked:bg-red-400',
-    border: 'border-red-200',
-  },
-  ImportantNotUrgent: {
-    bg: 'bg-amber-300',
-    hover: 'hover:bg-amber-400',
-    peerCheckedBg: 'peer-checked:bg-amber-400',
-    border: 'border-amber-200',
-  },
-  NotImportantUrgent: {
-    bg: 'bg-blue-300',
-    hover: 'hover:bg-blue-400',
-    peerCheckedBg: 'peer-checked:bg-blue-400',
-    border: 'border-blue-200',
-  },
-  NotImportantNotUrgent: {
-    bg: 'bg-green-300',
-    hover: 'hover:bg-green-400',
-    peerCheckedBg: 'peer-checked:bg-green-400',
-    border: 'border-green-200',
-  },
-};
-
-export const AddTaskForm = () => {
-  const setTaskText = useTaskStore((state) => state.setTaskText);
-  const setSelectedCategory = useTaskStore(
-    (state) => state.setSelectedCategory,
-  );
-  const selectedCategory = useTaskStore((state) => state.selectedCategory);
-  const taskText = useTaskStore((state) => state.taskText);
-
+const useFormValidation = (taskText: string) => {
   const [isValid, setIsValid] = useState(true);
 
   useEffect(() => {
     setIsValid(taskText.length <= 200);
   }, [taskText]);
 
+  return isValid;
+};
+
+export const AddTaskForm = () => {
+  const selectedCategory = useUIStore(getSelectedCategory);
+  const taskText = useUIStore(getTaskText);
+
+  const isValid = useFormValidation(taskText);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const isValid = taskText.trim().length > 0;
-    setIsValid(isValid);
     if (isValid) {
       addTaskAction(selectedCategory, taskText);
-      setTaskText('');
+      setTaskTextAction('');
     }
   };
 
   const handleCategoryChange = (key: MatrixKey) => {
-    setSelectedCategory(key);
+    setSelectedCategoryAction(key);
   };
 
   const handleKeyDown = (
@@ -83,7 +63,7 @@ export const AddTaskForm = () => {
         <input
           className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-200 bg-transparent px-0 py-3 text-sm focus:border-blue-500 focus:border-x-transparent focus:border-t-transparent focus:border-b-blue-500 focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:border-b-neutral-600 dark:focus:ring-neutral-600"
           value={taskText}
-          onChange={(e) => setTaskText(e.target.value)}
+          onChange={(e) => setTaskTextAction(e.target.value)}
           id="addTask"
           placeholder="Enter task"
           tabIndex={1}
