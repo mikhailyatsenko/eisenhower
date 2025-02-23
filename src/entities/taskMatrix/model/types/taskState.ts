@@ -1,10 +1,13 @@
 import { MatrixKey, Task } from './quadrantTypes';
 
+export type Tasks = Record<MatrixKey, Task[]>;
+
 export interface TaskState {
-  tasks: Record<MatrixKey, Task[]>;
+  tasks: Tasks;
   selectedCategory: MatrixKey;
   taskText: string;
-  isLoading: boolean; // Add isLoading state
+  isLoading: boolean;
+  // isDragging: boolean;
 
   setSelectedCategory: (category: MatrixKey) => void;
 
@@ -16,17 +19,13 @@ export interface TaskState {
 
   deleteTask: (quadrantKey: MatrixKey, taskId: string) => void;
 
-  dragEnd: (
-    quadrantKey: MatrixKey,
-    startIndex: number,
-    endIndex: number,
-  ) => void;
-
   dragOverQuadrant: (
     taskId: string,
     fromQuadrant: MatrixKey,
     toQuadrant: MatrixKey,
   ) => void;
+
+  dragEnd: (neTasks: Tasks) => void;
 
   setLoading: (loading: boolean) => void; // Add setLoading action
 }

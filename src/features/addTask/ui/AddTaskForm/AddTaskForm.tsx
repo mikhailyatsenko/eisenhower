@@ -36,26 +36,25 @@ const colors: Record<
 };
 
 export const AddTaskForm = () => {
-  const setTaskText = useTaskStore((state) => state.setTaskText); // Get the setter for task text
+  const setTaskText = useTaskStore((state) => state.setTaskText);
   const setSelectedCategory = useTaskStore(
     (state) => state.setSelectedCategory,
-  ); // Get the setter for selected category
-  const selectedCategory = useTaskStore((state) => state.selectedCategory); // Get the selected category
-  const taskText = useTaskStore((state) => state.taskText); // Get the task text
+  );
+  const selectedCategory = useTaskStore((state) => state.selectedCategory);
+  const taskText = useTaskStore((state) => state.taskText);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const isValid = taskText.trim().length > 0;
     setIsValid(isValid);
     if (isValid) {
-      console.log(isValid);
       addTaskAction(selectedCategory, taskText);
       setTaskText('');
     }
   };
 
   const handleCategoryChange = (key: MatrixKey) => {
-    setSelectedCategory(key); // Update the global store
+    setSelectedCategory(key);
   };
 
   const handleKeyDown = (
@@ -84,10 +83,10 @@ export const AddTaskForm = () => {
         <input
           className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-200 bg-transparent px-0 py-3 text-sm focus:border-blue-500 focus:border-x-transparent focus:border-t-transparent focus:border-b-blue-500 focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:border-b-neutral-600 dark:focus:ring-neutral-600"
           value={taskText}
-          onChange={(e) => setTaskText(e.target.value)} // Update the global store
+          onChange={(e) => setTaskText(e.target.value)}
           id="addTask"
           placeholder="Enter task"
-          tabIndex={1} // Set tabIndex for the input
+          tabIndex={1}
         />
         {!isValid && (
           <p className="text-xs text-red-400">
