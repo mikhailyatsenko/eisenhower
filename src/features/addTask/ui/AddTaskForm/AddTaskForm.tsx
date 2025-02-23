@@ -4,10 +4,14 @@ import { useEffect, useState } from 'react';
 import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
 import { addTaskAction } from '@/entities/taskMatrix';
 import {
+  getSelectedCategory,
+  getTaskText,
+} from '@/entities/taskMatrix/model/selectors/uiSelectors';
+import {
   setSelectedCategoryAction,
   setTaskTextAction,
-  useTaskStore,
-} from '@/entities/taskMatrix/model/store/tasksStore';
+  useUIStore,
+} from '@/entities/taskMatrix/model/store/uiStore';
 import { colors } from '../../lib/colors';
 
 const useFormValidation = (taskText: string) => {
@@ -21,8 +25,8 @@ const useFormValidation = (taskText: string) => {
 };
 
 export const AddTaskForm = () => {
-  const selectedCategory = useTaskStore((state) => state.selectedCategory);
-  const taskText = useTaskStore((state) => state.taskText);
+  const selectedCategory = useUIStore(getSelectedCategory);
+  const taskText = useUIStore(getTaskText);
 
   const isValid = useFormValidation(taskText);
 

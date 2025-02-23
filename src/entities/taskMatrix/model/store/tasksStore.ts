@@ -2,8 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { MatrixKey, Task } from '../types/quadrantTypes';
-import { Tasks, TaskState } from '../types/taskState';
+import { MatrixKey, Task, Tasks } from '../types/taskMatrixTypes';
+import { setLoadingAction } from './uiStore';
+
+export interface TaskState {
+  tasks: Tasks;
+}
 
 const initialState: Tasks = {
   ImportantUrgent: [],
@@ -14,34 +18,17 @@ const initialState: Tasks = {
 
 export const useTaskStore = create<TaskState>()(
   persist(
-    immer((set) => ({
+    immer(() => ({
       tasks: initialState,
-      selectedCategory: 'ImportantUrgent',
-      taskText: '',
-      isLoading: true,
-
-      setLoading: (loading) => {
-        set((state) => {
-          state.isLoading = loading;
-        });
-      },
     })),
     {
       name: 'task-store',
-      onRehydrateStorage: () => (state) => {
-        state?.setLoading(false);
+      onRehydrateStorage: () => {
+        setLoadingAction(false);
       },
     },
   ),
 );
-
-export const setSelectedCategoryAction = (category: MatrixKey) => {
-  useTaskStore.setState({ selectedCategory: category });
-};
-
-export const setTaskTextAction = (text: string) => {
-  useTaskStore.setState({ taskText: text });
-};
 
 export const addTaskAction = (quadrantKey: MatrixKey, taskText: string) => {
   useTaskStore.setState((state) => {
