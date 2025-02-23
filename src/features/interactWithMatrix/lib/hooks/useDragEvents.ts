@@ -1,7 +1,7 @@
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { MatrixKey } from '../../model/types/quadrantTypes';
-import { Tasks } from '../../model/types/taskState';
+import { MatrixKey } from '@/entities/taskMatrix';
+import { Tasks } from '@/entities/taskMatrix/model/types/taskState';
 
 interface UseDragEventsProps {
   setActiveQuadrant: (quadrant: MatrixKey | null) => void;
