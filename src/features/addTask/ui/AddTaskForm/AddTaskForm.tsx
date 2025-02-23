@@ -3,7 +3,11 @@
 import { useEffect, useState } from 'react';
 import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
 import { addTaskAction } from '@/entities/taskMatrix';
-import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
+import {
+  setSelectedCategoryAction,
+  setTaskTextAction,
+  useTaskStore,
+} from '@/entities/taskMatrix/model/store/tasksStore';
 import { colors } from '../../lib/colors';
 
 const useFormValidation = (taskText: string) => {
@@ -17,10 +21,6 @@ const useFormValidation = (taskText: string) => {
 };
 
 export const AddTaskForm = () => {
-  const setTaskText = useTaskStore((state) => state.setTaskText);
-  const setSelectedCategory = useTaskStore(
-    (state) => state.setSelectedCategory,
-  );
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
   const taskText = useTaskStore((state) => state.taskText);
 
@@ -31,12 +31,12 @@ export const AddTaskForm = () => {
     const isValid = taskText.trim().length > 0;
     if (isValid) {
       addTaskAction(selectedCategory, taskText);
-      setTaskText('');
+      setTaskTextAction('');
     }
   };
 
   const handleCategoryChange = (key: MatrixKey) => {
-    setSelectedCategory(key);
+    setSelectedCategoryAction(key);
   };
 
   const handleKeyDown = (
@@ -59,7 +59,7 @@ export const AddTaskForm = () => {
         <input
           className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-200 bg-transparent px-0 py-3 text-sm focus:border-blue-500 focus:border-x-transparent focus:border-t-transparent focus:border-b-blue-500 focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:border-b-neutral-600 dark:focus:ring-neutral-600"
           value={taskText}
-          onChange={(e) => setTaskText(e.target.value)}
+          onChange={(e) => setTaskTextAction(e.target.value)}
           id="addTask"
           placeholder="Enter task"
           tabIndex={1}

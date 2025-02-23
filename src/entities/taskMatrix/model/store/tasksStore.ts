@@ -20,54 +20,11 @@ export const useTaskStore = create<TaskState>()(
       taskText: '',
       isLoading: true,
 
-      setSelectedCategory: (category) => set({ selectedCategory: category }),
-      setTaskText: (text) => set({ taskText: text }),
-
-      addTask: (quadrantKey, taskText) =>
+      setLoading: (loading) => {
         set((state) => {
-          if (taskText.length > 200) return;
-          const newTask: Task = {
-            id: uuidv4(),
-            text: taskText,
-            createdAt: new Date(),
-          };
-          state.tasks[quadrantKey].push(newTask);
-        }),
-
-      editTask: (quadrantKey, taskId, newText) =>
-        set((state) => {
-          const task = state.tasks[quadrantKey].find((t) => t.id === taskId);
-          if (task) task.text = newText;
-        }),
-
-      dragOverQuadrant: (taskId, fromQuadrant, toQuadrant) =>
-        set((state) => {
-          const activeItems = state.tasks[fromQuadrant];
-          const overItems = state.tasks[toQuadrant];
-
-          const activeIndex = activeItems.findIndex(
-            (item: Task) => item.id === taskId,
-          );
-
-          if (activeIndex !== -1) {
-            const [movedTask] = activeItems.splice(activeIndex, 1);
-            overItems.push(movedTask);
-          }
-        }),
-
-      dragEnd: (newTasks: Tasks) =>
-        set((state) => {
-          state.tasks = newTasks;
-        }),
-
-      deleteTask: (quadrantKey, taskId) =>
-        set((state) => {
-          state.tasks[quadrantKey] = state.tasks[quadrantKey].filter(
-            (t: Task) => t.id !== taskId,
-          );
-        }),
-
-      setLoading: (loading) => set({ isLoading: loading }),
+          state.isLoading = loading;
+        });
+      },
     })),
     {
       name: 'task-store',
@@ -78,8 +35,24 @@ export const useTaskStore = create<TaskState>()(
   ),
 );
 
+export const setSelectedCategoryAction = (category: MatrixKey) => {
+  useTaskStore.setState({ selectedCategory: category });
+};
+
+export const setTaskTextAction = (text: string) => {
+  useTaskStore.setState({ taskText: text });
+};
+
 export const addTaskAction = (quadrantKey: MatrixKey, taskText: string) => {
-  useTaskStore.getState().addTask(quadrantKey, taskText);
+  useTaskStore.setState((state) => {
+    if (taskText.length > 200) return;
+    const newTask: Task = {
+      id: uuidv4(),
+      text: taskText,
+      createdAt: new Date(),
+    };
+    state.tasks[quadrantKey].push(newTask);
+  });
 };
 
 export const editTaskAction = (
@@ -87,11 +60,10 @@ export const editTaskAction = (
   taskId: string,
   newText: string,
 ) => {
-  useTaskStore.getState().editTask(quadrantKey, taskId, newText);
-};
-
-export const dragEndAction = (newTasks: Tasks) => {
-  useTaskStore.getState().dragEnd(newTasks);
+  useTaskStore.setState((state) => {
+    const task = state.tasks[quadrantKey].find((t) => t.id === taskId);
+    if (task) task.text = newText;
+  });
 };
 
 export const dragOverQuadrantAction = (
@@ -99,9 +71,31 @@ export const dragOverQuadrantAction = (
   fromQuadrant: MatrixKey,
   toQuadrant: MatrixKey,
 ) => {
-  useTaskStore.getState().dragOverQuadrant(taskId, fromQuadrant, toQuadrant);
+  useTaskStore.setState((state) => {
+    const activeItems = state.tasks[fromQuadrant];
+    const overItems = state.tasks[toQuadrant];
+
+    const activeIndex = activeItems.findIndex(
+      (item: Task) => item.id === taskId,
+    );
+
+    if (activeIndex !== -1) {
+      const [movedTask] = activeItems.splice(activeIndex, 1);
+      overItems.push(movedTask);
+    }
+  });
+};
+
+export const dragEndAction = (newTasks: Tasks) => {
+  useTaskStore.setState((state) => {
+    state.tasks = newTasks;
+  });
 };
 
 export const deleteTaskAction = (quadrantKey: MatrixKey, taskId: string) => {
-  useTaskStore.getState().deleteTask(quadrantKey, taskId);
+  useTaskStore.setState((state) => {
+    state.tasks[quadrantKey] = state.tasks[quadrantKey].filter(
+      (t: Task) => t.id !== taskId,
+    );
+  });
 };
