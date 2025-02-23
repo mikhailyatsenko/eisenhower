@@ -43,6 +43,12 @@ export const AddTaskForm = () => {
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
   const taskText = useTaskStore((state) => state.taskText);
 
+  const [isValid, setIsValid] = useState(true);
+
+  useEffect(() => {
+    setIsValid(taskText.length <= 200);
+  }, [taskText]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const isValid = taskText.trim().length > 0;
@@ -66,12 +72,6 @@ export const AddTaskForm = () => {
       handleCategoryChange(key);
     }
   };
-
-  const [isValid, setIsValid] = useState(true);
-
-  useEffect(() => {
-    setIsValid(taskText.length <= 200);
-  }, [taskText]);
 
   return (
     <form
