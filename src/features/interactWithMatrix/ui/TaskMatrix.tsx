@@ -13,14 +13,20 @@ import { useCallback, useEffect, useState } from 'react';
 import { MatrixQuadrants } from '@/entities/taskMatrix/model/consts/taskMatrixConsts';
 import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
 import {
+  getIsLoading,
+  getSelectedCategory,
+  getTaskText,
+} from '@/entities/taskMatrix/model/selectors/uiSelectors';
+import {
   dragEndAction,
   dragOverQuadrantAction,
   useTaskStore,
 } from '@/entities/taskMatrix/model/store/tasksStore';
+import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
 import {
   MatrixKey,
   Task,
-} from '@/entities/taskMatrix/model/types/quadrantTypes';
+} from '@/entities/taskMatrix/model/types/taskMatrixTypes';
 import { Quadrant } from '@/entities/taskMatrix/ui/quadrant/Quadrant';
 import { TaskItem } from '@/entities/taskMatrix/ui/taskItem/TaskItem';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
@@ -29,11 +35,11 @@ import { useDragEvents } from '../lib/hooks/useDragEvents';
 export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
 
-  const isLoading = useTaskStore((state) => state.isLoading);
+  const isLoading = useUIStore(getIsLoading);
   const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const selectedCategory = useTaskStore((state) => state.selectedCategory);
-  const taskText = useTaskStore((state) => state.taskText);
+  const selectedCategory = useUIStore(getSelectedCategory);
+  const taskText = useUIStore(getTaskText);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),

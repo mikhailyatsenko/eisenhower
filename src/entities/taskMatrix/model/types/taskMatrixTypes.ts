@@ -7,3 +7,5 @@ export interface Task {
   text: string;
   createdAt: Date;
 }
+
+export type Tasks = Record<MatrixKey, Task[]>;

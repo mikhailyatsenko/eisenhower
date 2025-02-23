@@ -3,7 +3,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { MatrixKey, Task } from '../../model/types/quadrantTypes';
+import { MatrixKey, Task } from '../../model/types/taskMatrixTypes';
 import { TaskItem } from '../taskItem/TaskItem';
 
 interface CategoryBlockProps {
@@ -57,7 +57,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   return (
     <div
       ref={setNodeRef}
-      className={`${quadrantStyles[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} ${isDimmed ? 'opacity-20' : ''} ${expandedQuadrant === null ? 'h-40 w-[calc(50%-8px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-8 w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-6 text-gray-100 ease-in-out sm:h-80 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
+      className={`${quadrantStyles[quadrantKey]} ${isActive ? '!bg-gray-400' : ''} ${isDimmed ? 'opacity-30' : ''} ${expandedQuadrant === null ? 'h-40 w-[calc(50%-8px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-8 w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-6 text-gray-100 ease-in-out sm:h-80 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
     >
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
         {titleMap[quadrantKey]}
