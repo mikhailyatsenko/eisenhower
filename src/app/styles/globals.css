@@ -54,3 +54,11 @@ body {
 
   --animate-from-hide-to-show: from-hide-to-show 0.35s forwards;
 }
+
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

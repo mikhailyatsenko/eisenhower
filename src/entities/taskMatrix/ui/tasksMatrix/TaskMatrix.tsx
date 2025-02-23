@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
@@ -27,12 +27,19 @@ import { TaskItem } from '../taskItem/TaskItem';
 
 export const TaskMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
-
   const isLoading = useTaskStore((state) => state.isLoading);
-  const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const selectedCategory = useTaskStore((state) => state.selectedCategory);
   const taskText = useTaskStore((state) => state.taskText);
+
+  const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+  const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
+    null,
+  );
+  const [isAnimateQuadrants, setIsAnimateQuadrants] = useState<boolean>(false);
+
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
@@ -41,12 +48,9 @@ export const TaskMatrix = () => {
     }),
   );
 
-  const [isDragging, setIsDragging] = useState(false);
-
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
-
     setActiveQuadrant(activeArea);
     setActiveId(event.active.id as string);
   };
@@ -103,15 +107,12 @@ export const TaskMatrix = () => {
     ...defaultDropAnimation,
   };
 
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
-
   useEffect(() => {
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth < 640);
     };
 
     window.addEventListener('resize', handleResize);
-
     handleResize();
 
     return () => {
@@ -119,20 +120,22 @@ export const TaskMatrix = () => {
     };
   }, []);
 
-  const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
-    null,
+  useEffect(() => {
+    if (!isSmallScreen) {
+      setExpandedQuadrant(null);
+    }
+  }, [isSmallScreen]);
+
+  const handleToggleExpand = useCallback(
+    (quadrant: MatrixKey) => {
+      setIsAnimateQuadrants(true);
+      setTimeout(() => {
+        setIsAnimateQuadrants(false);
+      }, 400);
+      setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
+    },
+    [expandedQuadrant],
   );
-  const [isAnimateQuadrants, setIsAnimateQuadrants] = useState<boolean>(false);
-
-  const handleToggleExpand = (quadrant: MatrixKey) => {
-    setIsAnimateQuadrants(true);
-
-    setTimeout(() => {
-      setIsAnimateQuadrants(false);
-    }, 400);
-
-    setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
-  };
 
   useEffect(() => {
     if (
@@ -140,9 +143,9 @@ export const TaskMatrix = () => {
       expandedQuadrant &&
       tasks[expandedQuadrant].length === 0
     ) {
-      setExpandedQuadrant(null);
+      handleToggleExpand(expandedQuadrant);
     }
-  }, [tasks, expandedQuadrant, isDragging]);
+  }, [tasks, expandedQuadrant, isDragging, handleToggleExpand]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -178,7 +181,7 @@ export const TaskMatrix = () => {
           <Quadrant
             isAnimateQuadrants={isAnimateQuadrants}
             handleToggleExpand={handleToggleExpand}
-            expandedQuadrant={isSmallScreen ? expandedQuadrant : null}
+            expandedQuadrant={expandedQuadrant}
             key={key}
             quadrantKey={key as MatrixKey}
             tasks={tasks[key as MatrixKey]}

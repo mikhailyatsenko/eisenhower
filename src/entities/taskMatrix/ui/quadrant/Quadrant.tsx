@@ -62,7 +62,9 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
         {titleMap[quadrantKey]}
       </h2>
-      <div className={`h-full w-full overflow-x-hidden overflow-y-auto`}>
+      <div
+        className={`scrollbar-hidden h-full w-full overflow-x-hidden overflow-y-auto`}
+      >
         <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
           <ul
             className={`list-none flex-col ${isExpanded ? 'flex pb-8' : 'hidden'} sm:flex`}
