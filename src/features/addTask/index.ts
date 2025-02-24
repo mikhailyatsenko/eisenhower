@@ -1,1 +1,1 @@
-export { AddTaskForm } from './ui/AddTaskForm/AddTaskForm';
+export { AddTask } from './ui/AddTask/AddTask';

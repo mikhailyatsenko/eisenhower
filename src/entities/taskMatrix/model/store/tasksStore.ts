@@ -30,12 +30,12 @@ export const useTaskStore = create<TaskState>()(
   ),
 );
 
-export const addTaskAction = (quadrantKey: MatrixKey, taskText: string) => {
+export const addTaskAction = (quadrantKey: MatrixKey, taskInputText: string) => {
   useTaskStore.setState((state) => {
-    if (taskText.length > 200) return;
+    if (taskInputText.length > 200) return;
     const newTask: Task = {
       id: uuidv4(),
-      text: taskText,
+      text: taskInputText,
       createdAt: new Date(),
     };
     state.tasks[quadrantKey].push(newTask);
