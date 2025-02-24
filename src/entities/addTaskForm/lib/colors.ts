@@ -1,4 +1,5 @@
-import { MatrixKey } from '@/entities/taskMatrix';
+// eslint-disable-next-line boundaries/element-types
+import { type MatrixKey } from '@/entities/taskMatrix/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 
 export const colors: Record<
   MatrixKey,

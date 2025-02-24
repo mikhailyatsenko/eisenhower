@@ -1,58 +1,31 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { MatrixKey, MatrixQuadrants } from '@/entities/taskMatrix';
-import { addTaskAction } from '@/entities/taskMatrix';
-import {
-  getSelectedCategory,
-  getTaskText,
-} from '@/entities/taskMatrix/model/selectors/uiSelectors';
-import {
-  setSelectedCategoryAction,
-  setTaskTextAction,
-  useUIStore,
-} from '@/entities/taskMatrix/model/store/uiStore';
+// eslint-disable-next-line boundaries/element-types
+import { MatrixKey } from '@/entities/taskMatrix/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+// eslint-disable-next-line boundaries/element-types
+import { MatrixQuadrants } from '@/entities/taskMatrix/@x/matrixQuadrants'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 import { colors } from '../../lib/colors';
 
-const useFormValidation = (taskText: string) => {
-  const [isValid, setIsValid] = useState(true);
-
-  useEffect(() => {
-    setIsValid(taskText.length <= 200);
-  }, [taskText]);
-
-  return isValid;
-};
-
-export const AddTaskForm = () => {
-  const selectedCategory = useUIStore(getSelectedCategory);
-  const taskText = useUIStore(getTaskText);
-
-  const isValid = useFormValidation(taskText);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const isValid = taskText.trim().length > 0;
-    if (isValid) {
-      addTaskAction(selectedCategory, taskText);
-      setTaskTextAction('');
-    }
-  };
-
-  const handleCategoryChange = (key: MatrixKey) => {
-    setSelectedCategoryAction(key);
-  };
-
-  const handleKeyDown = (
+interface AddTaskFormProps {
+  taskInputText: string;
+  setTaskInputTextAction: (text: string) => void;
+  isValid: boolean;
+  selectedCategory: MatrixKey;
+  handleCategoryChange: (key: MatrixKey) => void;
+  handleKeyDown: (
     e: React.KeyboardEvent<HTMLSpanElement>,
     key: MatrixKey,
-  ) => {
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      handleCategoryChange(key);
-    }
-  };
+  ) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
 
+export const AddTaskForm: React.FC<AddTaskFormProps> = ({
+  taskInputText,
+  setTaskInputTextAction,
+  isValid,
+  selectedCategory,
+  handleCategoryChange,
+  handleKeyDown,
+  handleSubmit,
+}) => {
   return (
     <form
       onSubmit={handleSubmit}
@@ -62,8 +35,8 @@ export const AddTaskForm = () => {
       <div className="space-y-3">
         <input
           className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-200 bg-transparent px-0 py-3 text-sm focus:border-blue-500 focus:border-x-transparent focus:border-t-transparent focus:border-b-blue-500 focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:border-b-neutral-600 dark:focus:ring-neutral-600"
-          value={taskText}
-          onChange={(e) => setTaskTextAction(e.target.value)}
+          value={taskInputText}
+          onChange={(e) => setTaskInputTextAction(e.target.value)}
           id="addTask"
           placeholder="Enter task"
           tabIndex={1}

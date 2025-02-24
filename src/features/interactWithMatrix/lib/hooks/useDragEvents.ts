@@ -5,7 +5,7 @@ import { Tasks } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
 
 interface UseDragEventsProps {
   setActiveQuadrant: (quadrant: MatrixKey | null) => void;
-  setActiveId: (id: string | null) => void;
+  setActiveTaskId: (id: string | null) => void;
   setIsDragging: (isDragging: boolean) => void;
   tasks: Tasks;
   dragEndAction: (newTasks: Tasks) => void;
@@ -18,7 +18,7 @@ interface UseDragEventsProps {
 
 export const useDragEvents = ({
   setActiveQuadrant,
-  setActiveId,
+  setActiveTaskId,
   setIsDragging,
   tasks,
   dragEndAction,
@@ -28,7 +28,7 @@ export const useDragEvents = ({
     setIsDragging(true);
     const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
     setActiveQuadrant(activeArea);
-    setActiveId(event.active.id as string);
+    setActiveTaskId(event.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -54,7 +54,7 @@ export const useDragEvents = ({
 
     if (!overArea || !activeArea) {
       setActiveQuadrant(null);
-      setActiveId(null);
+      setActiveTaskId(null);
       return;
     }
 
@@ -76,7 +76,7 @@ export const useDragEvents = ({
     }
 
     setActiveQuadrant(null);
-    setActiveId(null);
+    setActiveTaskId(null);
   };
 
   return { handleDragStart, handleDragOver, handleDragEnd };
