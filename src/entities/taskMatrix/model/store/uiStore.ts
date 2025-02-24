@@ -3,13 +3,13 @@ import { MatrixKey } from '../types/taskMatrixTypes';
 
 export interface UIState {
   selectedCategory: MatrixKey;
-  taskText: string;
+  taskInputText: string;
   isLoading: boolean;
 }
 
 export const useUIStore = create<UIState>()(() => ({
   selectedCategory: 'ImportantUrgent',
-  taskText: '',
+  taskInputText: '',
   isLoading: true,
 }));
 
@@ -17,8 +17,8 @@ export const setSelectedCategoryAction = (category: MatrixKey) => {
   useUIStore.setState({ selectedCategory: category });
 };
 
-export const setTaskTextAction = (text: string) => {
-  useUIStore.setState({ taskText: text });
+export const setTaskInputTextAction = (text: string) => {
+  useUIStore.setState({ taskInputText: text });
 };
 
 export const setLoadingAction = (loading: boolean) => {
