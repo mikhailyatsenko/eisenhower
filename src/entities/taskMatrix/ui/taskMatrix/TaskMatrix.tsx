@@ -8,13 +8,12 @@ import {
   DragStartEvent,
   DropAnimation,
   KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
+import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixKey } from '../../@x/matrixKey';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
