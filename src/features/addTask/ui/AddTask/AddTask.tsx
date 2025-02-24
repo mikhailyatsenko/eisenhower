@@ -10,7 +10,7 @@ import {
 } from '@/entities/taskMatrix/model/selectors/uiSelectors';
 import {
   setSelectedCategoryAction,
-  settaskInputTextAction,
+  setTaskInputTextAction,
   useUIStore,
 } from '@/entities/taskMatrix/model/store/uiStore';
 
@@ -35,7 +35,7 @@ export const AddTask = () => {
     const isValid = taskInputText.trim().length > 0;
     if (isValid) {
       addTaskAction(selectedCategory, taskInputText);
-      settaskInputTextAction('');
+      setTaskInputTextAction('');
     }
   };
 
@@ -60,7 +60,7 @@ export const AddTask = () => {
       handleSubmit={handleSubmit}
       isValid={isValid}
       selectedCategory={selectedCategory}
-      settaskInputTextAction={settaskInputTextAction}
+      setTaskInputTextAction={setTaskInputTextAction}
       taskInputText={taskInputText}
     />
   );

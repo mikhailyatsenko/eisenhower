@@ -6,7 +6,7 @@ import { colors } from '../../lib/colors';
 
 interface AddTaskFormProps {
   taskInputText: string;
-  settaskInputTextAction: (text: string) => void;
+  setTaskInputTextAction: (text: string) => void;
   isValid: boolean;
   selectedCategory: MatrixKey;
   handleCategoryChange: (key: MatrixKey) => void;
@@ -19,7 +19,7 @@ interface AddTaskFormProps {
 
 export const AddTaskForm: React.FC<AddTaskFormProps> = ({
   taskInputText,
-  settaskInputTextAction,
+  setTaskInputTextAction,
   isValid,
   selectedCategory,
   handleCategoryChange,
@@ -36,7 +36,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
         <input
           className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-200 bg-transparent px-0 py-3 text-sm focus:border-blue-500 focus:border-x-transparent focus:border-t-transparent focus:border-b-blue-500 focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:border-b-neutral-600 dark:focus:ring-neutral-600"
           value={taskInputText}
-          onChange={(e) => settaskInputTextAction(e.target.value)}
+          onChange={(e) => setTaskInputTextAction(e.target.value)}
           id="addTask"
           placeholder="Enter task"
           tabIndex={1}
