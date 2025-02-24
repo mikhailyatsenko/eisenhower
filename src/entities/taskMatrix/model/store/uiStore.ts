@@ -17,7 +17,7 @@ export const setSelectedCategoryAction = (category: MatrixKey) => {
   useUIStore.setState({ selectedCategory: category });
 };
 
-export const settaskInputTextAction = (text: string) => {
+export const setTaskInputTextAction = (text: string) => {
   useUIStore.setState({ taskInputText: text });
 };
 

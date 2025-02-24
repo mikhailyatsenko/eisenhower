@@ -30,7 +30,10 @@ export const useTaskStore = create<TaskState>()(
   ),
 );
 
-export const addTaskAction = (quadrantKey: MatrixKey, taskInputText: string) => {
+export const addTaskAction = (
+  quadrantKey: MatrixKey,
+  taskInputText: string,
+) => {
   useTaskStore.setState((state) => {
     if (taskInputText.length > 200) return;
     const newTask: Task = {
