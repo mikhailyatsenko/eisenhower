@@ -3,15 +3,19 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import {
+  getSelectedCategory,
+  getTaskInputText,
+} from '../../model/selectors/uiSelectors';
+import { useUIStore } from '../../model/store/uiStore';
 import { MatrixKey, Task } from '../../model/types/taskMatrixTypes';
 import { TaskItem } from '../taskItem/TaskItem';
 
 interface CategoryBlockProps {
   quadrantKey: MatrixKey;
-  tasks: Task[];
   isActive: boolean;
-  isDimmed: boolean;
   isAnimateQuadrants: boolean;
+  tasks: Task[];
   expandedQuadrant: MatrixKey | null;
   handleToggleExpand: (quadrant: MatrixKey) => void;
 }
@@ -40,19 +44,24 @@ const titleMap = {
 
 export const Quadrant: React.FC<CategoryBlockProps> = ({
   quadrantKey,
-  tasks,
   isActive,
-  isDimmed,
   expandedQuadrant,
   isAnimateQuadrants,
   handleToggleExpand,
+  tasks,
 }) => {
   const { setNodeRef } = useDroppable({
     id: quadrantKey,
     data: { quadrantKey },
   });
 
+  const taskInputText = useUIStore(getTaskInputText);
+  const selectedCategory = useUIStore(getSelectedCategory);
+
   const isExpanded = expandedQuadrant === quadrantKey;
+
+  const isDimmed =
+    taskInputText.trim() !== '' && selectedCategory !== quadrantKey;
 
   return (
     <div

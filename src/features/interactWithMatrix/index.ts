@@ -1,1 +1,1 @@
-export { TaskMatrix } from './ui/TaskMatrix';
+export { InteractWithMatrix } from './ui/InteractWithMatrix';
