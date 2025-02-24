@@ -2,6 +2,7 @@
 
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
+import { ThemeToggleButton } from '../../../../entities/themeToggleButton/ui/ThemeToggleButton';
 
 type Theme = 'light' | 'dark';
 
@@ -33,8 +34,6 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   };
 
   return (
-    <button onClick={toggleTheme}>
-      {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-    </button>
+    <ThemeToggleButton isDark={theme === 'dark'} toggleTheme={toggleTheme} />
   );
 };
