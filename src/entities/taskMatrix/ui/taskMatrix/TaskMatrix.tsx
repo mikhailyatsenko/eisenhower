@@ -12,6 +12,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { useEffect, useState } from 'react';
 import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixKey } from '../../@x/matrixKey';
@@ -74,20 +75,31 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
         ...defaultDropAnimation,
       };
 
-  let quadrantOrder = [
+  const taskInputText = useUIStore(getTaskInputText);
+  const selectedCategory = useUIStore(getSelectedCategory);
+
+  const [quadrantOrder, setQuadrantOrder] = useState([
     'ImportantUrgent',
     'ImportantNotUrgent',
     'NotImportantUrgent',
     'NotImportantNotUrgent',
-  ];
+  ]);
 
-  const taskInputText = useUIStore(getTaskInputText);
-  const selectedCategory = useUIStore(getSelectedCategory);
+  useEffect(() => {
+    let newOrder = [
+      'ImportantUrgent',
+      'ImportantNotUrgent',
+      'NotImportantUrgent',
+      'NotImportantNotUrgent',
+    ];
 
-  if (taskInputText.trim() !== '' && selectedCategory) {
-    quadrantOrder = quadrantOrder.filter((q) => q !== selectedCategory);
-    quadrantOrder.unshift(selectedCategory);
-  }
+    if (taskInputText.trim() !== '' && selectedCategory) {
+      newOrder = newOrder.filter((q) => q !== selectedCategory);
+      newOrder.unshift(selectedCategory);
+    }
+
+    setQuadrantOrder(newOrder);
+  }, [taskInputText, selectedCategory]);
 
   if (isLoading) {
     return <div>Loading...</div>;

@@ -54,17 +54,17 @@ body {
 
   @keyframes from-bottom-appear {
     0% {
-      /* opacity: 0.2; */
-      transform: translateY(95px);
+      opacity: 0;
+      transform: translateY(25px);
     }
 
     100% {
-      /* opacity: 1; */
+      opacity: 1;
       transform: translateY(0);
     }
   }
 
-  --animate-from-bottom-appear: from-bottom-appear 0.5s forwards;
+  --animate-from-bottom-appear: from-bottom-appear 0.3s forwards;
 
   --animate-from-hide-to-show: from-hide-to-show 0.35s forwards;
 }
