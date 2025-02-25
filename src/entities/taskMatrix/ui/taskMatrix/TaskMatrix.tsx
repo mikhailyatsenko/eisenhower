@@ -141,10 +141,8 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
             quadrantKey={key as MatrixKey}
             isDragOver={dragOverQuadrant === key}
             orderIndex={quadrantOrder.indexOf(key)}
-            isInputInTaskInThisQuadrant={
-              taskInputText.trim() !== '' && selectedCategory === key
-            }
-            isDimmed={taskInputText.trim() !== '' && selectedCategory !== key}
+            isTypingNewTask={taskInputText.trim() !== ''}
+            // isDimmed={taskInputText.trim() !== '' && selectedCategory !== key}
           />
         ))}
         <DragOverlay dropAnimation={dropAnimation}>
