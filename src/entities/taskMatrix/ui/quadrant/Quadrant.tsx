@@ -15,8 +15,8 @@ interface CategoryBlockProps {
   expandedQuadrant: MatrixKey | null;
   handleToggleExpand: (quadrant: MatrixKey) => void;
   orderIndex: number;
-  isInputInTaskInThisQuadrant: boolean;
-  isDimmed: boolean;
+  isTypingNewTask: boolean;
+  // isDimmed: boolean;
 }
 
 const quadrantStyles = {
@@ -48,9 +48,9 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   isAnimateQuadrants,
   handleToggleExpand,
   orderIndex,
-  isInputInTaskInThisQuadrant,
+  isTypingNewTask,
   tasks,
-  isDimmed,
+  // isDimmed,
 }) => {
   const { setNodeRef } = useDroppable({
     id: quadrantKey,
@@ -65,7 +65,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
     <div
       ref={setNodeRef}
       style={{ order: orderIndex }}
-      className={`${quadrantStyles[quadrantKey]} ${isDragOver ? '!bg-gray-400' : ''} ${isInputInTaskInThisQuadrant ? 'animate-from-bottom-appear' : ''} ${isDimmed ? 'opacity-25' : ''} ${expandedQuadrant === null ? 'h-[calc((100vw)/2-32px)] w-[calc(50%-8px)] sm:h-[calc((100vw-100vw/6)/2-32px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 ease-in-out sm:p-6 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
+      className={`${quadrantStyles[quadrantKey]} ${isDragOver ? '!bg-gray-400' : ''} ${isTypingNewTask ? `transition-[width] duration-300 ${orderIndex === 0 ? 'animate-from-bottom-appear !w-[calc(55%-8px)]' : '!w-[calc(45%-8px)] !opacity-25'}` : ''} ${expandedQuadrant === null ? 'h-[calc((100vw)/2-32px)] w-[calc(50%-8px)] sm:h-[calc((100vw-100vw/6)/2-32px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 ease-in-out sm:p-6 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
     >
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
         {titleMap[quadrantKey]}
