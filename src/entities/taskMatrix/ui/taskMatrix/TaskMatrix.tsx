@@ -34,7 +34,7 @@ interface TaskMatrixProps {
   dragEvents: DragEvents;
   isAnimateQuadrants: boolean;
   handleToggleExpand: (quadrant: MatrixKey) => void;
-  activeQuadrant: MatrixKey | null;
+  dragOverQuadrant: MatrixKey | null;
   isSmallScreen: boolean;
   activeTaskId: string | null;
 }
@@ -44,7 +44,7 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
   dragEvents,
   isAnimateQuadrants,
   handleToggleExpand,
-  activeQuadrant,
+  dragOverQuadrant,
   isSmallScreen,
   activeTaskId,
 }) => {
@@ -54,7 +54,9 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 300, tolerance: 10 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -106,18 +108,18 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
             expandedQuadrant={expandedQuadrant}
             key={key}
             quadrantKey={key as MatrixKey}
-            isActive={activeQuadrant === key}
+            isDragOver={dragOverQuadrant === key}
           />
         ))}
         <DragOverlay dropAnimation={dropAnimation}>
           {activeTaskId ? (
             <TaskItem
               task={
-                tasks[activeQuadrant as MatrixKey].find(
+                tasks[dragOverQuadrant as MatrixKey].find(
                   (t) => t.id === activeTaskId,
                 ) as Task
               }
-              quadrantKey={activeQuadrant as MatrixKey}
+              quadrantKey={dragOverQuadrant as MatrixKey}
               index={0}
             />
           ) : null}

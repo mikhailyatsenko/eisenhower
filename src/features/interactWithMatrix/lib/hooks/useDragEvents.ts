@@ -4,7 +4,7 @@ import { MatrixKey } from '@/entities/taskMatrix';
 import { Tasks } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
 
 interface UseDragEventsProps {
-  setActiveQuadrant: (quadrant: MatrixKey | null) => void;
+  setDragOverQuadrant: (quadrant: MatrixKey | null) => void;
   setActiveTaskId: (id: string | null) => void;
   setIsDragging: (isDragging: boolean) => void;
   tasks: Tasks;
@@ -17,7 +17,7 @@ interface UseDragEventsProps {
 }
 
 export const useDragEvents = ({
-  setActiveQuadrant,
+  setDragOverQuadrant,
   setActiveTaskId,
   setIsDragging,
   tasks,
@@ -27,7 +27,7 @@ export const useDragEvents = ({
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
-    setActiveQuadrant(activeArea);
+    setDragOverQuadrant(activeArea);
     setActiveTaskId(event.active.id as string);
   };
 
@@ -36,7 +36,7 @@ export const useDragEvents = ({
     const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
 
     if (overArea && overArea !== activeArea) {
-      setActiveQuadrant(overArea);
+      setDragOverQuadrant(overArea);
     }
 
     const taskId = event.active.id as string;
@@ -53,7 +53,7 @@ export const useDragEvents = ({
     setIsDragging(false);
 
     if (!overArea || !activeArea) {
-      setActiveQuadrant(null);
+      setDragOverQuadrant(null);
       setActiveTaskId(null);
       return;
     }
@@ -75,7 +75,7 @@ export const useDragEvents = ({
       dragEndAction(newTasks);
     }
 
-    setActiveQuadrant(null);
+    setDragOverQuadrant(null);
     setActiveTaskId(null);
   };
 
