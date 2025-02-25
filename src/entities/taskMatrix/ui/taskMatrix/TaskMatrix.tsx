@@ -17,7 +17,11 @@ import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixKey } from '../../@x/matrixKey';
 import { MatrixQuadrants } from '../../model/consts/taskMatrixConsts';
 import { getAllTasks } from '../../model/selectors/tasksSelector';
-import { getIsLoading } from '../../model/selectors/uiSelectors';
+import {
+  getIsLoading,
+  getSelectedCategory,
+  getTaskInputText,
+} from '../../model/selectors/uiSelectors';
 import { useTaskStore } from '../../model/store/tasksStore';
 import { Task } from '../../model/types/taskMatrixTypes';
 import { Quadrant } from '../quadrant/Quadrant';
@@ -70,19 +74,34 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
         ...defaultDropAnimation,
       };
 
+  let quadrantOrder = [
+    'ImportantUrgent',
+    'ImportantNotUrgent',
+    'NotImportantUrgent',
+    'NotImportantNotUrgent',
+  ];
+
+  const taskInputText = useUIStore(getTaskInputText);
+  const selectedCategory = useUIStore(getSelectedCategory);
+
+  if (taskInputText.trim() !== '' && selectedCategory) {
+    quadrantOrder = quadrantOrder.filter((q) => q !== selectedCategory);
+    quadrantOrder.unshift(selectedCategory);
+  }
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="relative flex w-full flex-wrap pt-6">
-      {!expandedQuadrant && (
+      {!(expandedQuadrant || taskInputText) && (
         <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
           <div className="w-1/2 text-center">Urgent</div>
           <div className="w-1/2 text-center">Not Urgent</div>
         </div>
       )}
-      {!expandedQuadrant && (
+      {!(expandedQuadrant || taskInputText) && (
         <div className="absolute flex h-full w-6 -translate-x-full flex-col">
           <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
             Important
@@ -109,6 +128,11 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
             key={key}
             quadrantKey={key as MatrixKey}
             isDragOver={dragOverQuadrant === key}
+            orderIndex={quadrantOrder.indexOf(key)}
+            isInputInTaskInThisQuadrant={
+              taskInputText.trim() !== '' && selectedCategory === key
+            }
+            isDimmed={taskInputText.trim() !== '' && selectedCategory !== key}
           />
         ))}
         <DragOverlay dropAnimation={dropAnimation}>
