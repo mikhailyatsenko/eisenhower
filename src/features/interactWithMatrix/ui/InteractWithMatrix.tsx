@@ -16,13 +16,15 @@ export const InteractWithMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
 
   const isLoading = useUIStore(getIsLoading);
-  const [activeQuadrant, setActiveQuadrant] = useState<MatrixKey | null>(null);
+  const [dragOverQuadrant, setDragOverQuadrant] = useState<MatrixKey | null>(
+    null,
+  );
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 
   const [isDragging, setIsDragging] = useState(false);
 
   const dragEvents = useDragEvents({
-    setActiveQuadrant,
+    setDragOverQuadrant,
     setActiveTaskId,
     setIsDragging,
     tasks,
@@ -92,7 +94,7 @@ export const InteractWithMatrix = () => {
     <TaskMatrix
       expandedQuadrant={expandedQuadrant}
       activeTaskId={activeTaskId}
-      activeQuadrant={activeQuadrant}
+      dragOverQuadrant={dragOverQuadrant}
       isAnimateQuadrants={isAnimateQuadrants}
       handleToggleExpand={handleToggleExpand}
       isSmallScreen={isSmallScreen}
