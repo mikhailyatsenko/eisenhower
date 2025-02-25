@@ -3,11 +3,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  getSelectedCategory,
-  getTaskInputText,
-} from '../../model/selectors/uiSelectors';
-import { useUIStore } from '../../model/store/uiStore';
+
 import { MatrixKey, Task } from '../../model/types/taskMatrixTypes';
 import { TaskItem } from '../taskItem/TaskItem';
 
@@ -18,6 +14,9 @@ interface CategoryBlockProps {
   tasks: Task[];
   expandedQuadrant: MatrixKey | null;
   handleToggleExpand: (quadrant: MatrixKey) => void;
+  orderIndex: number;
+  isInputInTaskInThisQuadrant: boolean;
+  isDimmed: boolean;
 }
 
 const quadrantStyles = {
@@ -48,26 +47,25 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   expandedQuadrant,
   isAnimateQuadrants,
   handleToggleExpand,
+  orderIndex,
+  isInputInTaskInThisQuadrant,
   tasks,
+  isDimmed,
 }) => {
   const { setNodeRef } = useDroppable({
     id: quadrantKey,
     data: { quadrantKey },
   });
 
-  const taskInputText = useUIStore(getTaskInputText);
-  const selectedCategory = useUIStore(getSelectedCategory);
-
   const isExpanded = expandedQuadrant === quadrantKey;
 
-  const isInputInTaskInThisQuadrant =
-    taskInputText.trim() !== '' && selectedCategory === quadrantKey;
-
   console.log(expandedQuadrant !== quadrantKey, expandedQuadrant, quadrantKey);
+
   return (
     <div
       ref={setNodeRef}
-      className={`${quadrantStyles[quadrantKey]} ${isDragOver ? '!bg-gray-400' : ''} ${isInputInTaskInThisQuadrant ? 'animate-from-hide-to-show order-first w-full' : ''} ${expandedQuadrant === null ? 'h-[calc((100vw)/2-32px)] w-[calc(50%-8px)] sm:h-[calc((100vw-100vw/6)/2-32px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 ease-in-out sm:p-6 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
+      style={{ order: orderIndex }}
+      className={`${quadrantStyles[quadrantKey]} ${isDragOver ? '!bg-gray-400' : ''} ${isInputInTaskInThisQuadrant ? 'animate-from-bottom-appear w-[calc(60%-8px)]' : ''} ${isDimmed ? `${orderIndex === 1 ? '!w-[calc(40%-8px)]' : ''} opacity-25` : ''} ${expandedQuadrant === null ? 'h-[calc((100vw)/2-32px)] w-[calc(50%-8px)] sm:h-[calc((100vw-100vw/6)/2-32px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 transition-all duration-500 ease-in-out sm:p-6 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
     >
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
         {titleMap[quadrantKey]}
