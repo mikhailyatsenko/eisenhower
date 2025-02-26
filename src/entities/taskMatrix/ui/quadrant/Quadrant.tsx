@@ -52,24 +52,33 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   orderIndex,
   isTypingNewTask,
   tasks,
-  // isDimmed,
 }) => {
   const { setNodeRef } = useDroppable({
     id: quadrantKey,
     data: { quadrantKey },
   });
 
-  const isExpanded = expandedQuadrant === quadrantKey;
-
+  const isExpanded = expandedQuadrant === quadrantKey && !isTypingNewTask;
   const recentlyAddedQuadrant = useUIStore(getRecentlyAddedQuadrant);
 
-  console.log(expandedQuadrant !== quadrantKey, expandedQuadrant, quadrantKey);
+  const baseStyles = `${quadrantStyles[quadrantKey]} ${recentlyAddedQuadrant === quadrantKey ? 'animate-recently-added-quadrant' : ''} ${isDragOver ? '!bg-gray-400' : ''}`;
+  const typingStyles = isTypingNewTask
+    ? `!h-[calc((100vw)/2-32px)] transition-[width] duration-300 sm:h-[calc((100vw-100vw/6)/2-32px)] ${orderIndex === 0 ? 'animate-from-bottom-appear !w-[calc(55%-8px)]' : '!w-[calc(45%-8px)] !opacity-25'}`
+    : '';
+  const defaultStyles =
+    !isTypingNewTask && expandedQuadrant === null
+      ? 'h-[calc((100vw)/2-32px)] w-[calc(50%-8px)] sm:h-[calc((100vw-100vw/6)/2-32px)]'
+      : isExpanded
+        ? '!order-first max-h-[calc(100dvh-550px)] min-h-40 w-full !pb-0'
+        : 'h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]';
+
+  const animateStyles = isAnimateQuadrants ? 'animate-from-hide-to-show' : '';
 
   return (
     <div
       ref={setNodeRef}
       style={{ order: orderIndex }}
-      className={`${quadrantStyles[quadrantKey]} ${recentlyAddedQuadrant === quadrantKey ? 'animate-recently-added-quadrant' : ''} ${isDragOver ? '!bg-gray-400' : ''} ${isTypingNewTask ? `transition-[width] duration-300 ${orderIndex === 0 ? 'animate-from-bottom-appear !w-[calc(55%-8px)]' : '!w-[calc(45%-8px)] !opacity-25'}` : ''} ${expandedQuadrant === null ? 'h-[calc((100vw)/2-32px)] w-[calc(50%-8px)] sm:h-[calc((100vw-100vw/6)/2-32px)]' : isExpanded ? 'order-first max-h-[calc(100dvh-250px)] min-h-40 w-full !pb-0' : `h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]`} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 ease-in-out sm:p-6 dark:border dark:bg-black ${isAnimateQuadrants ? 'animate-from-hide-to-show' : ''}`}
+      className={`${baseStyles} ${typingStyles} ${defaultStyles} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 ease-in-out sm:p-6 dark:border dark:bg-black ${animateStyles}`}
     >
       <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
         {titleMap[quadrantKey]}
@@ -95,7 +104,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
         <div
           className={`relative z-2 flex h-full w-full items-center justify-center text-gray-500 ${isExpanded ? 'hidden' : 'flex sm:hidden'}`}
         >
-          {tasks.length > 0 ? (
+          {!isTypingNewTask && tasks.length > 0 ? (
             <button
               className={`${buttonStyles[quadrantKey]} cursor-pointer rounded-md p-2 text-gray-100 dark:border-2 dark:bg-transparent`}
               onClick={() => handleToggleExpand(quadrantKey)}
