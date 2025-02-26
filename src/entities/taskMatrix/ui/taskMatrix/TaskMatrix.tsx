@@ -13,6 +13,7 @@ import {
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect, useState } from 'react';
+import { ToastContainer } from 'react-toastify';
 import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { MatrixKey } from '../../@x/matrixKey';
@@ -158,6 +159,7 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
           ) : null}
         </DragOverlay>
       </DndContext>
+      <ToastContainer />
     </div>
   );
 };

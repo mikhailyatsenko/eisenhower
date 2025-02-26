@@ -26,9 +26,13 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
   handleKeyDown,
   handleSubmit,
 }) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    handleSubmit(e);
+  };
+
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleFormSubmit}
       autoComplete="off"
       className="mx-auto mb-4 max-w-md gap-2"
     >
