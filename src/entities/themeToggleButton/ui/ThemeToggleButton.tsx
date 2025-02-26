@@ -3,20 +3,6 @@ interface ThemeToggleButtonProps {
   toggleTheme: () => void;
 }
 
-// export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({
-//   theme,
-//   toggleTheme,
-// }) => {
-//   return (
-//     <button
-//       onClick={toggleTheme}
-//       className="rounded-md bg-gray-800 px-4 py-2 text-white focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
-//     >
-//       {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-//     </button>
-//   );
-// };
-
 export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({
   isDark,
   toggleTheme,

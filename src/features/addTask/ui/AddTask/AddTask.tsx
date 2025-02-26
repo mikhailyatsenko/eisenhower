@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { showToastNotificationByAddTask } from '@/utils/toastNotifications';
 import { AddTaskForm } from '@/entities/addTaskForm/ui/addTaskForm/AddTaskForm';
 import { MatrixKey } from '@/entities/taskMatrix';
 import { addTaskAction } from '@/entities/taskMatrix';
@@ -38,6 +39,7 @@ export const AddTask = () => {
       addTaskAction(selectedCategory, taskInputText);
       setTaskInputTextAction('');
       setRecentlyAddedQuadrantAction(selectedCategory);
+      showToastNotificationByAddTask(selectedCategory);
     }
   };
 

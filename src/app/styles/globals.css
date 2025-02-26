@@ -23,11 +23,18 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+
+  .dark .Toastify__toast {
+    background-color: #474747 !important;
+    color: #fff !important;
+  }
 }
 
 :root {
   --background: #fff;
   --foreground: #171717;
+
+  --toastify-color-light: #fff;
 }
 
 .dark {
@@ -66,10 +73,10 @@ body {
 
   @keyframes recently-added-quadrant {
     0% {
-      transform: scale(0.9);
+      transform: scale(1);
     }
     50% {
-      transform: scale(1.1);
+      transform: scale(1.05);
       z-index: 11;
     }
     100% {

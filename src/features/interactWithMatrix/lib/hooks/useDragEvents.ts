@@ -1,6 +1,7 @@
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { MatrixKey } from '@/entities/taskMatrix';
+import { setRecentlyAddedQuadrantAction } from '@/entities/taskMatrix/model/store/uiStore';
 import { Tasks } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
 
 interface UseDragEventsProps {
@@ -49,9 +50,9 @@ export const useDragEvents = ({
   const handleDragEnd = ({ over, active }: DragEndEvent) => {
     const overArea = over?.data.current?.quadrantKey as MatrixKey;
     const activeArea = active.data.current?.quadrantKey as MatrixKey;
-
     setIsDragging(false);
-
+    console.log('inside dragEnd', overArea);
+    setRecentlyAddedQuadrantAction(overArea);
     if (!overArea || !activeArea) {
       setDragOverQuadrant(null);
       setActiveTaskId(null);
