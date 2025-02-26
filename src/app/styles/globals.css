@@ -64,9 +64,24 @@ body {
     }
   }
 
+  @keyframes recently-added-quadrant {
+    0% {
+      transform: scale(0.9);
+    }
+    50% {
+      transform: scale(1.1);
+      z-index: 11;
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
   --animate-from-bottom-appear: from-bottom-appear 0.3s forwards;
 
   --animate-from-hide-to-show: from-hide-to-show 0.35s forwards;
+
+  --animate-recently-added-quadrant: recently-added-quadrant 0.5s forwards;
 }
 
 @utility scrollbar-hidden {

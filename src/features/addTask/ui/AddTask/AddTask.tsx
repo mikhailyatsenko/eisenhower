@@ -9,6 +9,7 @@ import {
   getTaskInputText,
 } from '@/entities/taskMatrix/model/selectors/uiSelectors';
 import {
+  setRecentlyAddedQuadrantAction,
   setSelectedCategoryAction,
   setTaskInputTextAction,
   useUIStore,
@@ -30,12 +31,13 @@ export const AddTask = () => {
 
   const isValid = useFormValidation(taskInputText);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitForm = (e: React.FormEvent) => {
     e.preventDefault();
     const isValid = taskInputText.trim().length > 0;
     if (isValid) {
       addTaskAction(selectedCategory, taskInputText);
       setTaskInputTextAction('');
+      setRecentlyAddedQuadrantAction(selectedCategory);
     }
   };
 
@@ -57,7 +59,7 @@ export const AddTask = () => {
     <AddTaskForm
       handleCategoryChange={handleCategoryChange}
       handleKeyDown={handleKeyDown}
-      handleSubmit={handleSubmit}
+      handleSubmit={handleSubmitForm}
       isValid={isValid}
       selectedCategory={selectedCategory}
       setTaskInputTextAction={setTaskInputTextAction}
