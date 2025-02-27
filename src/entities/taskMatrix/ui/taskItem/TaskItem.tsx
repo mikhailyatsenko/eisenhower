@@ -119,20 +119,20 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           )}
           <div className="flex justify-between">
             <button
+              onClick={handleCancel}
+              className="h-fit cursor-pointer rounded-md border border-gray-500 px-2 py-2 text-sm leading-1 font-bold text-gray-600 hover:scale-[0.98] active:scale-[0.95]"
+              data-no-dnd="true"
+            >
+              Cancel
+            </button>
+            <button
               type="submit"
               onClick={handleSave}
-              className={`z-30 text-green-600 ${!isValid ? 'cursor-not-allowed opacity-50' : ''}`}
+              className={`h-fit cursor-pointer rounded-md border border-gray-950 px-2 py-2 text-sm leading-1 font-bold text-gray-950 hover:scale-[0.98] active:scale-[0.95] ${!isValid ? 'cursor-not-allowed opacity-50' : ''}`}
               data-no-dnd="true"
               disabled={!isValid}
             >
               Save
-            </button>
-            <button
-              onClick={handleCancel}
-              className="text-red-600"
-              data-no-dnd="true"
-            >
-              Cancel
             </button>
           </div>
         </form>
