@@ -104,7 +104,9 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
           ))}
         </ul>
 
-        <p className="text-foreground absolute top-0 left-1 z-0 text-7xl opacity-15 sm:hidden">
+        <p
+          className={`text-foreground absolute top-0 left-1 z-0 text-7xl opacity-15 sm:top-1 sm:left-6 sm:text-sm sm:opacity-50 ${tasks.length === 0 ? 'sm:!text-7xl sm:!opacity-25' : ''}`}
+        >
           {`${tasks.length} task${tasks.length !== 1 ? 's' : ''}`}
         </p>
 
