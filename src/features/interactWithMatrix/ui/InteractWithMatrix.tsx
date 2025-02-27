@@ -95,7 +95,7 @@ export const InteractWithMatrix = () => {
       expandedQuadrant={expandedQuadrant}
       activeTaskId={activeTaskId}
       dragOverQuadrant={dragOverQuadrant}
-      isAnimateQuadrants={isAnimateQuadrants}
+      isAnimateByExpandQuadrant={isAnimateQuadrants}
       handleToggleExpand={handleToggleExpand}
       isSmallScreen={isSmallScreen}
       dragEvents={dragEvents}

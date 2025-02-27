@@ -38,7 +38,7 @@ interface DragEvents {
 interface TaskMatrixProps {
   expandedQuadrant: MatrixKey | null;
   dragEvents: DragEvents;
-  isAnimateQuadrants: boolean;
+  isAnimateByExpandQuadrant: boolean;
   handleToggleExpand: (quadrant: MatrixKey) => void;
   dragOverQuadrant: MatrixKey | null;
   isSmallScreen: boolean;
@@ -48,7 +48,7 @@ interface TaskMatrixProps {
 export const TaskMatrix: React.FC<TaskMatrixProps> = ({
   expandedQuadrant,
   dragEvents,
-  isAnimateQuadrants,
+  isAnimateByExpandQuadrant,
   handleToggleExpand,
   dragOverQuadrant,
   isSmallScreen,
@@ -135,7 +135,7 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
         {Object.entries(MatrixQuadrants).map(([key]) => (
           <Quadrant
             tasks={tasks[key as MatrixKey]}
-            isAnimateQuadrants={isAnimateQuadrants}
+            isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
             handleToggleExpand={handleToggleExpand}
             expandedQuadrant={expandedQuadrant}
             key={key}
