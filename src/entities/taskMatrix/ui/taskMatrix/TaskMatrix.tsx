@@ -107,7 +107,7 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
   }
 
   return (
-    <div className="relative flex w-full flex-wrap pt-6">
+    <div className="relative flex w-full flex-wrap justify-center pt-6">
       {!(expandedQuadrant || taskInputText) && (
         <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
           <div className="w-1/2 text-center">Urgent</div>
