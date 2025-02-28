@@ -6,7 +6,7 @@ import { CardsOnBackground } from './CardsOnBackground';
 import { TextContent } from './TextContent';
 
 export const WelcomeModal = () => {
-  const [isShowModal, setIsShowModal] = useState(true);
+  const [isShowModal, setIsShowModal] = useState(false);
 
   const handleDontShowAgain = () => {
     localStorage.setItem('dontShowPopup', 'true');
@@ -14,7 +14,11 @@ export const WelcomeModal = () => {
   };
 
   useEffect(() => {
-    setIsShowModal(!localStorage.getItem('dontShowPopup'));
+    const timer = setTimeout(() => {
+      setIsShowModal(!localStorage.getItem('dontShowPopup'));
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
