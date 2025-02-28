@@ -29,16 +29,16 @@ export const WelcomeModal = () => {
         {/* <div className="w-3/4 overflow-scroll text-left"> */}
         <div className="animate-from-bottom-appear relative z-2 p-6 text-center opacity-0 [animation-delay:_0.5s]">
           <TextContent />
-          <div className="flex justify-center space-x-4">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-6">
             <button
               onClick={() => setIsShowModal(false)}
-              className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              className="hover:text-foreground cursor-pointer rounded bg-blue-500 px-4 py-2 text-sm text-nowrap text-white hover:bg-blue-600 sm:text-base"
             >
               Get Started
             </button>
             <button
               onClick={handleDontShowAgain}
-              className="mt-4 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+              className="text-foreground/80 hover:text-foreground cursor-pointer rounded text-sm font-bold text-nowrap sm:text-base"
             >
               Don&apos;t Show This Again
             </button>

@@ -154,8 +154,6 @@ body {
 
   --animate-recently-added-quadrant: recently-added-quadrant 0.5s forwards;
 
-  --animate-diagonal-slide-in: diagonal-slide-in 1.5s forwards;
-
   --animate-diagonal-slide-in-top-left: diagonal-slide-in-top-left 1s forwards;
   --animate-diagonal-slide-in-top-right: diagonal-slide-in-top-right 1s forwards;
   --animate-diagonal-slide-in-bottom-left: diagonal-slide-in-bottom-left 1s
@@ -171,3 +169,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@custom-variant limitedHeight639 (@media (max-height: 639px));
+
+@custom-variant sm576 (@media (min-width: 576px));
