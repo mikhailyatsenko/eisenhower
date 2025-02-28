@@ -84,11 +84,82 @@ body {
     }
   }
 
+  @keyframes diagonal-slide-in-top-left {
+    0% {
+      opacity: 0;
+      transform: translateX(-100%) translateY(-100%);
+    }
+
+    65% {
+      opacity: 1;
+      transform: rotate(15deg) translateY(0) scale(0.7);
+    }
+    100% {
+      opacity: 0.5;
+      transform: translateY(0) rotate(0) scale(1);
+    }
+  }
+
+  @keyframes diagonal-slide-in-top-right {
+    0% {
+      opacity: 0;
+      transform: translateX(100%) translateY(-100%);
+    }
+
+    65% {
+      opacity: 1;
+      transform: rotate(-15deg) translateY(0) scale(0.7);
+    }
+    100% {
+      opacity: 0.5;
+      transform: translateY(0) rotate(0) scale(1);
+    }
+  }
+
+  @keyframes diagonal-slide-in-bottom-left {
+    0% {
+      opacity: 0;
+      transform: translateX(-100%) translateY(100%);
+    }
+
+    65% {
+      opacity: 1;
+      transform: rotate(-15deg) translateY(0) scale(0.7);
+    }
+    100% {
+      opacity: 0.5;
+      transform: translateY(0) rotate(0) scale(1);
+    }
+  }
+
+  @keyframes diagonal-slide-in-bottom-right {
+    0% {
+      opacity: 0;
+      transform: translateX(100%) translateY(100%);
+    }
+
+    65% {
+      opacity: 1;
+      transform: rotate(15deg) translateY(0) scale(0.7);
+    }
+    100% {
+      opacity: 0.5;
+      transform: translateY(0) rotate(0) scale(1);
+    }
+  }
+
   --animate-from-bottom-appear: from-bottom-appear 0.3s forwards;
 
   --animate-from-hide-to-show: from-hide-to-show 0.35s forwards;
 
   --animate-recently-added-quadrant: recently-added-quadrant 0.5s forwards;
+
+  --animate-diagonal-slide-in-top-left: diagonal-slide-in-top-left 1s forwards;
+  --animate-diagonal-slide-in-top-right: diagonal-slide-in-top-right 1s forwards;
+  --animate-diagonal-slide-in-bottom-left: diagonal-slide-in-bottom-left 1s
+    forwards;
+  --animate-diagonal-slide-in-bottom-right: diagonal-slide-in-bottom-right 1s
+    forwards;
 }
 
 @utility scrollbar-hidden {
@@ -98,3 +169,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@custom-variant limitedHeight639 (@media (max-height: 639px));
+
+@custom-variant sm576 (@media (min-width: 576px));
