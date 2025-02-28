@@ -115,7 +115,7 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
         </div>
       )}
       {!(expandedQuadrant || taskInputText) && (
-        <div className="absolute flex h-full w-6 -translate-x-full flex-col">
+        <div className="absolute left-0 flex h-full w-6 -translate-x-full flex-col">
           <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
             Important
           </div>
