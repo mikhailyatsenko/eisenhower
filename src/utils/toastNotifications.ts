@@ -5,7 +5,7 @@ import { MatrixQuadrants } from '@/entities/taskMatrix/model/consts/taskMatrixCo
 export const showToastNotificationByAddTask = (quadrant: MatrixKey) => {
   toast.success(`Task successfully added to ${MatrixQuadrants[quadrant]}`, {
     position: 'bottom-left',
-    autoClose: 1500,
+    autoClose: 2500,
     pauseOnFocusLoss: false,
     closeButton: false,
   });
