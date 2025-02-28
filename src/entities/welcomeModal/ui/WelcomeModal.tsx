@@ -40,7 +40,7 @@ export const WelcomeModal = () => {
               onClick={handleDontShowAgain}
               className="mt-4 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
             >
-              Don&apos;t Show Again
+              Don&apos;t Show This Again
             </button>
           </div>
         </div>
