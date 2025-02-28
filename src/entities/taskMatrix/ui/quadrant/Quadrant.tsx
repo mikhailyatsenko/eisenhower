@@ -92,7 +92,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
       </h2>
       <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
         <ul
-          className={`relative z-2 list-none flex-col ${isExpandedCurrentQuadrant ? 'flex pb-8' : 'hidden'} h-full overflow-x-hidden overflow-y-auto sm:flex`}
+          className={`scrollbar-hidden relative z-2 list-none flex-col ${isExpandedCurrentQuadrant ? 'flex pb-8' : 'hidden'} h-full overflow-x-hidden overflow-y-auto sm:flex`}
         >
           {tasks.map((task, index) => (
             <TaskItem

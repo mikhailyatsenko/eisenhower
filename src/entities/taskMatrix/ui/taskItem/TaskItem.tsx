@@ -113,7 +113,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             className="mb-2 rounded-md px-3 py-1 text-gray-900"
           />
           {!isValid && (
-            <p className="text-xs text-red-900">
+            <p className="mb-1 text-xs text-red-900">
               Task text must be between 1 and 200 characters.
             </p>
           )}
@@ -128,7 +128,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             <button
               type="submit"
               onClick={handleSave}
-              className={`h-fit cursor-pointer rounded-md border border-gray-950 px-2 py-2 text-sm leading-1 font-bold text-gray-950 hover:scale-[0.98] active:scale-[0.95] ${!isValid ? 'cursor-not-allowed opacity-50' : ''}`}
+              className={`h-fit cursor-pointer rounded-md border border-gray-950 px-2 py-2 text-sm leading-1 font-bold text-gray-950 hover:scale-[0.98] active:scale-[0.95] ${!isValid ? 'pointer-events-none opacity-30' : ''}`}
               data-no-dnd="true"
               disabled={!isValid}
             >
