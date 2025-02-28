@@ -36,7 +36,7 @@ export const WelcomeModal = () => {
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-6">
             <button
               onClick={() => setIsShowModal(false)}
-              className="hover:text-foreground cursor-pointer rounded bg-blue-500 px-4 py-2 text-sm text-nowrap text-white hover:bg-blue-600 sm:text-base"
+              className="hover:text-foreground cursor-pointer rounded bg-amber-500 px-4 py-2 text-sm text-nowrap text-white hover:bg-amber-600 sm:text-base"
             >
               Get Started
             </button>
