@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { TaskMatrix } from '@/entities/taskMatrix';
 import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
-import { getIsLoading } from '@/entities/taskMatrix/model/selectors/uiSelectors';
+import {
+  getIsLoading,
+  getTaskInputText,
+} from '@/entities/taskMatrix/model/selectors/uiSelectors';
 import {
   dragEndAction,
   dragOverQuadrantAction,
@@ -16,6 +19,7 @@ export const InteractWithMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
 
   const isLoading = useUIStore(getIsLoading);
+  const taskInputText = useUIStore(getTaskInputText);
   const [dragOverQuadrant, setDragOverQuadrant] = useState<MatrixKey | null>(
     null,
   );
@@ -53,10 +57,10 @@ export const InteractWithMatrix = () => {
   }, []);
 
   useEffect(() => {
-    if (!isSmallScreen) {
+    if (!isSmallScreen || taskInputText.trim() !== '') {
       setExpandedQuadrant(null);
     }
-  }, [isSmallScreen]);
+  }, [isSmallScreen, taskInputText]);
 
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
     null,
