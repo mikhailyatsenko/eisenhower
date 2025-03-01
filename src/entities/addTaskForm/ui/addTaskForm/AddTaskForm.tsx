@@ -44,7 +44,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
     <form
       onSubmit={handleFormSubmit}
       autoComplete="off"
-      className="mx-auto mb-4 max-w-md gap-2"
+      className="mx-auto mt-8 mb-4 max-w-md gap-2 sm:mt-2"
     >
       <div className="space-y-3">
         <input
