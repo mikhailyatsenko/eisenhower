@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
+import { useCallback, useEffect, useState } from 'react';
 import { TaskMatrix } from '@/entities/taskMatrix';
 import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
 import {
@@ -12,11 +14,12 @@ import {
   dragOverQuadrantAction,
   useTaskStore,
 } from '@/entities/taskMatrix/model/store/tasksStore';
-import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
+import {
+  setRecentlyAddedQuadrantAction,
+  useUIStore,
+} from '@/entities/taskMatrix/model/store/uiStore';
 import { MatrixKey } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
-import { useWindowResize } from '@/shared/hooks/useWindowResize';
-import { useDragEvents } from '../lib/hooks/useDragEvents';
-import { useExpandedQuadrant } from '../lib/hooks/useExpandedQuadrant';
+
 export const InteractWithMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
 
@@ -29,29 +32,103 @@ export const InteractWithMatrix = () => {
 
   const [isDragging, setIsDragging] = useState(false);
 
-  const dragEvents = useDragEvents({
-    setDragOverQuadrant,
-    setActiveTaskId,
-    setIsDragging,
-    tasks,
-    dragEndAction,
-    dragOverQuadrantAction,
-  });
+  const handleDragStart = (event: DragStartEvent) => {
+    setIsDragging(true);
+    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
+    setDragOverQuadrant(activeArea);
+    setActiveTaskId(event.active.id as string);
+  };
 
-  const {
-    expandedQuadrant,
-    handleToggleExpand,
-    isAnimateQuadrants,
-    setExpandedQuadrant,
-  } = useExpandedQuadrant();
+  const handleDragOver = (event: DragOverEvent) => {
+    const overArea = event.over?.data.current?.quadrantKey as MatrixKey;
+    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
 
-  const isSmallScreen = useWindowResize();
+    if (overArea && overArea !== activeArea) {
+      setDragOverQuadrant(overArea);
+    }
+
+    const taskId = event.active.id as string;
+
+    if (activeArea && overArea && activeArea !== overArea) {
+      dragOverQuadrantAction(taskId, activeArea, overArea);
+    }
+  };
+
+  const handleDragEnd = ({ over, active }: DragEndEvent) => {
+    const overArea = over?.data.current?.quadrantKey as MatrixKey;
+    const activeArea = active.data.current?.quadrantKey as MatrixKey;
+    setIsDragging(false);
+    setRecentlyAddedQuadrantAction(overArea);
+    if (!overArea || !activeArea) {
+      setDragOverQuadrant(null);
+      setActiveTaskId(null);
+      return;
+    }
+
+    const activeIndex = tasks[activeArea].findIndex(
+      (task) => task.id === active.id,
+    );
+    const overIndex = tasks[overArea].findIndex((task) => task.id === over?.id);
+
+    if (
+      activeIndex !== undefined &&
+      overIndex !== undefined &&
+      activeIndex !== overIndex
+    ) {
+      const newTasks = {
+        ...tasks,
+        [overArea]: arrayMove(tasks[overArea], activeIndex, overIndex),
+      };
+      dragEndAction(newTasks);
+    }
+
+    setDragOverQuadrant(null);
+    setActiveTaskId(null);
+  };
+
+  const [isSmallScreen, setIsSmallScreen] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false,
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isSmallScreen || taskInputText.trim() !== '') {
       setExpandedQuadrant(null);
     }
-  }, [isSmallScreen, setExpandedQuadrant, taskInputText]);
+  }, [isSmallScreen, taskInputText]);
+
+  const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
+    null,
+  );
+  const [isAnimateQuadrants, setIsAnimateQuadrants] = useState<boolean>(false);
+
+  const handleToggleExpand = useCallback(
+    (quadrant: MatrixKey) => {
+      setIsAnimateQuadrants(true);
+
+      setTimeout(() => {
+        setIsAnimateQuadrants(false);
+      }, 400);
+
+      setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
+    },
+    [expandedQuadrant],
+  );
 
   useEffect(() => {
     if (
@@ -75,7 +152,9 @@ export const InteractWithMatrix = () => {
       isAnimateByExpandQuadrant={isAnimateQuadrants}
       handleToggleExpand={handleToggleExpand}
       isSmallScreen={isSmallScreen}
-      dragEvents={dragEvents}
+      handleDragStart={handleDragStart}
+      handleDragOver={handleDragOver}
+      handleDragEnd={handleDragEnd}
     />
   );
 };
