@@ -29,33 +29,30 @@ import { Task } from '../../model/types/taskMatrixTypes';
 import { Quadrant } from '../quadrant/Quadrant';
 import { TaskItem } from '../taskItem/TaskItem';
 
-interface DragEvents {
-  handleDragStart: (event: DragStartEvent) => void;
-  handleDragOver: (event: DragOverEvent) => void;
-  handleDragEnd: ({ over, active }: DragEndEvent) => void;
-}
-
 interface TaskMatrixProps {
   expandedQuadrant: MatrixKey | null;
-  dragEvents: DragEvents;
   isAnimateByExpandQuadrant: boolean;
   handleToggleExpand: (quadrant: MatrixKey) => void;
   dragOverQuadrant: MatrixKey | null;
   isSmallScreen: boolean;
   activeTaskId: string | null;
+  handleDragStart: (event: DragStartEvent) => void;
+  handleDragOver: (event: DragOverEvent) => void;
+  handleDragEnd: (event: DragEndEvent) => void;
 }
 
 export const TaskMatrix: React.FC<TaskMatrixProps> = ({
   expandedQuadrant,
-  dragEvents,
   isAnimateByExpandQuadrant,
   handleToggleExpand,
   dragOverQuadrant,
   isSmallScreen,
   activeTaskId,
+  handleDragStart,
+  handleDragOver,
+  handleDragEnd,
 }) => {
   const isLoading = useUIStore(getIsLoading);
-
   const tasks = useTaskStore(getAllTasks);
 
   const sensors = useSensors(
@@ -67,8 +64,6 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-
-  const { handleDragStart, handleDragOver, handleDragEnd } = dragEvents;
 
   const dropAnimation: DropAnimation | null = isSmallScreen
     ? null
