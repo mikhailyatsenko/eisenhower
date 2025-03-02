@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { showToastNotificationByAddTask } from '@/utils/toastNotifications';
 import { AddTaskForm } from '@/entities/addTaskForm/ui/addTaskForm/AddTaskForm';
 import { MatrixKey } from '@/entities/taskMatrix';
 import { addTaskAction } from '@/entities/taskMatrix';
@@ -15,6 +14,7 @@ import {
   setTaskInputTextAction,
   useUIStore,
 } from '@/entities/taskMatrix/model/store/uiStore';
+import { showToastNotificationByAddTask } from '../../lib/toastNotifications';
 
 const useFormValidation = (taskInputText: string) => {
   const [isValid, setIsValid] = useState(true);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TaskMatrix } from '@/entities/taskMatrix';
 import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
 import {
@@ -14,7 +14,9 @@ import {
 } from '@/entities/taskMatrix/model/store/tasksStore';
 import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
 import { MatrixKey } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
+import { useWindowResize } from '@/shared/hooks/useWindowResize';
 import { useDragEvents } from '../lib/hooks/useDragEvents';
+import { useExpandedQuadrant } from '../lib/hooks/useExpandedQuadrant';
 export const InteractWithMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
 
@@ -36,49 +38,20 @@ export const InteractWithMatrix = () => {
     dragOverQuadrantAction,
   });
 
-  const [isSmallScreen, setIsSmallScreen] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 640 : false,
-  );
+  const {
+    expandedQuadrant,
+    handleToggleExpand,
+    isAnimateQuadrants,
+    setExpandedQuadrant,
+  } = useExpandedQuadrant();
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 640);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  const isSmallScreen = useWindowResize();
 
   useEffect(() => {
     if (!isSmallScreen || taskInputText.trim() !== '') {
       setExpandedQuadrant(null);
     }
-  }, [isSmallScreen, taskInputText]);
-
-  const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
-    null,
-  );
-  const [isAnimateQuadrants, setIsAnimateQuadrants] = useState<boolean>(false);
-
-  const handleToggleExpand = useCallback(
-    (quadrant: MatrixKey) => {
-      setIsAnimateQuadrants(true);
-
-      setTimeout(() => {
-        setIsAnimateQuadrants(false);
-      }, 400);
-
-      setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
-    },
-    [expandedQuadrant],
-  );
+  }, [isSmallScreen, setExpandedQuadrant, taskInputText]);
 
   useEffect(() => {
     if (
