@@ -16,8 +16,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
-import { Quadrant } from '@/entities/quadrant';
-import { TaskItem } from '@/entities/taskItem';
 import { MatrixQuadrants } from '@/entities/Matrix';
 import { getAllTasks } from '@/entities/Matrix/model/selectors/tasksSelector';
 import {
@@ -30,10 +28,9 @@ import {
   editTaskAction,
 } from '@/entities/Matrix/model/store/tasksStore';
 import { useUIStore } from '@/entities/Matrix/model/store/uiStore';
-import {
-  MatrixKey,
-  Task,
-} from '@/entities/Matrix/model/types/taskMatrixTypes';
+import { MatrixKey, Task } from '@/entities/Matrix/model/types/taskMatrixTypes';
+import { Quadrant } from '@/entities/quadrant';
+import { TaskItem } from '@/entities/taskItem';
 
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useDragEvents } from '../lib/useDragEvents';
