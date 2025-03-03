@@ -28,6 +28,7 @@ import { useTaskStore } from '../../model/store/tasksStore';
 import { Task } from '../../model/types/taskMatrixTypes';
 import { Quadrant } from '../quadrant/Quadrant';
 import { TaskItem } from '../taskItem/TaskItem';
+import { TaskMatrixHeader } from './TaskMatrixHeader';
 
 interface TaskMatrixProps {
   expandedQuadrant: MatrixKey | null;
@@ -103,22 +104,10 @@ export const TaskMatrix: React.FC<TaskMatrixProps> = ({
 
   return (
     <div className="relative flex w-full flex-wrap justify-center pt-6">
-      {!(expandedQuadrant || taskInputText) && (
-        <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
-          <div className="w-1/2 text-center">Urgent</div>
-          <div className="w-1/2 text-center">Not Urgent</div>
-        </div>
-      )}
-      {!(expandedQuadrant || taskInputText) && (
-        <div className="absolute left-0 flex h-full w-6 -translate-x-full flex-col">
-          <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
-            Important
-          </div>
-          <div className="h-1/2 -scale-100 text-center [writing-mode:_vertical-rl]">
-            Not Important
-          </div>
-        </div>
-      )}
+      <TaskMatrixHeader
+        expandedQuadrant={expandedQuadrant}
+        taskInputText={taskInputText}
+      />
 
       <DndContext
         sensors={sensors}

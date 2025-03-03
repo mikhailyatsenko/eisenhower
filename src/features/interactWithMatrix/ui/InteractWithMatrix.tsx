@@ -1,7 +1,6 @@
 'use client';
 
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
 import { TaskMatrix } from '@/entities/taskMatrix';
 import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
@@ -9,16 +8,14 @@ import {
   getIsLoading,
   getTaskInputText,
 } from '@/entities/taskMatrix/model/selectors/uiSelectors';
-import {
-  dragEndAction,
-  dragOverQuadrantAction,
-  useTaskStore,
-} from '@/entities/taskMatrix/model/store/tasksStore';
-import {
-  setRecentlyAddedQuadrantAction,
-  useUIStore,
-} from '@/entities/taskMatrix/model/store/uiStore';
+import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
+import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
 import { MatrixKey } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
+import {
+  handleDragStart,
+  handleDragOver,
+  handleDragEnd,
+} from '../lib/dragEvents';
 
 export const InteractWithMatrix = () => {
   const tasks = useTaskStore(getAllTasks);
@@ -32,58 +29,22 @@ export const InteractWithMatrix = () => {
 
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setIsDragging(true);
-    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
-    setDragOverQuadrant(activeArea);
-    setActiveTaskId(event.active.id as string);
+  const handleDragStartWrapper = (event: DragStartEvent) => {
+    handleDragStart(event, setIsDragging, setDragOverQuadrant, setActiveTaskId);
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const overArea = event.over?.data.current?.quadrantKey as MatrixKey;
-    const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
-
-    if (overArea && overArea !== activeArea) {
-      setDragOverQuadrant(overArea);
-    }
-
-    const taskId = event.active.id as string;
-
-    if (activeArea && overArea && activeArea !== overArea) {
-      dragOverQuadrantAction(taskId, activeArea, overArea);
-    }
+  const handleDragOverWrapper = (event: DragOverEvent) => {
+    handleDragOver(event, setDragOverQuadrant);
   };
 
-  const handleDragEnd = ({ over, active }: DragEndEvent) => {
-    const overArea = over?.data.current?.quadrantKey as MatrixKey;
-    const activeArea = active.data.current?.quadrantKey as MatrixKey;
-    setIsDragging(false);
-    setRecentlyAddedQuadrantAction(overArea);
-    if (!overArea || !activeArea) {
-      setDragOverQuadrant(null);
-      setActiveTaskId(null);
-      return;
-    }
-
-    const activeIndex = tasks[activeArea].findIndex(
-      (task) => task.id === active.id,
+  const handleDragEndWrapper = (event: DragEndEvent) => {
+    handleDragEnd(
+      event,
+      setIsDragging,
+      setDragOverQuadrant,
+      setActiveTaskId,
+      tasks,
     );
-    const overIndex = tasks[overArea].findIndex((task) => task.id === over?.id);
-
-    if (
-      activeIndex !== undefined &&
-      overIndex !== undefined &&
-      activeIndex !== overIndex
-    ) {
-      const newTasks = {
-        ...tasks,
-        [overArea]: arrayMove(tasks[overArea], activeIndex, overIndex),
-      };
-      dragEndAction(newTasks);
-    }
-
-    setDragOverQuadrant(null);
-    setActiveTaskId(null);
   };
 
   const [isSmallScreen, setIsSmallScreen] = useState(
@@ -152,9 +113,9 @@ export const InteractWithMatrix = () => {
       isAnimateByExpandQuadrant={isAnimateQuadrants}
       handleToggleExpand={handleToggleExpand}
       isSmallScreen={isSmallScreen}
-      handleDragStart={handleDragStart}
-      handleDragOver={handleDragOver}
-      handleDragEnd={handleDragEnd}
+      handleDragStart={handleDragStartWrapper}
+      handleDragOver={handleDragOverWrapper}
+      handleDragEnd={handleDragEndWrapper}
     />
   );
 };
