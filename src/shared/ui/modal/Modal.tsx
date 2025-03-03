@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect, useRef } from 'react';
-import { useScrollLock } from '../../lib/useScrollLock';
+import { useScrollLock } from '@/shared/hooks/useScrollLock';
 
 interface ModalProps {
   children: ReactNode;

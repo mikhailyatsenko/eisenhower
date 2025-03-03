@@ -1,5 +1,6 @@
+import { ToastContainer } from 'react-toastify';
+import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
-import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { WelcomeModal } from '@/entities/welcomeModal';
 
 export const HomePage = () => {
@@ -8,7 +9,8 @@ export const HomePage = () => {
       {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
       <WelcomeModal />
       <AddTask />
-      <InteractWithMatrix />
+      <TaskMatrix />
+      <ToastContainer />
     </div>
   );
 };

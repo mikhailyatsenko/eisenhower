@@ -1,30 +1,23 @@
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { MatrixKey } from '@/entities/taskMatrix';
-import { setRecentlyAddedQuadrantAction } from '@/entities/taskMatrix/model/store/uiStore';
-import { Tasks } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
-
-interface UseDragEventsProps {
-  setDragOverQuadrant: (quadrant: MatrixKey | null) => void;
-  setActiveTaskId: (id: string | null) => void;
-  setIsDragging: (isDragging: boolean) => void;
-  tasks: Tasks;
-  dragEndAction: (newTasks: Tasks) => void;
-  dragOverQuadrantAction: (
-    taskId: string,
-    fromQuadrant: MatrixKey,
-    toQuadrant: MatrixKey,
-  ) => void;
-}
-
-export const useDragEvents = ({
-  setDragOverQuadrant,
-  setActiveTaskId,
-  setIsDragging,
-  tasks,
+import { useState } from 'react';
+import {
   dragEndAction,
   dragOverQuadrantAction,
-}: UseDragEventsProps) => {
+} from '@/entities/Matrix/model/store/tasksStore';
+import { setRecentlyAddedQuadrantAction } from '@/entities/Matrix/model/store/uiStore';
+import {
+  MatrixKey,
+  Task,
+} from '@/entities/Matrix/model/types/taskMatrixTypes';
+
+export const useDragEvents = (tasks: Record<MatrixKey, Task[]>) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOverQuadrant, setDragOverQuadrant] = useState<MatrixKey | null>(
+    null,
+  );
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+
   const handleDragStart = (event: DragStartEvent) => {
     setIsDragging(true);
     const activeArea = event.active.data.current?.quadrantKey as MatrixKey;
@@ -51,7 +44,6 @@ export const useDragEvents = ({
     const overArea = over?.data.current?.quadrantKey as MatrixKey;
     const activeArea = active.data.current?.quadrantKey as MatrixKey;
     setIsDragging(false);
-    console.log('inside dragEnd', overArea);
     setRecentlyAddedQuadrantAction(overArea);
     if (!overArea || !activeArea) {
       setDragOverQuadrant(null);
@@ -80,5 +72,12 @@ export const useDragEvents = ({
     setActiveTaskId(null);
   };
 
-  return { handleDragStart, handleDragOver, handleDragEnd };
+  return {
+    isDragging,
+    dragOverQuadrant,
+    activeTaskId,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+  };
 };

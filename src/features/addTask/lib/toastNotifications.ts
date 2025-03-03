@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
-import { MatrixKey } from '@/entities/taskMatrix/@x/matrixKey';
-import { MatrixQuadrants } from '@/entities/taskMatrix/model/consts/taskMatrixConsts';
+import { MatrixKey } from '@/entities/Matrix/@x/matrixKey';
+import { MatrixQuadrants } from '@/entities/Matrix/model/consts/taskMatrixConsts';
 
 export const showToastNotificationByAddTask = (quadrant: MatrixKey) => {
   toast.success(`Task successfully added to ${MatrixQuadrants[quadrant]}`, {
