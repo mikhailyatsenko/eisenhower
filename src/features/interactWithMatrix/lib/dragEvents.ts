@@ -5,10 +5,7 @@ import {
   dragOverQuadrantAction,
 } from '@/entities/Matrix/model/store/tasksStore';
 import { setRecentlyAddedQuadrantAction } from '@/entities/Matrix/model/store/uiStore';
-import {
-  MatrixKey,
-  Task,
-} from '@/entities/Matrix/model/types/taskMatrixTypes';
+import { MatrixKey, Task } from '@/entities/Matrix/model/types/taskMatrixTypes';
 
 export const handleDragStart = (
   event: DragStartEvent,
