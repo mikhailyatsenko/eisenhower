@@ -10,19 +10,31 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
+import { Quadrant } from '@/entities/quadrant';
+import { TaskItem } from '@/entities/taskItem';
 import { MatrixQuadrants } from '@/entities/taskMatrix';
 import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
-import { getSelectedCategory } from '@/entities/taskMatrix/model/selectors/uiSelectors';
+import {
+  getRecentlyAddedQuadrant,
+  getSelectedCategory,
+} from '@/entities/taskMatrix/model/selectors/uiSelectors';
 import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
+import {
+  deleteTaskAction,
+  editTaskAction,
+} from '@/entities/taskMatrix/model/store/tasksStore';
 import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
 import {
   MatrixKey,
   Task,
 } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
-import { Quadrant } from '@/entities/taskMatrix/ui/quadrant/Quadrant';
-import { TaskItem } from '@/entities/taskMatrix/ui/taskItem/TaskItem';
+
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useDragEvents } from '../lib/useDragEvents';
 
@@ -135,6 +147,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     setQuadrantOrder(newOrder);
   }, [taskInputText, selectedCategory]);
 
+  const recentlyAddedQuadrant = useUIStore(getRecentlyAddedQuadrant);
+
   const dropAnimation: DropAnimation | null = isSmallScreen
     ? null
     : {
@@ -151,7 +165,6 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     >
       {Object.entries(MatrixQuadrants).map(([key]) => (
         <Quadrant
-          tasks={tasks[key as MatrixKey]}
           isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
           handleToggleExpand={handleToggleExpand}
           expandedQuadrant={expandedQuadrant}
@@ -160,7 +173,35 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
           isDragOver={dragOverQuadrant === key}
           orderIndex={quadrantOrder.indexOf(key)}
           isTypingNewTask={taskInputText.trim() !== ''}
-        />
+          recentlyAddedQuadrant={recentlyAddedQuadrant}
+        >
+          <SortableContext
+            items={tasks[key as MatrixKey]}
+            strategy={verticalListSortingStrategy}
+          >
+            <ul
+              className={`scrollbar-hidden relative z-2 list-none flex-col ${expandedQuadrant === key ? 'flex pb-8' : 'hidden'} h-full overflow-x-hidden overflow-y-auto sm:flex`}
+            >
+              {tasks[key as MatrixKey].map((task, index) => (
+                <TaskItem
+                  deleteTaskAction={deleteTaskAction}
+                  editTaskAction={editTaskAction}
+                  key={task.id}
+                  task={task}
+                  quadrantKey={key as MatrixKey}
+                  index={index}
+                />
+              ))}
+            </ul>
+
+            <p
+              className={`text-foreground absolute top-0 left-1 z-0 text-7xl opacity-15 sm:top-1 sm:left-6 sm:text-sm sm:opacity-50 ${tasks[key as MatrixKey].length === 0 ? 'sm:!text-7xl sm:!opacity-25' : ''}`}
+            >
+              {expandedQuadrant !== key &&
+                `${tasks[key as MatrixKey].length} task${tasks[key as MatrixKey].length !== 1 ? 's' : ''}`}
+            </p>
+          </SortableContext>
+        </Quadrant>
       ))}
       <DragOverlay dropAnimation={dropAnimation}>
         {activeTaskId ? (
