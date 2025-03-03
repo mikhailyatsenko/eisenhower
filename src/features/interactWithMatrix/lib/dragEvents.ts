@@ -3,12 +3,12 @@ import { arrayMove } from '@dnd-kit/sortable';
 import {
   dragEndAction,
   dragOverQuadrantAction,
-} from '@/entities/taskMatrix/model/store/tasksStore';
-import { setRecentlyAddedQuadrantAction } from '@/entities/taskMatrix/model/store/uiStore';
+} from '@/entities/Matrix/model/store/tasksStore';
+import { setRecentlyAddedQuadrantAction } from '@/entities/Matrix/model/store/uiStore';
 import {
   MatrixKey,
   Task,
-} from '@/entities/taskMatrix/model/types/taskMatrixTypes';
+} from '@/entities/Matrix/model/types/taskMatrixTypes';
 
 export const handleDragStart = (
   event: DragStartEvent,

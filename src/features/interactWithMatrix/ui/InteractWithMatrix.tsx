@@ -18,22 +18,22 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { Quadrant } from '@/entities/quadrant';
 import { TaskItem } from '@/entities/taskItem';
-import { MatrixQuadrants } from '@/entities/taskMatrix';
-import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
+import { MatrixQuadrants } from '@/entities/Matrix';
+import { getAllTasks } from '@/entities/Matrix/model/selectors/tasksSelector';
 import {
   getRecentlyAddedQuadrant,
   getSelectedCategory,
-} from '@/entities/taskMatrix/model/selectors/uiSelectors';
-import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
+} from '@/entities/Matrix/model/selectors/uiSelectors';
+import { useTaskStore } from '@/entities/Matrix/model/store/tasksStore';
 import {
   deleteTaskAction,
   editTaskAction,
-} from '@/entities/taskMatrix/model/store/tasksStore';
-import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
+} from '@/entities/Matrix/model/store/tasksStore';
+import { useUIStore } from '@/entities/Matrix/model/store/uiStore';
 import {
   MatrixKey,
   Task,
-} from '@/entities/taskMatrix/model/types/taskMatrixTypes';
+} from '@/entities/Matrix/model/types/taskMatrixTypes';
 
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useDragEvents } from '../lib/useDragEvents';

@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 
 // eslint-disable-next-line boundaries/element-types
-import { type MatrixKey } from '@/entities/taskMatrix/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+import { type MatrixKey } from '@/entities/Matrix/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 import { quadrantStyles } from '../../lib/quadrantStyles';
 import { Buttons } from './Buttons';
 
@@ -47,7 +47,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
     : expandedQuadrant === null
       ? 'w-[calc(50%-8px)] h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2)]'
       : isExpandedCurrentQuadrant
-        ? '!order-first max-h-[calc(100dvh-550px)] min-h-40 w-full !pb-0'
+        ? '!order-first max-h-[calc(100dvh-200px)] min-h-40 w-full !pb-0'
         : 'h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]';
 
   const animateByExpandQuadrant = isAnimateByExpandQuadrant

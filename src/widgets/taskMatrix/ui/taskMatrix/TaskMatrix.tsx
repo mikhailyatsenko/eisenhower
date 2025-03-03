@@ -2,14 +2,13 @@
 
 import { useState } from 'react';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
-import { MatrixKey } from '@/entities/taskMatrix';
+import { MatrixKey } from '@/entities/Matrix';
 import {
   getIsLoading,
   getTaskInputText,
-} from '@/entities/taskMatrix/model/selectors/uiSelectors';
-import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
-
-import { TaskMatrixHeader } from './TaskMatrixHeader';
+} from '@/entities/Matrix/model/selectors/uiSelectors';
+import { useUIStore } from '@/entities/Matrix/model/store/uiStore';
+import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
 
 export const TaskMatrix: React.FC = () => {
   const isLoading = useUIStore(getIsLoading);
@@ -26,10 +25,7 @@ export const TaskMatrix: React.FC = () => {
 
   return (
     <div className="relative flex w-full flex-wrap justify-center pt-6">
-      <TaskMatrixHeader
-        expandedQuadrant={expandedQuadrant}
-        taskInputText={taskInputText}
-      />
+      {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
 
       <InteractWithMatrix
         expandedQuadrant={expandedQuadrant}
