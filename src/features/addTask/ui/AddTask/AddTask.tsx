@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { AddTaskForm } from '@/entities/addTaskForm/ui/addTaskForm/AddTaskForm';
-import { MatrixKey } from '@/entities/taskMatrix';
-import { addTaskAction } from '@/entities/taskMatrix';
+import { MatrixKey } from '@/entities/Matrix';
+import { addTaskAction } from '@/entities/Matrix';
 import {
   getSelectedCategory,
   getTaskInputText,
-} from '@/entities/taskMatrix/model/selectors/uiSelectors';
+} from '@/entities/Matrix/model/selectors/uiSelectors';
 import {
   setRecentlyAddedQuadrantAction,
   setSelectedCategoryAction,
   setTaskInputTextAction,
   useUIStore,
-} from '@/entities/taskMatrix/model/store/uiStore';
+} from '@/entities/Matrix/model/store/uiStore';
 import { showToastNotificationByAddTask } from '../../lib/toastNotifications';
 
 const useFormValidation = (taskInputText: string) => {

@@ -1,18 +1,4 @@
-import React from 'react';
-
-interface TaskMatrixHeaderProps {
-  expandedQuadrant: string | null;
-  taskInputText: string;
-}
-
-export const TaskMatrixHeader: React.FC<TaskMatrixHeaderProps> = ({
-  expandedQuadrant,
-  taskInputText,
-}) => {
-  if (expandedQuadrant || taskInputText) {
-    return null;
-  }
-
+export const TaskMatrixHeaders: React.FC = () => {
   return (
     <>
       <div className="absolute flex h-6 w-full -translate-y-full flex-nowrap">
