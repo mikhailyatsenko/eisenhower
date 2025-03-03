@@ -1,51 +1,62 @@
 'use client';
 
-import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
-import { useCallback, useEffect, useState } from 'react';
-import { TaskMatrix } from '@/entities/taskMatrix';
-import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
 import {
-  getIsLoading,
-  getTaskInputText,
-} from '@/entities/taskMatrix/model/selectors/uiSelectors';
+  closestCenter,
+  defaultDropAnimation,
+  DndContext,
+  DragOverlay,
+  DropAnimation,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { useCallback, useEffect, useState } from 'react';
+import { MatrixQuadrants } from '@/entities/taskMatrix';
+import { getAllTasks } from '@/entities/taskMatrix/model/selectors/tasksSelector';
+import { getSelectedCategory } from '@/entities/taskMatrix/model/selectors/uiSelectors';
 import { useTaskStore } from '@/entities/taskMatrix/model/store/tasksStore';
 import { useUIStore } from '@/entities/taskMatrix/model/store/uiStore';
-import { MatrixKey } from '@/entities/taskMatrix/model/types/taskMatrixTypes';
 import {
-  handleDragStart,
-  handleDragOver,
-  handleDragEnd,
-} from '../lib/dragEvents';
+  MatrixKey,
+  Task,
+} from '@/entities/taskMatrix/model/types/taskMatrixTypes';
+import { Quadrant } from '@/entities/taskMatrix/ui/quadrant/Quadrant';
+import { TaskItem } from '@/entities/taskMatrix/ui/taskItem/TaskItem';
+import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
+import { useDragEvents } from '../lib/useDragEvents';
 
-export const InteractWithMatrix = () => {
+interface InteractWithMatrixProps {
+  setExpandedQuadrant: React.Dispatch<React.SetStateAction<MatrixKey | null>>;
+  expandedQuadrant: MatrixKey | null;
+  taskInputText: string;
+}
+
+export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
+  expandedQuadrant,
+  setExpandedQuadrant,
+  taskInputText,
+}) => {
   const tasks = useTaskStore(getAllTasks);
 
-  const isLoading = useUIStore(getIsLoading);
-  const taskInputText = useUIStore(getTaskInputText);
-  const [dragOverQuadrant, setDragOverQuadrant] = useState<MatrixKey | null>(
-    null,
+  const {
+    isDragging,
+    dragOverQuadrant,
+    activeTaskId,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+  } = useDragEvents(tasks);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 300, tolerance: 10 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
-
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleDragStartWrapper = (event: DragStartEvent) => {
-    handleDragStart(event, setIsDragging, setDragOverQuadrant, setActiveTaskId);
-  };
-
-  const handleDragOverWrapper = (event: DragOverEvent) => {
-    handleDragOver(event, setDragOverQuadrant);
-  };
-
-  const handleDragEndWrapper = (event: DragEndEvent) => {
-    handleDragEnd(
-      event,
-      setIsDragging,
-      setDragOverQuadrant,
-      setActiveTaskId,
-      tasks,
-    );
-  };
 
   const [isSmallScreen, setIsSmallScreen] = useState(
     typeof window !== 'undefined' ? window.innerWidth < 640 : false,
@@ -71,24 +82,22 @@ export const InteractWithMatrix = () => {
     if (!isSmallScreen || taskInputText.trim() !== '') {
       setExpandedQuadrant(null);
     }
-  }, [isSmallScreen, taskInputText]);
+  }, [isSmallScreen, setExpandedQuadrant, taskInputText]);
 
-  const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
-    null,
-  );
-  const [isAnimateQuadrants, setIsAnimateQuadrants] = useState<boolean>(false);
+  const [isAnimateByExpandQuadrant, setIsAnimateByExpandQuadrant] =
+    useState<boolean>(false);
 
   const handleToggleExpand = useCallback(
     (quadrant: MatrixKey) => {
-      setIsAnimateQuadrants(true);
+      setIsAnimateByExpandQuadrant(true);
 
       setTimeout(() => {
-        setIsAnimateQuadrants(false);
+        setIsAnimateByExpandQuadrant(false);
       }, 400);
 
       setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
     },
-    [expandedQuadrant],
+    [expandedQuadrant, setExpandedQuadrant],
   );
 
   useEffect(() => {
@@ -101,21 +110,71 @@ export const InteractWithMatrix = () => {
     }
   }, [tasks, expandedQuadrant, isDragging, handleToggleExpand]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const [quadrantOrder, setQuadrantOrder] = useState([
+    'ImportantUrgent',
+    'ImportantNotUrgent',
+    'NotImportantUrgent',
+    'NotImportantNotUrgent',
+  ]);
+
+  const selectedCategory = useUIStore(getSelectedCategory);
+
+  useEffect(() => {
+    let newOrder = [
+      'ImportantUrgent',
+      'ImportantNotUrgent',
+      'NotImportantUrgent',
+      'NotImportantNotUrgent',
+    ];
+
+    if (taskInputText.trim() !== '' && selectedCategory) {
+      newOrder = newOrder.filter((q) => q !== selectedCategory);
+      newOrder.unshift(selectedCategory);
+    }
+
+    setQuadrantOrder(newOrder);
+  }, [taskInputText, selectedCategory]);
+
+  const dropAnimation: DropAnimation | null = isSmallScreen
+    ? null
+    : {
+        ...defaultDropAnimation,
+      };
 
   return (
-    <TaskMatrix
-      expandedQuadrant={expandedQuadrant}
-      activeTaskId={activeTaskId}
-      dragOverQuadrant={dragOverQuadrant}
-      isAnimateByExpandQuadrant={isAnimateQuadrants}
-      handleToggleExpand={handleToggleExpand}
-      isSmallScreen={isSmallScreen}
-      handleDragStart={handleDragStartWrapper}
-      handleDragOver={handleDragOverWrapper}
-      handleDragEnd={handleDragEndWrapper}
-    />
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
+      {Object.entries(MatrixQuadrants).map(([key]) => (
+        <Quadrant
+          tasks={tasks[key as MatrixKey]}
+          isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
+          handleToggleExpand={handleToggleExpand}
+          expandedQuadrant={expandedQuadrant}
+          key={key}
+          quadrantKey={key as MatrixKey}
+          isDragOver={dragOverQuadrant === key}
+          orderIndex={quadrantOrder.indexOf(key)}
+          isTypingNewTask={taskInputText.trim() !== ''}
+        />
+      ))}
+      <DragOverlay dropAnimation={dropAnimation}>
+        {activeTaskId ? (
+          <TaskItem
+            task={
+              tasks[dragOverQuadrant as MatrixKey].find(
+                (t) => t.id === activeTaskId,
+              ) as Task
+            }
+            quadrantKey={dragOverQuadrant as MatrixKey}
+            index={0}
+          />
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 };
