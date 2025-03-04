@@ -171,6 +171,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
           orderIndex={quadrantOrder.indexOf(key)}
           isTypingNewTask={taskInputText.trim() !== ''}
           recentlyAddedQuadrant={recentlyAddedQuadrant}
+          isNoTasks={tasks[key as MatrixKey].length === 0}
         >
           <SortableContext
             items={tasks[key as MatrixKey]}
