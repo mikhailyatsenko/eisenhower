@@ -47,6 +47,11 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   taskInputText,
 }) => {
   const tasks = useTaskStore(getAllTasks);
+  const syncTasks = useTaskStore((state) => state.syncTasks);
+
+  useEffect(() => {
+    syncTasks();
+  }, [syncTasks]);
 
   const {
     isDragging,
