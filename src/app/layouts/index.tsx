@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '../styles';
 import { cookies } from 'next/headers';
+import Script from 'next/script';
 import { ThemeToggle } from '@/features/toggleTheme';
 
 const geistSans = Geist({
@@ -35,6 +36,20 @@ export async function RootLayout({
       className={serverThemeCookie === 'dark' ? serverThemeCookie : ''}
     >
       <head>
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-GY83Q99SMG"
+        />
+        <Script />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {` window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-GY83Q99SMG');`}
+        </Script>
+
         <link
           rel="apple-touch-icon"
           sizes="57x57"
