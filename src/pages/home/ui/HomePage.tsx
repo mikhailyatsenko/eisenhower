@@ -1,6 +1,6 @@
 'use client';
 
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { auth } from '@/firebaseConfig';
@@ -11,11 +11,12 @@ import { syncTasks } from '@/entities/Matrix/model/store/tasksStore';
 import { WelcomeModal } from '@/entities/welcomeModal';
 
 export const HomePage = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      console.log('currentUser', currentUser);
       if (currentUser) {
         syncTasks();
       }

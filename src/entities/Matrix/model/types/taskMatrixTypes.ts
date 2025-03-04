@@ -11,7 +11,7 @@ export interface Task {
 export interface FirestoreTaskData {
   id: string;
   text: string;
-  createdAt: string; // Firestore stores dates as strings
+  createdAt: string;
   quadrantKey: MatrixKey;
   userId: string;
 }
