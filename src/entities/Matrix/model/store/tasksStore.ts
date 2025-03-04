@@ -1,22 +1,8 @@
-import {
-  collection,
-  getDocs,
-  setDoc,
-  doc,
-  query,
-  where,
-} from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { db, auth } from '@/firebaseConfig';
-import {
-  MatrixKey,
-  Task,
-  Tasks,
-  FirestoreTaskData,
-} from '../types/taskMatrixTypes';
+import { MatrixKey, Task, Tasks } from '../types/taskMatrixTypes';
 import { setLoadingAction } from './uiStore';
 
 export interface TaskState {
@@ -30,58 +16,14 @@ const initialState: Tasks = {
   NotImportantNotUrgent: [],
 };
 
-const fetchTasksFromFirebase = async (): Promise<Tasks> => {
-  const user = auth.currentUser;
-  if (!user) return initialState;
-
-  const tasksCollection = collection(db, 'tasks');
-  const q = query(tasksCollection, where('userId', '==', user.uid));
-  const tasksSnapshot = await getDocs(q);
-
-  const tasksData: Tasks = {
-    ImportantUrgent: [],
-    ImportantNotUrgent: [],
-    NotImportantUrgent: [],
-    NotImportantNotUrgent: [],
-  };
-
-  tasksSnapshot.forEach((doc) => {
-    const data = doc.data() as FirestoreTaskData;
-    const task: Task = {
-      id: data.id,
-      text: data.text,
-      createdAt: new Date(data.createdAt),
-    };
-    tasksData[data.quadrantKey].push(task);
-  });
-
-  return tasksData;
-};
-
-const syncTasksToFirebase = async (tasks: Tasks) => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  for (const [key, taskList] of Object.entries(tasks)) {
-    for (const task of taskList) {
-      await setDoc(doc(db, 'tasks', task.id), {
-        ...task,
-        quadrantKey: key,
-        userId: user.uid,
-        createdAt: task.createdAt.toISOString(),
-      });
-    }
-  }
-};
-
 export const useTaskStore = create<TaskState>()(
   persist(
     immer((set) => ({
       tasks: initialState,
-      syncTasks: async () => {
-        const tasks = await fetchTasksFromFirebase();
-        set({ tasks });
-      },
+      setTasks: (tasks: Tasks) =>
+        set((state) => {
+          state.tasks = tasks;
+        }),
     })),
     {
       name: 'task-store',
@@ -92,7 +34,7 @@ export const useTaskStore = create<TaskState>()(
   ),
 );
 
-export const addTaskAction = async (
+export const addTaskAction = (
   quadrantKey: MatrixKey,
   taskInputText: string,
 ) => {
@@ -105,10 +47,9 @@ export const addTaskAction = async (
     };
     state.tasks[quadrantKey].push(newTask);
   });
-  await syncTasksToFirebase(useTaskStore.getState().tasks);
 };
 
-export const editTaskAction = async (
+export const editTaskAction = (
   quadrantKey: MatrixKey,
   taskId: string,
   newText: string,
@@ -117,7 +58,6 @@ export const editTaskAction = async (
     const task = state.tasks[quadrantKey].find((t) => t.id === taskId);
     if (task) task.text = newText;
   });
-  await syncTasksToFirebase(useTaskStore.getState().tasks);
 };
 
 export const dragOverQuadrantAction = (
@@ -146,14 +86,10 @@ export const dragEndAction = (newTasks: Tasks) => {
   });
 };
 
-export const deleteTaskAction = async (
-  quadrantKey: MatrixKey,
-  taskId: string,
-) => {
+export const deleteTaskAction = (quadrantKey: MatrixKey, taskId: string) => {
   useTaskStore.setState((state) => {
     state.tasks[quadrantKey] = state.tasks[quadrantKey].filter(
       (t: Task) => t.id !== taskId,
     );
   });
-  await syncTasksToFirebase(useTaskStore.getState().tasks);
 };
