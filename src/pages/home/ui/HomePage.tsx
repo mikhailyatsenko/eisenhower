@@ -13,7 +13,7 @@ import { WelcomeModal } from '@/entities/welcomeModal';
 
 export const HomePage = () => {
   const [user, setUser] = useState(null);
-  const setTasks = useTaskStore((state) => state.setTasks);
+  const setTasks = useTaskStore((state) => state.syncTasks);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
