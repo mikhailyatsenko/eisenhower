@@ -15,6 +15,7 @@ interface CategoryBlockProps {
   isTypingNewTask: boolean;
   children: React.ReactNode;
   recentlyAddedQuadrant: MatrixKey | null;
+  isNoTasks: boolean;
 }
 
 const titleMap = {
@@ -33,6 +34,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
   orderIndex,
   isTypingNewTask,
   recentlyAddedQuadrant,
+  isNoTasks,
   children,
 }) => {
   const { setNodeRef } = useDroppable({
@@ -71,7 +73,7 @@ export const Quadrant: React.FC<CategoryBlockProps> = ({
         {titleMap[quadrantKey]}
       </h2>
       {children}
-      {!isTypingNewTask && (
+      {!isTypingNewTask && !isNoTasks && (
         <Buttons
           handleToggleExpand={handleToggleExpand}
           quadrantKey={quadrantKey}
