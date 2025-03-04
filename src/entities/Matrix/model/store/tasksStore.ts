@@ -76,12 +76,8 @@ const syncTasksToFirebase = async (tasks: Tasks) => {
 
 export const useTaskStore = create<TaskState>()(
   persist(
-    immer((set) => ({
+    immer(() => ({
       tasks: initialState,
-      syncTasks: async () => {
-        const tasks = await fetchTasksFromFirebase();
-        set({ tasks });
-      },
     })),
     {
       name: 'task-store',
@@ -91,6 +87,11 @@ export const useTaskStore = create<TaskState>()(
     },
   ),
 );
+
+export const syncTasks = async () => {
+  const tasks = await fetchTasksFromFirebase();
+  useTaskStore.setState({ tasks });
+};
 
 export const addTaskAction = async (
   quadrantKey: MatrixKey,
