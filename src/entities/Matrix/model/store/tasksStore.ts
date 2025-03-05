@@ -20,7 +20,9 @@ import {
 import { setLoadingAction } from './uiStore';
 
 export interface TaskState {
-  tasks: Tasks;
+  localTasks: Tasks;
+  firebaseTasks: Tasks;
+  activeState: 'local' | 'firebase';
 }
 
 const initialState: Tasks = {
@@ -76,11 +78,14 @@ const syncTasksToFirebase = async (tasks: Tasks) => {
 
 export const useTaskStore = create<TaskState>()(
   persist(
-    immer(() => ({
-      tasks: initialState,
+    immer<TaskState>(() => ({
+      localTasks: initialState,
+      firebaseTasks: initialState,
+      activeState: 'local',
     })),
     {
       name: 'task-store',
+      partialize: (state) => ({ localTasks: state.localTasks }),
       onRehydrateStorage: () => {
         setLoadingAction(false);
       },
@@ -90,7 +95,21 @@ export const useTaskStore = create<TaskState>()(
 
 export const syncTasks = async () => {
   const tasks = await fetchTasksFromFirebase();
-  useTaskStore.setState({ tasks });
+  useTaskStore.setState((state) => {
+    state.firebaseTasks = tasks;
+  });
+};
+
+export const switchToLocalTasks = () => {
+  useTaskStore.setState((state) => {
+    state.activeState = 'local';
+  });
+};
+
+export const switchToFirebaseTasks = () => {
+  useTaskStore.setState((state) => {
+    state.activeState = 'firebase';
+  });
 };
 
 export const addTaskAction = async (
@@ -104,9 +123,15 @@ export const addTaskAction = async (
       text: taskInputText,
       createdAt: new Date(),
     };
-    state.tasks[quadrantKey].push(newTask);
+    if (state.activeState === 'local') {
+      state.localTasks[quadrantKey].push(newTask);
+    } else {
+      state.firebaseTasks[quadrantKey].push(newTask);
+    }
   });
-  await syncTasksToFirebase(useTaskStore.getState().tasks);
+  if (useTaskStore.getState().activeState === 'firebase') {
+    await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
+  }
 };
 
 export const editTaskAction = async (
@@ -115,10 +140,14 @@ export const editTaskAction = async (
   newText: string,
 ) => {
   useTaskStore.setState((state) => {
-    const task = state.tasks[quadrantKey].find((t) => t.id === taskId);
+    const tasks =
+      state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const task = tasks[quadrantKey].find((t) => t.id === taskId);
     if (task) task.text = newText;
   });
-  await syncTasksToFirebase(useTaskStore.getState().tasks);
+  if (useTaskStore.getState().activeState === 'firebase') {
+    await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
+  }
 };
 
 export const dragOverQuadrantAction = (
@@ -127,8 +156,10 @@ export const dragOverQuadrantAction = (
   toQuadrant: MatrixKey,
 ) => {
   useTaskStore.setState((state) => {
-    const activeItems = state.tasks[fromQuadrant];
-    const overItems = state.tasks[toQuadrant];
+    const tasks =
+      state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const activeItems = tasks[fromQuadrant];
+    const overItems = tasks[toQuadrant];
 
     const activeIndex = activeItems.findIndex(
       (item: Task) => item.id === taskId,
@@ -143,7 +174,11 @@ export const dragOverQuadrantAction = (
 
 export const dragEndAction = (newTasks: Tasks) => {
   useTaskStore.setState((state) => {
-    state.tasks = newTasks;
+    if (state.activeState === 'local') {
+      state.localTasks = newTasks;
+    } else {
+      state.firebaseTasks = newTasks;
+    }
   });
 };
 
@@ -152,9 +187,13 @@ export const deleteTaskAction = async (
   taskId: string,
 ) => {
   useTaskStore.setState((state) => {
-    state.tasks[quadrantKey] = state.tasks[quadrantKey].filter(
+    const tasks =
+      state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    tasks[quadrantKey] = tasks[quadrantKey].filter(
       (t: Task) => t.id !== taskId,
     );
   });
-  await syncTasksToFirebase(useTaskStore.getState().tasks);
+  if (useTaskStore.getState().activeState === 'firebase') {
+    await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
+  }
 };
