@@ -17,12 +17,20 @@ import {
 } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
 import { MatrixQuadrants } from '@/entities/Matrix';
-import { getAllTasks } from '@/entities/Matrix/model/selectors/tasksSelector';
+import {
+  getActiveState,
+  getAllFirebaseTasks,
+  getAllLocalTasks,
+} from '@/entities/Matrix/model/selectors/tasksSelector';
 import {
   getRecentlyAddedQuadrant,
   getSelectedCategory,
 } from '@/entities/Matrix/model/selectors/uiSelectors';
-import { useTaskStore } from '@/entities/Matrix/model/store/tasksStore';
+import {
+  switchToFirebaseTasks,
+  switchToLocalTasks,
+  useTaskStore,
+} from '@/entities/Matrix/model/store/tasksStore';
 import {
   deleteTaskAction,
   editTaskAction,
@@ -46,7 +54,11 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   setExpandedQuadrant,
   taskInputText,
 }) => {
-  const tasks = useTaskStore(getAllTasks);
+  const activeState = useTaskStore(getActiveState);
+  console.log('activeState', activeState);
+  const allLocalTasks = useTaskStore(getAllLocalTasks);
+  const allFirebaseTasks = useTaskStore(getAllFirebaseTasks);
+  const tasks = activeState === 'local' ? allLocalTasks : allFirebaseTasks;
 
   const {
     isDragging,
@@ -160,6 +172,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
+      <button onClick={switchToFirebaseTasks}>switchToFirebaseTasks</button>
+      <button onClick={switchToLocalTasks}>switchToLocalTasks</button>
       {Object.entries(MatrixQuadrants).map(([key]) => (
         <Quadrant
           isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}

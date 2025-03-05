@@ -34,15 +34,9 @@ export const HomePage = () => {
     <div className="mx-auto w-[calc(100%-48px)] pt-6 lg:w-5/6">
       {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
       <WelcomeModal />
-      {user ? (
-        <>
-          <AddTask />
-          <TaskMatrix />
-          <button onClick={handleLogout}>Logout</button>
-        </>
-      ) : (
-        <Auth />
-      )}
+      <AddTask />
+      <TaskMatrix />
+      {user ? <button onClick={handleLogout}>Logout</button> : <Auth />}
       <ToastContainer />
     </div>
   );

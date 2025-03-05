@@ -1,32 +1,32 @@
 'use client';
 
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  // createUserWithEmailAndPassword,
+  // signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
-import React, { useState } from 'react';
+import React from 'react';
 import { auth } from '@/firebaseConfig';
 
 export const Auth: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isRegistering, setIsRegistering] = useState(false);
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
+  // const [isRegistering, setIsRegistering] = useState(false);
 
-  const handleAuth = async () => {
-    try {
-      if (isRegistering) {
-        await createUserWithEmailAndPassword(auth, email, password);
-        console.log('User registered successfully');
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-        console.log('User signed in successfully');
-      }
-    } catch (error) {
-      console.error('Authentication error:', error);
-    }
-  };
+  // const handleAuth = async () => {
+  //   try {
+  //     if (isRegistering) {
+  //       await createUserWithEmailAndPassword(auth, email, password);
+  //       console.log('User registered successfully');
+  //     } else {
+  //       await signInWithEmailAndPassword(auth, email, password);
+  //       console.log('User signed in successfully');
+  //     }
+  //   } catch (error) {
+  //     console.error('Authentication error:', error);
+  //   }
+  // };
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -41,7 +41,7 @@ export const Auth: React.FC = () => {
 
   return (
     <div>
-      <h1>{isRegistering ? 'Register' : 'Login'}</h1>
+      {/* <h1>{isRegistering ? 'Register' : 'Login'}</h1>
       <input
         type="email"
         placeholder="Email"
@@ -59,7 +59,7 @@ export const Auth: React.FC = () => {
       </button>
       <button onClick={() => setIsRegistering(!isRegistering)}>
         {isRegistering ? 'Switch to Login' : 'Switch to Register'}
-      </button>
+      </button> */}
       <button onClick={handleGoogleSignIn}>Sign in with Google</button>
     </div>
   );
