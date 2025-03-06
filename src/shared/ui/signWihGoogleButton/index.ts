@@ -1,0 +1,1 @@
+export { SignWihGoogleButton } from './SignWihGoogleButton';
