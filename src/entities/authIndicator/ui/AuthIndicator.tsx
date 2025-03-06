@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import CloseIcon from '@/shared/icons/close-icon.svg';
+// import CloseIcon from '@/shared/icons/close-icon.svg';
 import GoogleIcon from '@/shared/icons/google-icon.svg';
 import { SignWihGoogleButton } from '@/shared/ui/signWihGoogleButton';
 
@@ -60,7 +60,7 @@ export const AuthIndicator = () => {
       onClick={() => setIsOpen(true)}
     >
       {isOpen ? (
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col gap-2">
           <p className="mb-2 w-full">
             Your matrix is currently stored{' '}
             <strong>only on this device.</strong>
@@ -70,11 +70,11 @@ export const AuthIndicator = () => {
             <strong>sign in with Google</strong>
           </p>
 
-          <div className="flex w-[95%]">
+          <div className="flex w-[85%]">
             <SignWihGoogleButton />
           </div>
 
-          <div className="mt-auto w-1/5 opacity-40">
+          {/* <div className="mt-auto mb-4 flex w-1/3 justify-center opacity-50 duration-150 hover:opacity-100">
             <button
               className="cursor-pointer"
               onClick={(event) => {
@@ -82,9 +82,9 @@ export const AuthIndicator = () => {
                 setIsOpen(false);
               }}
             >
-              <CloseIcon className="fill-foreground h-10 w-10" />
+              <CloseIcon className="stroke-foreground h-10 w-10" />
             </button>
-          </div>
+          </div> */}
         </div>
       ) : (
         <div className="flex h-full w-full p-0.5">
