@@ -3,11 +3,8 @@
 import { useState } from 'react';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { MatrixKey } from '@/entities/Matrix';
-import {
-  getIsLoading,
-  getTaskInputText,
-} from '@/entities/Matrix/model/selectors/uiSelectors';
-import { useUIStore } from '@/entities/Matrix/model/store/uiStore';
+import { getIsLoading, getTaskInputText } from '@/entities/Matrix';
+import { useUIStore } from '@/entities/Matrix';
 import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
 
 export const TaskMatrix: React.FC = () => {

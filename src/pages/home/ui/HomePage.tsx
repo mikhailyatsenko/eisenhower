@@ -1,17 +1,18 @@
 'use client';
 
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { auth } from '@/firebaseConfig';
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
 import { Auth } from '@/features/auth/ui/Auth';
-import { syncTasks } from '@/entities/Matrix/model/store/tasksStore';
+import { syncTasks } from '@/entities/Matrix';
+import { useUserStore } from '@/entities/user';
 import { WelcomeModal } from '@/entities/welcomeModal';
 
 export const HomePage = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, setUser } = useUserStore();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -23,7 +24,7 @@ export const HomePage = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [setUser]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -36,7 +37,14 @@ export const HomePage = () => {
       <WelcomeModal />
       <AddTask />
       <TaskMatrix />
-      {user ? <button onClick={handleLogout}>Logout</button> : <Auth />}
+      {user ? (
+        <>
+          <div>{user.displayName}</div>
+          <button onClick={handleLogout}>Logout</button>
+        </>
+      ) : (
+        <Auth />
+      )}
       <ToastContainer />
     </div>
   );
