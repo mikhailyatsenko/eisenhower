@@ -31,8 +31,8 @@ export const SignWihGoogleButton: React.FC<SignWihGoogleButtonProps> = ({
         </svg>
       </div>
 
-      <span className="w-5/6 py-3 text-center font-bold">
-        Sign in with Google
+      <span className="w-5/6 py-3 text-center font-bold text-nowrap">
+        Continue with Google
       </span>
     </button>
   );
