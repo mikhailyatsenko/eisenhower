@@ -1,19 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AddTaskForm } from '@/entities/addTaskForm/ui/addTaskForm/AddTaskForm';
+import { AddTaskForm } from '@/entities/addTaskForm';
 import { MatrixKey } from '@/entities/Matrix';
 import { addTaskAction } from '@/entities/Matrix';
-import {
-  getSelectedCategory,
-  getTaskInputText,
-} from '@/entities/Matrix/model/selectors/uiSelectors';
+import { getSelectedCategory, getTaskInputText } from '@/entities/Matrix';
 import {
   setRecentlyAddedQuadrantAction,
   setSelectedCategoryAction,
   setTaskInputTextAction,
   useUIStore,
-} from '@/entities/Matrix/model/store/uiStore';
+} from '@/entities/Matrix';
 import { showToastNotificationByAddTask } from '../../lib/toastNotifications';
 
 const useFormValidation = (taskInputText: string) => {
