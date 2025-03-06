@@ -1,42 +1,44 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-// import CloseIcon from '@/shared/icons/close-icon.svg';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
 import GoogleIcon from '@/shared/icons/google-icon.svg';
 import { SignWihGoogleButton } from '@/shared/ui/signWihGoogleButton';
 
-export const AuthIndicator = () => {
+interface AuthIndicatorProps {
+  handleGoogleSignIn: () => void;
+}
+
+export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
+  handleGoogleSignIn,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const handleClickOutside = (event: MouseEvent) => {
+  const handleClickOutside = useCallback((event: MouseEvent) => {
     if (ref.current && !ref.current.contains(event.target as Node)) {
       setIsOpen(false);
     }
-  };
+  }, []);
 
-  const handleEscKey = (event: KeyboardEvent) => {
+  const handleEscKey = useCallback((event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsOpen(false);
     }
-  };
+  }, []);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     setIsOpen(false);
-    if (window.scrollY >= 50) {
-      setIsHidden(true);
-    } else {
-      setIsHidden(false);
-    }
-  };
+    setIsHidden(window.scrollY >= 50);
+  }, []);
 
   useEffect(() => {
     document.addEventListener('scroll', handleScroll);
     return () => {
       document.removeEventListener('scroll', handleScroll);
     };
-  }, [isOpen]);
+  }, [handleScroll]);
 
   useEffect(() => {
     if (isOpen) {
@@ -51,12 +53,12 @@ export const AuthIndicator = () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscKey);
     };
-  }, [isOpen]);
+  }, [isOpen, handleClickOutside, handleEscKey]);
 
   return (
     <div
       ref={ref}
-      className={`fixed top-0 left-0 z-20 overflow-hidden bg-indigo-200/95 transition-all duration-300 [clip-path:_circle(100%_at_0_0)] dark:bg-indigo-950/95 ${isOpen ? 'h-90 w-90 p-5 shadow-lg' : 'h-12 w-12 cursor-pointer hover:h-14 hover:w-14 hover:p-1'} ${isHidden ? '-translate-y-full' : 'translate-y-0'}`}
+      className={`fixed top-0 left-0 z-20 overflow-hidden bg-indigo-200/95 transition-all duration-300 [clip-path:_circle(100%_at_0_0)] dark:bg-indigo-950/95 ${isOpen ? 'h-90 w-90 p-5 shadow-lg' : 'h-12 w-12 cursor-pointer hover:h-14 hover:w-14 hover:p-1'} ${isHidden ? '-translate-x-full -translate-y-full' : 'translate-x-0 translate-y-0'}`}
       onClick={() => setIsOpen(true)}
     >
       {isOpen ? (
@@ -71,20 +73,8 @@ export const AuthIndicator = () => {
           </p>
 
           <div className="flex w-[85%]">
-            <SignWihGoogleButton />
+            <SignWihGoogleButton onClick={handleGoogleSignIn} />
           </div>
-
-          {/* <div className="mt-auto mb-4 flex w-1/3 justify-center opacity-50 duration-150 hover:opacity-100">
-            <button
-              className="cursor-pointer"
-              onClick={(event) => {
-                event.stopPropagation();
-                setIsOpen(false);
-              }}
-            >
-              <CloseIcon className="stroke-foreground h-10 w-10" />
-            </button>
-          </div> */}
         </div>
       ) : (
         <div className="flex h-full w-full p-0.5">
