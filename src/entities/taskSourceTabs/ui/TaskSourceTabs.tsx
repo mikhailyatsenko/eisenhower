@@ -8,7 +8,7 @@ export const TaskSourceTabs: React.FC<TaskSourceTabsProps> = ({
   switchToLocalTasks,
 }) => {
   return (
-    <div className="absolute top-0 left-0 flex">
+    <div className="absolute top-0 left-1/2 flex -translate-x-1/2">
       <button
         onClick={switchToFirebaseTasks}
         className="cursor-pointer rounded-bl-md bg-blue-500 px-4 py-2 text-white"

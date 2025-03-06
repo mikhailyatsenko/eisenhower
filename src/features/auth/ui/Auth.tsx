@@ -1,12 +1,19 @@
 'use client';
 
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import React from 'react';
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+} from 'firebase/auth';
+import React, { useEffect } from 'react';
 import { auth } from '@/firebaseConfig';
+import { AuthIndicator } from '@/entities/authIndicator';
+import { syncTasks } from '@/entities/Matrix';
 import { useUserStore } from '@/entities/user';
 
 export const Auth: React.FC = () => {
-  const { setUser } = useUserStore();
+  const { setUser, user } = useUserStore();
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -20,9 +27,32 @@ export const Auth: React.FC = () => {
     }
   };
 
-  return (
-    <div>
-      <button onClick={handleGoogleSignIn}>Sign in with Google</button>
-    </div>
-  );
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      console.log('currentUser', currentUser);
+      if (currentUser) {
+        syncTasks();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [setUser]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUser(null);
+  };
+
+  if (user) {
+    return (
+      <>
+        <div>Logged in as {user.displayName}</div>
+        <div>{user.displayName}</div>
+        <button onClick={handleLogout}>Logout</button>
+      </>
+    );
+  }
+
+  return <AuthIndicator handleGoogleSignIn={handleGoogleSignIn} />;
 };
