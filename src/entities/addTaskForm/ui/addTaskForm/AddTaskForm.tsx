@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 // eslint-disable-next-line boundaries/element-types
-import { MatrixKey } from '@/entities/Matrix/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+import { MatrixKey } from '@/entities/Tasks/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 // eslint-disable-next-line boundaries/element-types
-import { MatrixQuadrants } from '@/entities/Matrix/@x/matrixQuadrants'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+import { MatrixQuadrants } from '@/entities/Tasks/@x/matrixQuadrants'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 import { colors } from '../../lib/colors';
 
 interface AddTaskFormProps {
@@ -44,12 +44,12 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
     <form
       onSubmit={handleFormSubmit}
       autoComplete="off"
-      className="mx-auto mt-8 mb-4 max-w-md gap-2 sm:mt-2"
+      className="mx-auto mt-2 mt-8 mb-4 max-w-md gap-2"
     >
       <div className="space-y-3">
         <input
           ref={inputRef}
-          className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-200 bg-transparent px-0 py-3 text-sm focus:border-blue-500 focus:border-x-transparent focus:border-t-transparent focus:border-b-blue-500 focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:border-b-neutral-600 dark:focus:ring-neutral-600"
+          className="block w-full border-b-2 border-x-transparent border-t-transparent border-b-gray-400 bg-transparent px-0 py-3 text-sm focus:border-b-black focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-gray-400 dark:text-white dark:focus:border-b-white"
           value={taskInputText}
           onChange={(e) => setTaskInputTextAction(e.target.value)}
           id="addTask"

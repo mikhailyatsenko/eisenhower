@@ -1,7 +1,7 @@
 import { useDroppable } from '@dnd-kit/core';
 
 // eslint-disable-next-line boundaries/element-types
-import { type MatrixKey } from '@/entities/Matrix/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+import { type MatrixKey } from '@/entities/Tasks/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 import { quadrantStyles } from '../../lib/quadrantStyles';
 import { Buttons } from './Buttons';
 

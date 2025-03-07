@@ -2,7 +2,7 @@
 
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
-import { ThemeToggleButton } from '../../../../entities/themeToggleButton/ui/ThemeToggleButton';
+import { ThemeToggleButton } from '@/entities/themeToggleButton';
 
 type Theme = 'light' | 'dark';
 

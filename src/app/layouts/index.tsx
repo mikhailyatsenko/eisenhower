@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '../styles';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
+import { Auth } from '@/features/auth/ui/Auth';
+import { SwitchTaskSource } from '@/features/switchTaskSource/ui/SwitchTaskSource';
 import { ThemeToggle } from '@/features/toggleTheme';
 
 const geistSans = Geist({
@@ -125,9 +127,11 @@ export async function RootLayout({
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} relative antialiased`}
       >
+        <Auth />
         <ThemeToggle serverThemeCookie={serverThemeCookie} />
+        <SwitchTaskSource />
         {children}
       </body>
     </html>

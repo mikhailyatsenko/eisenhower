@@ -15,22 +15,23 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useCallback, useEffect, useState } from 'react';
-import { MatrixQuadrants } from '@/entities/Matrix';
-import { getAllTasks } from '@/entities/Matrix/model/selectors/tasksSelector';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Quadrant } from '@/entities/quadrant';
+import { TaskItem } from '@/entities/taskItem';
+import { MatrixQuadrants } from '@/entities/Tasks';
+import {
+  getActiveState,
+  getAllFirebaseTasks,
+  getAllLocalTasks,
+} from '@/entities/Tasks';
+import { editTaskAction, deleteTaskAction } from '@/entities/Tasks';
+import { useTaskStore } from '@/entities/Tasks';
+import { useUIStore } from '@/entities/Tasks';
+import { MatrixKey, Task } from '@/entities/Tasks';
 import {
   getRecentlyAddedQuadrant,
   getSelectedCategory,
-} from '@/entities/Matrix/model/selectors/uiSelectors';
-import { useTaskStore } from '@/entities/Matrix/model/store/tasksStore';
-import {
-  deleteTaskAction,
-  editTaskAction,
-} from '@/entities/Matrix/model/store/tasksStore';
-import { useUIStore } from '@/entities/Matrix/model/store/uiStore';
-import { MatrixKey, Task } from '@/entities/Matrix/model/types/taskMatrixTypes';
-import { Quadrant } from '@/entities/quadrant';
-import { TaskItem } from '@/entities/taskItem';
+} from '@/entities/Tasks/model/selectors/uiSelectors';
 
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useDragEvents } from '../lib/useDragEvents';
@@ -46,7 +47,10 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   setExpandedQuadrant,
   taskInputText,
 }) => {
-  const tasks = useTaskStore(getAllTasks);
+  const activeState = useTaskStore(getActiveState);
+  const allLocalTasks = useTaskStore(getAllLocalTasks);
+  const allFirebaseTasks = useTaskStore(getAllFirebaseTasks);
+  const tasks = activeState === 'local' ? allLocalTasks : allFirebaseTasks;
 
   const {
     isDragging,
@@ -71,21 +75,20 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     typeof window !== 'undefined' ? window.innerWidth < 640 : false,
   );
 
+  const handleResize = useCallback(() => {
+    setIsSmallScreen(window.innerWidth < 640);
+  }, []);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 640);
-    };
-
     window.addEventListener('resize', handleResize);
-
     handleResize();
 
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [handleResize]);
 
   useEffect(() => {
     if (!isSmallScreen || taskInputText.trim() !== '') {
@@ -109,6 +112,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     [expandedQuadrant, setExpandedQuadrant],
   );
 
+  const selectedCategory = useUIStore(getSelectedCategory);
+
   useEffect(() => {
     if (
       !isDragging &&
@@ -119,16 +124,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     }
   }, [tasks, expandedQuadrant, isDragging, handleToggleExpand]);
 
-  const [quadrantOrder, setQuadrantOrder] = useState([
-    'ImportantUrgent',
-    'ImportantNotUrgent',
-    'NotImportantUrgent',
-    'NotImportantNotUrgent',
-  ]);
-
-  const selectedCategory = useUIStore(getSelectedCategory);
-
-  useEffect(() => {
+  const quadrantOrder = useMemo(() => {
     let newOrder = [
       'ImportantUrgent',
       'ImportantNotUrgent',
@@ -141,16 +137,14 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
       newOrder.unshift(selectedCategory);
     }
 
-    setQuadrantOrder(newOrder);
+    return newOrder;
   }, [taskInputText, selectedCategory]);
 
   const recentlyAddedQuadrant = useUIStore(getRecentlyAddedQuadrant);
 
   const dropAnimation: DropAnimation | null = isSmallScreen
     ? null
-    : {
-        ...defaultDropAnimation,
-      };
+    : defaultDropAnimation;
 
   return (
     <DndContext

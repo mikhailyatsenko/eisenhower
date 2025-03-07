@@ -8,4 +8,12 @@ export interface Task {
   createdAt: Date;
 }
 
+export interface FirestoreTaskData {
+  id: string;
+  text: string;
+  createdAt: string;
+  quadrantKey: MatrixKey;
+  userId: string;
+}
+
 export type Tasks = Record<MatrixKey, Task[]>;
