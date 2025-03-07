@@ -15,6 +15,7 @@ import {
   syncTasks,
 } from '@/entities/Tasks';
 import { useTaskStore } from '@/entities/Tasks';
+import { setLoadingAction } from '@/entities/Tasks/model/store/uiStore';
 import { useUserStore } from '@/entities/user';
 
 export const Auth: React.FC = () => {
@@ -34,11 +35,13 @@ export const Auth: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setLoadingAction(true);
       setUser(currentUser);
-      console.log('currentUser', currentUser);
       if (currentUser) {
-        syncTasks();
+        await syncTasks();
       }
+      console.log('Tasks synced');
+      setLoadingAction(false);
     });
 
     return () => unsubscribe();

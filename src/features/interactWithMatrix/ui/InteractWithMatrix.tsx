@@ -16,6 +16,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Quadrant } from '@/entities/quadrant';
+import { TaskItem } from '@/entities/taskItem';
 import { MatrixQuadrants } from '@/entities/Tasks';
 import {
   getActiveState,
@@ -30,8 +32,6 @@ import {
   getRecentlyAddedQuadrant,
   getSelectedCategory,
 } from '@/entities/Tasks/model/selectors/uiSelectors';
-import { Quadrant } from '@/entities/quadrant';
-import { TaskItem } from '@/entities/taskItem';
 
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useDragEvents } from '../lib/useDragEvents';
@@ -48,7 +48,6 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   taskInputText,
 }) => {
   const activeState = useTaskStore(getActiveState);
-  console.log('activeState', activeState);
   const allLocalTasks = useTaskStore(getAllLocalTasks);
   const allFirebaseTasks = useTaskStore(getAllFirebaseTasks);
   const tasks = activeState === 'local' ? allLocalTasks : allFirebaseTasks;
