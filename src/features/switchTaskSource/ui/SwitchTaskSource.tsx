@@ -18,12 +18,15 @@ export const SwitchTaskSource = () => {
   const { user } = useUserStore();
 
   useEffect(() => {
-    if (searchParams && searchParams.has('cloud')) {
+    if (!user) {
+      switchToLocalTasks();
+      router.push('/');
+    } else if (searchParams && searchParams.has('cloud')) {
       switchToFirebaseTasks();
     } else {
       switchToLocalTasks();
     }
-  }, [searchParams]);
+  }, [router, searchParams, user]);
 
   if (!user) {
     return null;

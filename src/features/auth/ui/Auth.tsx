@@ -39,6 +39,15 @@ export const Auth: React.FC = () => {
       setUser(currentUser);
       if (currentUser) {
         await syncTasks();
+      } else {
+        useTaskStore.setState((state) => {
+          state.firebaseTasks = {
+            ImportantUrgent: [],
+            ImportantNotUrgent: [],
+            NotImportantUrgent: [],
+            NotImportantNotUrgent: [],
+          };
+        });
       }
       console.log('Tasks synced');
       setLoadingAction(false);

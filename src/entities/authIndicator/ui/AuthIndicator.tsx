@@ -1,6 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+
+import { useRouter, useSearchParams } from 'next/navigation';
 // eslint-disable-next-line boundaries/element-types
 import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
 // eslint-disable-next-line boundaries/element-types
@@ -48,6 +50,21 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
     <UserIcon className="h-5 w-5 fill-white" />
   );
 
+  const router = useRouter();
+  const handleSwitchToFirebase = () => {
+    router.push('?cloud');
+  };
+
+  const handleSwitchToLocal = () => {
+    router.push('/');
+  };
+
+  const searchParams = useSearchParams();
+
+  const isCloud = searchParams && searchParams.has('cloud');
+
+  console.log('isCloud', isCloud);
+
   return (
     <BubbleCornerButton
       iconWhenClosed={
@@ -61,7 +78,10 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
             <div>Logged in as {displayName}</div>
           </div>
           <div className="flex w-[85%] flex-wrap justify-around">
-            <div className="flex cursor-pointer flex-col items-center rounded-sm p-2 hover:bg-gray-100/30">
+            <div
+              onClick={handleSwitchToFirebase}
+              className={`flex cursor-pointer flex-col items-center rounded-sm p-2 ${isCloud ? 'bg-gray-100/30' : ''} hover:bg-gray-100/30`}
+            >
               <h3 className="mb-2 text-sm leading-3 font-bold">Cloud Matrix</h3>
               <div className="flex w-14 flex-wrap text-sm font-bold">
                 {Object.keys(cloudTasks).map((key) => (
@@ -74,7 +94,10 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
                 ))}
               </div>
             </div>
-            <div className="flex cursor-pointer flex-col items-center rounded-sm p-2 hover:bg-gray-100/30">
+            <div
+              onClick={handleSwitchToLocal}
+              className={`flex cursor-pointer flex-col items-center rounded-sm p-2 ${!isCloud ? 'bg-gray-100/30' : ''} hover:bg-gray-100/30`}
+            >
               <h3 className="mb-2 text-sm leading-3 font-bold">Local Matrix</h3>
               <div className="flex w-14 flex-wrap text-sm font-bold">
                 {Object.keys(localTasks).map((key) => (
