@@ -6,7 +6,7 @@ import {
   switchToFirebaseTasks,
   switchToLocalTasks,
   getActiveState,
-} from '@/entities/Matrix';
+} from '@/entities/Tasks';
 import { TaskSourceTabs } from '@/entities/taskSourceTabs';
 
 export const SwitchTaskSource = () => {
