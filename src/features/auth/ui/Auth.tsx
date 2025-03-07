@@ -9,7 +9,12 @@ import {
 import React, { useEffect } from 'react';
 import { auth } from '@/firebaseConfig';
 import { AuthIndicator } from '@/entities/authIndicator';
-import { syncTasks } from '@/entities/Matrix';
+import {
+  getAllFirebaseTasks,
+  getAllLocalTasks,
+  syncTasks,
+} from '@/entities/Tasks';
+import { useTaskStore } from '@/entities/Tasks';
 import { useUserStore } from '@/entities/user';
 
 export const Auth: React.FC = () => {
@@ -44,15 +49,18 @@ export const Auth: React.FC = () => {
     setUser(null);
   };
 
-  if (user) {
-    return (
-      <>
-        <div>Logged in as {user.displayName}</div>
+  const localTasks = useTaskStore(getAllLocalTasks);
+  const cloudTasks = useTaskStore(getAllFirebaseTasks);
 
-        <button onClick={handleLogout}>Logout</button>
-      </>
-    );
-  }
-
-  return <AuthIndicator handleGoogleSignIn={handleGoogleSignIn} />;
+  return (
+    <AuthIndicator
+      localTasks={localTasks}
+      cloudTasks={cloudTasks}
+      photoURL={user?.photoURL || undefined}
+      displayName={user?.displayName || undefined}
+      isSignedIn={!!user}
+      handleGoogleSignIn={handleGoogleSignIn}
+      handleLogout={handleLogout}
+    />
+  );
 };

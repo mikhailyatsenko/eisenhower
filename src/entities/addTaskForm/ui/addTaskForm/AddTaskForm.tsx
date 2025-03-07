@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 // eslint-disable-next-line boundaries/element-types
-import { MatrixKey } from '@/entities/Matrix/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+import { MatrixKey } from '@/entities/Tasks/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 // eslint-disable-next-line boundaries/element-types
-import { MatrixQuadrants } from '@/entities/Matrix/@x/matrixQuadrants'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+import { MatrixQuadrants } from '@/entities/Tasks/@x/matrixQuadrants'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 import { colors } from '../../lib/colors';
 
 interface AddTaskFormProps {

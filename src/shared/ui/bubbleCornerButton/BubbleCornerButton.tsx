@@ -63,7 +63,7 @@ export const BubbleCornerButton: React.FC<BubbleCornerButtonProps> = ({
       {isOpen ? (
         children
       ) : (
-        <div className="flex h-full w-full p-0.5">{iconWhenClosed}</div>
+        <div className="flex h-full w-full p-2">{iconWhenClosed}</div>
       )}
     </div>
   );

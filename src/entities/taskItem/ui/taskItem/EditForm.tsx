@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 // eslint-disable-next-line boundaries/element-types
-import { Task } from '@/entities/Matrix/@x/task'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
+import { Task } from '@/entities/Tasks/@x/task'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 
 interface EditFormProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;

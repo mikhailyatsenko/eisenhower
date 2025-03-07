@@ -16,20 +16,20 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { MatrixQuadrants } from '@/entities/Matrix';
+import { MatrixQuadrants } from '@/entities/Tasks';
 import {
   getActiveState,
   getAllFirebaseTasks,
   getAllLocalTasks,
-} from '@/entities/Matrix';
-import { editTaskAction, deleteTaskAction } from '@/entities/Matrix';
-import { useTaskStore } from '@/entities/Matrix';
-import { useUIStore } from '@/entities/Matrix';
-import { MatrixKey, Task } from '@/entities/Matrix';
+} from '@/entities/Tasks';
+import { editTaskAction, deleteTaskAction } from '@/entities/Tasks';
+import { useTaskStore } from '@/entities/Tasks';
+import { useUIStore } from '@/entities/Tasks';
+import { MatrixKey, Task } from '@/entities/Tasks';
 import {
   getRecentlyAddedQuadrant,
   getSelectedCategory,
-} from '@/entities/Matrix/model/selectors/uiSelectors';
+} from '@/entities/Tasks/model/selectors/uiSelectors';
 import { Quadrant } from '@/entities/quadrant';
 import { TaskItem } from '@/entities/taskItem';
 

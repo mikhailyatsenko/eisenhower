@@ -7,7 +7,7 @@ export const SignWihGoogleButton: React.FC<SignWihGoogleButtonProps> = ({
 }) => {
   return (
     <button
-      className="flex transform cursor-pointer items-center justify-center rounded-lg border-2 border-gray-100 px-4 text-gray-600 transition-colors duration-300 hover:bg-gray-50 dark:border-gray-300 dark:text-gray-100 dark:hover:bg-gray-900"
+      className="flex cursor-pointer items-center justify-center rounded-lg border-2 border-gray-100 px-4 text-gray-600 transition-colors duration-300 hover:bg-gray-50 dark:border-gray-300 dark:text-gray-100 dark:hover:bg-gray-900"
       onClick={onClick}
     >
       <div className="py-2 pr-2">
