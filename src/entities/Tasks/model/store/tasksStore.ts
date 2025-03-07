@@ -17,7 +17,7 @@ import {
   Tasks,
   FirestoreTaskData,
 } from '../types/taskMatrixTypes';
-import { setLoadingAction } from './uiStore';
+// import { setLoadingAction } from './uiStore';
 
 export interface TaskState {
   localTasks: Tasks;
@@ -86,9 +86,9 @@ export const useTaskStore = create<TaskState>()(
     {
       name: 'task-store',
       partialize: (state) => ({ localTasks: state.localTasks }),
-      onRehydrateStorage: () => {
-        setLoadingAction(false);
-      },
+      // onRehydrateStorage: () => {
+      //   setLoadingAction(false);
+      // },
     },
   ),
 );

@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
+import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
 import { MatrixKey } from '@/entities/Tasks';
 import { getIsLoading, getTaskInputText } from '@/entities/Tasks';
 import { useUIStore } from '@/entities/Tasks';
-import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
 
 export const TaskMatrix: React.FC = () => {
   const isLoading = useUIStore(getIsLoading);
