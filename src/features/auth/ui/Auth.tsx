@@ -48,7 +48,7 @@ export const Auth: React.FC = () => {
     return (
       <>
         <div>Logged in as {user.displayName}</div>
-        <div>{user.displayName}</div>
+
         <button onClick={handleLogout}>Logout</button>
       </>
     );
