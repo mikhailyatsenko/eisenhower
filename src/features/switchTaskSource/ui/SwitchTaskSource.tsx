@@ -1,6 +1,7 @@
 'use client';
 
-// import { getActiveState } from '@/entities/Matrix';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import {
   useTaskStore,
   switchToFirebaseTasks,
@@ -8,16 +9,38 @@ import {
   getActiveState,
 } from '@/entities/Tasks';
 import { TaskSourceTabs } from '@/entities/taskSourceTabs';
+import { useUserStore } from '@/entities/user';
 
 export const SwitchTaskSource = () => {
-  // const activeState = useTaskStore(getActiveState);
-
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const currentSource = useTaskStore(getActiveState);
+  const { user } = useUserStore();
+
+  useEffect(() => {
+    if (searchParams && searchParams.has('cloud')) {
+      switchToFirebaseTasks();
+    } else {
+      switchToLocalTasks();
+    }
+  }, [searchParams]);
+
+  if (!user) {
+    return null;
+  }
+
+  const handleSwitchToFirebase = () => {
+    router.push('?cloud');
+  };
+
+  const handleSwitchToLocal = () => {
+    router.push('/');
+  };
 
   return (
     <TaskSourceTabs
-      switchToFirebaseTasks={switchToFirebaseTasks}
-      switchToLocalTasks={switchToLocalTasks}
+      switchToFirebaseTasks={handleSwitchToFirebase}
+      switchToLocalTasks={handleSwitchToLocal}
       currentSource={currentSource}
     />
   );
