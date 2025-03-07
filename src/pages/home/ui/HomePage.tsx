@@ -13,7 +13,7 @@ export const HomePage = () => {
   return (
     <>
       <div
-        className={`absolute inset-0 z-0 h-10 w-1/2 translate-x-1/2 rounded-full blur-3xl transition-all duration-500 [background:_linear-gradient(45deg,_#ffd324,_#ff4f4f,_#9e71ff)] ${
+        className={`absolute inset-0 z-0 h-10 w-1/2 translate-x-1/2 rounded-full blur-2xl transition-all duration-500 [background:_linear-gradient(45deg,_#ffd324,_#ff4f4f,_#9e71ff)] ${
           activeState === 'firebase'
             ? '-translate-y-1/2 opacity-100'
             : '-translate-y-full opacity-0'
