@@ -21,7 +21,6 @@ export {
 
 export {
   getSelectedCategory,
-  getIsLoading,
   getRecentlyAddedQuadrant,
   getTaskInputText,
 } from './model/selectors/uiSelectors';

@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import {
   useTaskStore,
   switchToFirebaseTasks,
@@ -9,24 +10,29 @@ import {
   getActiveState,
 } from '@/entities/Tasks';
 import { TaskSourceTabs } from '@/entities/taskSourceTabs';
-import { useUserStore } from '@/entities/user';
 
 export const SwitchTaskSource = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const currentSource = useTaskStore(getActiveState);
-  const { user } = useUserStore();
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!user) {
-      switchToLocalTasks();
-      router.push('/');
-    } else if (searchParams && searchParams.has('cloud')) {
-      switchToFirebaseTasks();
-    } else {
-      switchToLocalTasks();
+    const handleTaskSourceSwitch = () => {
+      if (!user) {
+        switchToLocalTasks();
+        router.push('/');
+      } else if (searchParams && searchParams.has('cloud')) {
+        switchToFirebaseTasks();
+      } else {
+        switchToLocalTasks();
+      }
+    };
+
+    if (!isLoading) {
+      handleTaskSourceSwitch();
     }
-  }, [router, searchParams, user]);
+  }, [router, searchParams, user, isLoading]);
 
   if (!user) {
     return null;

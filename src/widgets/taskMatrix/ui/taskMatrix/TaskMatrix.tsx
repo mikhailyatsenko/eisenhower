@@ -1,20 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
 import { MatrixKey } from '@/entities/Tasks';
-import { getIsLoading, getTaskInputText } from '@/entities/Tasks';
+import { getTaskInputText } from '@/entities/Tasks';
 import { useUIStore } from '@/entities/Tasks';
 
 export const TaskMatrix: React.FC = () => {
-  const isLoading = useUIStore(getIsLoading);
+  const { isLoading } = useAuth();
 
   const taskInputText = useUIStore(getTaskInputText);
 
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
     null,
   );
+
+  console.log(isLoading);
 
   if (isLoading) {
     return <div>Loading...</div>;
