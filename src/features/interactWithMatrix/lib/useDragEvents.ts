@@ -59,6 +59,7 @@ export const useDragEvents = (tasks: Record<MatrixKey, Task[]>) => {
         ...tasks,
         [overArea]: arrayMove(tasks[overArea], activeIndex, overIndex),
       };
+
       dragEndAction(newTasks);
     }
 

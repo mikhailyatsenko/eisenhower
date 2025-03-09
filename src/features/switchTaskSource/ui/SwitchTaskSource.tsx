@@ -2,7 +2,6 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import {
   useTaskStore,
   switchToFirebaseTasks,
@@ -10,6 +9,7 @@ import {
   getActiveState,
 } from '@/entities/Tasks';
 import { TaskSourceTabs } from '@/entities/taskSourceTabs';
+import { useAuth } from '@/shared/api/auth';
 
 export const SwitchTaskSource = () => {
   const searchParams = useSearchParams();

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
 import { MatrixKey } from '@/entities/Tasks';
 import { getTaskInputText } from '@/entities/Tasks';
 import { useUIStore } from '@/entities/Tasks';
+import { useAuth } from '@/shared/api/auth';
 
 export const TaskMatrix: React.FC = () => {
   const { isLoading } = useAuth();

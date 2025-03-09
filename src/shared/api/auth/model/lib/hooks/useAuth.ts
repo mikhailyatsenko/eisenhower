@@ -6,8 +6,8 @@ import {
   User,
 } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { auth } from '@/firebaseConfig';
-import { syncTasks, useTaskStore } from '@/entities/Tasks';
+
+import { auth } from '@/shared/config/firebaseConfig';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -17,18 +17,7 @@ export const useAuth = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoadingAction(true);
       setUser(currentUser);
-      if (currentUser) {
-        await syncTasks();
-      } else {
-        useTaskStore.setState((state) => {
-          state.firebaseTasks = {
-            ImportantUrgent: [],
-            ImportantNotUrgent: [],
-            NotImportantUrgent: [],
-            NotImportantNotUrgent: [],
-          };
-        });
-      }
+
       setLoadingAction(false);
     });
 

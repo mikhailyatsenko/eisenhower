@@ -1,21 +1,43 @@
 'use client';
 
-import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useEffect, useState } from 'react';
 import { AuthIndicator } from '@/entities/authIndicator';
 import {
   getAllFirebaseTasks,
   getAllLocalTasks,
   useTaskStore,
+  syncTasks,
 } from '@/entities/Tasks';
-
+import { useAuth } from '@/shared/api/auth';
 export const Auth: React.FC = () => {
   const { user, handleGoogleSignIn, handleLogout, isLoading } = useAuth();
+  const [isSyncingTasks, setIsSyncingTasks] = useState(false);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setIsSyncingTasks(true);
+      if (user) {
+        await syncTasks(user);
+      } else {
+        useTaskStore.setState((state) => {
+          state.firebaseTasks = {
+            ImportantUrgent: [],
+            ImportantNotUrgent: [],
+            NotImportantUrgent: [],
+            NotImportantNotUrgent: [],
+          };
+        });
+      }
+      setIsSyncingTasks(false);
+    };
+
+    fetchTasks();
+  }, [user]);
 
   const localTasks = useTaskStore(getAllLocalTasks);
   const cloudTasks = useTaskStore(getAllFirebaseTasks);
 
-  if (isLoading) {
+  if (isLoading || isSyncingTasks) {
     return <div>Loading...</div>;
   }
 
