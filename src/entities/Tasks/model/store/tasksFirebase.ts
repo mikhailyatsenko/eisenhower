@@ -48,9 +48,8 @@ export const fetchTasksFromFirebase = async (): Promise<Tasks> => {
     tasksData[data.quadrantKey].push(task);
   });
 
-  // Сортируем задачи внутри каждого квадранта по полю order
   for (const key of Object.keys(tasksData)) {
-    tasksData[key as MatrixKey].sort((a, b) => a.order! - b.order!);
+    tasksData[key as MatrixKey].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
   return tasksData;

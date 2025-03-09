@@ -15,7 +15,7 @@ export interface FirestoreTaskData {
   createdAt: string;
   quadrantKey: MatrixKey;
   userId: string;
-  order: number; // Поле order остается только в FirestoreTaskData
+  order: number;
 }
 
 export type Tasks = Record<MatrixKey, Task[]>;
