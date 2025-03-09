@@ -17,8 +17,6 @@ export const TaskMatrix: React.FC = () => {
     null,
   );
 
-  console.log(isLoading);
-
   if (isLoading) {
     return <div>Loading...</div>;
   }

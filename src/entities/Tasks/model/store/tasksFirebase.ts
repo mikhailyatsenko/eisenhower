@@ -5,9 +5,15 @@ import {
   query,
   where,
   writeBatch,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db, auth } from '@/shared/config/firebaseConfig';
-import { Tasks, FirestoreTaskData, Task } from '../types/taskMatrixTypes';
+import {
+  Tasks,
+  FirestoreTaskData,
+  Task,
+  MatrixKey,
+} from '../types/taskMatrixTypes';
 
 const initialState: Tasks = {
   ImportantUrgent: [],
@@ -37,28 +43,47 @@ export const fetchTasksFromFirebase = async (): Promise<Tasks> => {
       id: data.id,
       text: data.text,
       createdAt: new Date(data.createdAt),
+      order: data.order,
     };
     tasksData[data.quadrantKey].push(task);
   });
+
+  // Сортируем задачи внутри каждого квадранта по полю order
+  for (const key of Object.keys(tasksData)) {
+    tasksData[key as MatrixKey].sort((a, b) => a.order! - b.order!);
+  }
 
   return tasksData;
 };
 
 export const syncTasksToFirebase = async (tasks: Tasks) => {
+  console.log('syncing tasks to Firebase');
   const user = auth.currentUser;
   if (!user) return;
 
   const batch = writeBatch(db);
   for (const [key, taskList] of Object.entries(tasks)) {
-    for (const task of taskList) {
+    taskList.forEach((task, index) => {
       const taskRef = doc(db, 'tasks', task.id);
       batch.set(taskRef, {
         ...task,
         quadrantKey: key,
         userId: user.uid,
         createdAt: task.createdAt.toISOString(),
+        order: index,
       });
-    }
+    });
   }
   await batch.commit();
+  console.log('tasks synced to Firebase');
+};
+
+export const deleteTaskFromFirebase = async (taskId: string) => {
+  console.log(`deleting task ${taskId} from Firebase`);
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const taskRef = doc(db, 'tasks', taskId);
+  await deleteDoc(taskRef);
+  console.log(`task ${taskId} deleted from Firebase`);
 };

@@ -17,7 +17,7 @@ export const Auth: React.FC = () => {
     const fetchTasks = async () => {
       setIsSyncingTasks(true);
       if (user) {
-        await syncTasks(user);
+        await syncTasks();
       } else {
         useTaskStore.setState((state) => {
           state.firebaseTasks = {

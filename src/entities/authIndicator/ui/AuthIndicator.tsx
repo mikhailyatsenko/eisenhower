@@ -63,8 +63,6 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
 
   const isCloud = searchParams && searchParams.has('cloud');
 
-  console.log('isCloud', isCloud);
-
   return (
     <BubbleCornerButton
       iconWhenClosed={

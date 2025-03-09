@@ -3,7 +3,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { MatrixKey, Task, Tasks } from '../types/taskMatrixTypes';
-import { fetchTasksFromFirebase, syncTasksToFirebase } from './tasksFirebase';
+import {
+  fetchTasksFromFirebase,
+  syncTasksToFirebase,
+  deleteTaskFromFirebase,
+} from './tasksFirebase';
 
 export interface TaskState {
   localTasks: Tasks;
@@ -67,6 +71,7 @@ export const addTaskAction = async (
     tasks[quadrantKey].push(newTask);
   });
   if (useTaskStore.getState().activeState === 'firebase') {
+    console.log('syncing new task to Firebase');
     await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
   }
 };
@@ -83,6 +88,7 @@ export const editTaskAction = async (
     if (task) task.text = newText;
   });
   if (useTaskStore.getState().activeState === 'firebase') {
+    console.log('syncing edited task to Firebase');
     await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
   }
 };
@@ -109,17 +115,20 @@ export const dragOverQuadrantAction = (
   });
 };
 
-export const dragEndAction = (newTasks: Tasks) => {
-  console.log('newTasks', newTasks);
+export const dragEndAction = async (newTasks: Tasks) => {
   const { activeState } = useTaskStore.getState();
-  useTaskStore.setState(async (state) => {
+  useTaskStore.setState((state) => {
     if (activeState === 'local') {
       state.localTasks = newTasks;
     } else {
       state.firebaseTasks = newTasks;
-      await syncTasksToFirebase(newTasks);
     }
   });
+
+  if (activeState === 'firebase') {
+    console.log('syncing tasks after drag end to Firebase');
+    await syncTasksToFirebase(newTasks);
+  }
 };
 
 export const deleteTaskAction = async (
@@ -135,6 +144,7 @@ export const deleteTaskAction = async (
     );
   });
   if (activeState === 'firebase') {
-    await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
+    console.log(`deleting task ${taskId} from Firebase`);
+    await deleteTaskFromFirebase(taskId);
   }
 };
