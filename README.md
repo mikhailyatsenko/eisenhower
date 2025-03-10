@@ -42,6 +42,11 @@ To start the development server, run:
 npm run dev
 ```
 
+ ## How It Works
+ 
+<img src="https://raw.githubusercontent.com/mikhailyatsenko/mikhailyatsenko/main/img/eisenhower.gif" alt="bvg-gif" width="600"/>
+
+
 ## Contributing
 
 Contributions are welcome! Please fork the repository and create a pull request.
