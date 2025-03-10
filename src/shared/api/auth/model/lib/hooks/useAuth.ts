@@ -11,14 +11,14 @@ import { auth } from '@/shared/config/firebaseConfig';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setLoadingAction] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setLoadingAction(true);
+      setIsLoading(true);
       setUser(currentUser);
 
-      setLoadingAction(false);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -26,12 +26,17 @@ export const useAuth = () => {
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-    } catch (error) {
-      console.error('Authentication error:', error);
-    }
+
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        setUser(result.user);
+      })
+      .catch((error) => {
+        console.log('Authentication error:', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleLogout = async () => {

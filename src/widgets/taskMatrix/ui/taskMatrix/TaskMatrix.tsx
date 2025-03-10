@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
-import { MatrixKey } from '@/entities/Tasks';
+import { MatrixKey, syncTasks, useTaskStore } from '@/entities/Tasks';
 import { getTaskInputText } from '@/entities/Tasks';
 import { useUIStore } from '@/entities/Tasks';
 import { useAuth } from '@/shared/api/auth';
+import { LoaderFullScreen } from '@/shared/ui/loader';
 
 export const TaskMatrix: React.FC = () => {
   const { isLoading } = useAuth();
@@ -17,8 +18,33 @@ export const TaskMatrix: React.FC = () => {
     null,
   );
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  const { user } = useAuth();
+
+  const [isSyncingTasks, setIsSyncingTasks] = useState(false);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      setIsSyncingTasks(true);
+      if (user) {
+        await syncTasks();
+      } else {
+        useTaskStore.setState((state) => {
+          state.firebaseTasks = {
+            ImportantUrgent: [],
+            ImportantNotUrgent: [],
+            NotImportantUrgent: [],
+            NotImportantNotUrgent: [],
+          };
+        });
+      }
+      setIsSyncingTasks(false);
+    };
+
+    fetchTasks();
+  }, [user]);
+
+  if (isLoading || isSyncingTasks) {
+    return <LoaderFullScreen />;
   }
 
   return (

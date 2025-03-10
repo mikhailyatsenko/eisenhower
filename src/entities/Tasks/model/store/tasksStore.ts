@@ -71,7 +71,6 @@ export const addTaskAction = async (
     tasks[quadrantKey].push(newTask);
   });
   if (useTaskStore.getState().activeState === 'firebase') {
-    console.log('syncing new task to Firebase');
     await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
   }
 };
@@ -88,7 +87,6 @@ export const editTaskAction = async (
     if (task) task.text = newText;
   });
   if (useTaskStore.getState().activeState === 'firebase') {
-    console.log('syncing edited task to Firebase');
     await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
   }
 };
@@ -126,7 +124,6 @@ export const dragEndAction = async (newTasks: Tasks) => {
   });
 
   if (activeState === 'firebase') {
-    console.log('syncing tasks after drag end to Firebase');
     await syncTasksToFirebase(newTasks);
   }
 };
@@ -144,7 +141,6 @@ export const deleteTaskAction = async (
     );
   });
   if (activeState === 'firebase') {
-    console.log(`deleting task ${taskId} from Firebase`);
     await deleteTaskFromFirebase(taskId);
   }
 };

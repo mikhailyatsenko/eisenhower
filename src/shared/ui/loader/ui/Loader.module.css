@@ -1,0 +1,28 @@
+.loader {
+  background: #f7d54e;
+  width: 48px;
+  height: 48px;
+  opacity: 0.7;
+  position: relative;
+  text-align: center;
+  animation: 3s rotate linear infinite;
+}
+.loader:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0.7;
+  background: #519cf8;
+  animation: 1.5s rotate reverse linear infinite;
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

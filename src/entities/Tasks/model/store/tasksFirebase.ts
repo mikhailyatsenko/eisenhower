@@ -56,7 +56,6 @@ export const fetchTasksFromFirebase = async (): Promise<Tasks> => {
 };
 
 export const syncTasksToFirebase = async (tasks: Tasks) => {
-  console.log('syncing tasks to Firebase');
   const user = auth.currentUser;
   if (!user) return;
 
@@ -74,15 +73,12 @@ export const syncTasksToFirebase = async (tasks: Tasks) => {
     });
   }
   await batch.commit();
-  console.log('tasks synced to Firebase');
 };
 
 export const deleteTaskFromFirebase = async (taskId: string) => {
-  console.log(`deleting task ${taskId} from Firebase`);
   const user = auth.currentUser;
   if (!user) return;
 
   const taskRef = doc(db, 'tasks', taskId);
   await deleteDoc(taskRef);
-  console.log(`task ${taskId} deleted from Firebase`);
 };
