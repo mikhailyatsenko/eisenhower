@@ -2,7 +2,7 @@
 
 ## Description
 
-It helps you prioritize tasks using the Eisenhower Matrix.
+This application implements the Eisenhower Matrix approach to help you optimize your tasks and improve productivity. You can categorize your tasks into four quadrants:
 
 - **Do First**: Important and Urgent tasks that need immediate attention.
 - **Schedule**: Important but Not Urgent tasks that you can plan for later.
