@@ -1,6 +1,4 @@
-# Project Title
-
-Eisenhower Matrix App
+# Eisenhower Matrix App
 
 ## Description
 
