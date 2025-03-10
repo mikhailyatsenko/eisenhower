@@ -15,8 +15,9 @@ Use this tool to manage your tasks effectively and focus on what truly matters.
 
 - Next.js 15
 - TypeScript
-- Tailwind CSS
 - Zustand
+- Firebase
+- Tailwind CSS
 - @dnd-kit
 - date-fns
 - react-toastify
