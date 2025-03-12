@@ -10,7 +10,6 @@ import { HeadScripts } from '@/shared/lib/HeadScripts';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
-
   subsets: ['latin'],
 });
 

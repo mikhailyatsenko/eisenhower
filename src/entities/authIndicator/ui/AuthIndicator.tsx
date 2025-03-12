@@ -3,6 +3,8 @@
 import Image from 'next/image';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+
+import { useState } from 'react';
 // eslint-disable-next-line boundaries/element-types
 import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
 // eslint-disable-next-line boundaries/element-types
@@ -12,7 +14,7 @@ import UserIcon from '@/shared/icons/user-icon.svg';
 import { BubbleCornerButton } from '@/shared/ui/bubbleCornerButton';
 import { SignWihGoogleButton } from '@/shared/ui/signWihGoogleButton';
 
-interface AuthIndicatorProps {
+export interface AuthIndicatorProps {
   handleGoogleSignIn: () => void;
   displayName?: string;
   photoURL?: string;
@@ -63,8 +65,12 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
 
   const isCloud = searchParams && searchParams.has('cloud');
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <BubbleCornerButton
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
       iconWhenClosed={
         isSignedIn ? userImage : <GoogleIcon className="h-5 w-5 fill-white" />
       }
