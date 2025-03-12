@@ -1,5 +1,6 @@
 import {
   GoogleAuthProvider,
+  GithubAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
   signOut,
@@ -39,10 +40,30 @@ export const useAuth = () => {
       });
   };
 
+  const handleGithubSignIn = async () => {
+    const provider = new GithubAuthProvider();
+
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        setUser(result.user);
+      })
+      .catch((error) => {
+        console.log('Authentication error:', error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
   };
-
-  return { user, isLoading, handleGoogleSignIn, handleLogout };
+  return {
+    user,
+    isLoading,
+    handleGoogleSignIn,
+    handleGithubSignIn,
+    handleLogout,
+  };
 };
