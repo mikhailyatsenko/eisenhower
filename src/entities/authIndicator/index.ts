@@ -1,1 +1,1 @@
-export { AuthIndicator } from './ui/AuthIndicator';
+export { AuthIndicator } from './ui/authIndicator/AuthIndicator';

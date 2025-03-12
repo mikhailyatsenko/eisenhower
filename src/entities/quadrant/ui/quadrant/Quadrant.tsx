@@ -5,7 +5,7 @@ import { type MatrixKey } from '@/entities/Tasks/@x/matrixKey'; //@x notation is
 import { quadrantStyles } from '../../lib/quadrantStyles';
 import { Buttons } from './Buttons';
 
-interface CategoryBlockProps {
+export interface QuadrantProps {
   quadrantKey: MatrixKey;
   isDragOver: boolean;
   isAnimateByExpandQuadrant: boolean;
@@ -25,7 +25,7 @@ const titleMap = {
   NotImportantNotUrgent: 'Eliminate',
 };
 
-export const Quadrant: React.FC<CategoryBlockProps> = ({
+export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
   isDragOver,
   expandedQuadrant,
