@@ -7,7 +7,7 @@ import {
   fetchTasksFromFirebase,
   syncTasksToFirebase,
   deleteTaskFromFirebase,
-} from './tasksFirebase';
+} from './lib/tasksFirebase';
 
 export interface TaskState {
   localTasks: Tasks;
@@ -15,18 +15,18 @@ export interface TaskState {
   activeState: 'local' | 'firebase';
 }
 
-const initialState: Tasks = {
+export const getEmptyTasksState = (): Tasks => ({
   ImportantUrgent: [],
   ImportantNotUrgent: [],
   NotImportantUrgent: [],
   NotImportantNotUrgent: [],
-};
+});
 
 export const useTaskStore = create<TaskState>()(
   persist(
     immer<TaskState>(() => ({
-      localTasks: initialState,
-      firebaseTasks: initialState,
+      localTasks: getEmptyTasksState(),
+      firebaseTasks: getEmptyTasksState(),
       activeState: 'local',
     })),
     {
@@ -38,6 +38,7 @@ export const useTaskStore = create<TaskState>()(
 
 export const syncTasks = async () => {
   const tasks = await fetchTasksFromFirebase();
+  if (!tasks) return;
   useTaskStore.setState((state) => {
     state.firebaseTasks = tasks;
   });
