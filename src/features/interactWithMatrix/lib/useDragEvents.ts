@@ -50,11 +50,7 @@ export const useDragEvents = (tasks: Record<MatrixKey, Task[]>) => {
     );
     const overIndex = tasks[overArea].findIndex((task) => task.id === over?.id);
 
-    if (
-      activeIndex !== undefined &&
-      overIndex !== undefined &&
-      activeIndex !== overIndex
-    ) {
+    if (activeIndex !== undefined && overIndex !== undefined) {
       const newTasks = {
         ...tasks,
         [overArea]: arrayMove(tasks[overArea], activeIndex, overIndex),

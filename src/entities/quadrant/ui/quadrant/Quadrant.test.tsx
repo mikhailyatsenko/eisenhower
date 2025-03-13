@@ -2,13 +2,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 // eslint-disable-next-line boundaries/element-types
 import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
-import { Quadrant, QuadrantProps } from '../Quadrant';
+import { Quadrant, QuadrantProps } from './Quadrant';
 
 jest.mock('@dnd-kit/core', () => ({
   useDroppable: jest.fn(() => ({ setNodeRef: jest.fn() })),
 }));
 
-jest.mock('../Buttons', () => ({
+jest.mock('./Buttons', () => ({
   Buttons: ({
     handleToggleExpand,
     quadrantKey,

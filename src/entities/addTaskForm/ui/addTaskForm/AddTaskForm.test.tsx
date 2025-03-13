@@ -3,7 +3,7 @@ import React from 'react';
 import '@testing-library/jest-dom';
 // eslint-disable-next-line boundaries/element-types
 import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
-import { AddTaskForm } from '../AddTaskForm';
+import { AddTaskForm } from './AddTaskForm';
 
 describe('AddTaskForm', () => {
   const defaultProps = {
