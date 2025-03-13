@@ -18,7 +18,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Quadrant } from '@/entities/quadrant';
 import { TaskItem } from '@/entities/taskItem';
-import { MatrixQuadrants } from '@/entities/Tasks';
+import { MatrixQuadrants, setSelectedCategoryAction } from '@/entities/Tasks';
 import {
   getActiveState,
   getAllFirebaseTasks,
@@ -108,6 +108,9 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
       }, 400);
 
       setExpandedQuadrant(expandedQuadrant === quadrant ? null : quadrant);
+      setSelectedCategoryAction(
+        expandedQuadrant === quadrant ? 'ImportantUrgent' : quadrant,
+      );
     },
     [expandedQuadrant, setExpandedQuadrant],
   );
