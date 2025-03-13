@@ -12,7 +12,7 @@ describe('AddTaskForm', () => {
     isValid: true,
     selectedCategory: 'ImportantUrgent' as MatrixKey, // Ensure this is a valid key in the colors object
     handleCategoryChange: jest.fn(),
-    handleKeyDown: jest.fn(),
+    handleOnRadioKeyDown: jest.fn(),
     handleSubmit: jest.fn(),
   };
 
@@ -40,9 +40,7 @@ describe('AddTaskForm', () => {
 
   it('calls handleSubmit on form submit', () => {
     render(<AddTaskForm {...defaultProps} />);
-    const form = screen
-      .getByRole('button', { name: /Add task/i })
-      .closest('form');
+    const form = screen.getByTestId('add-task-button').closest('form');
     fireEvent.submit(form!);
     expect(defaultProps.handleSubmit).toHaveBeenCalled();
   });
@@ -56,12 +54,12 @@ describe('AddTaskForm', () => {
     }
   });
 
-  it('calls handleKeyDown on category key down', () => {
+  it('calls handleOnRadioKeyDown on category key down', () => {
     render(<AddTaskForm {...defaultProps} />);
     const span = screen.getAllByRole('radio')[0].nextSibling;
     if (span) {
       fireEvent.keyDown(span, { key: 'Enter' });
-      expect(defaultProps.handleKeyDown).toHaveBeenCalled();
+      expect(defaultProps.handleOnRadioKeyDown).toHaveBeenCalled();
     }
   });
 });

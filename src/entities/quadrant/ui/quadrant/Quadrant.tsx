@@ -47,7 +47,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
   const actionStyles = isTypingNewTask
     ? `${orderIndex === 0 ? 'animate-from-bottom-appear w-[calc(55%-8px)] h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2)] transition-[width] duration-300' : 'w-[calc(45%-8px)] !opacity-25 h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2)] transition-[width] duration-300'}`
     : expandedQuadrant === null
-      ? 'w-[calc(50%-8px)] h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2)]'
+      ? 'w-[calc(50%-8px)] h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2-64px)] min-h-40'
       : isExpandedCurrentQuadrant
         ? '!order-first max-h-[calc(100dvh-200px)] min-h-40 w-full !pb-0'
         : 'h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]';

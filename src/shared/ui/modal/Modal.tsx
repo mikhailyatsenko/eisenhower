@@ -39,7 +39,7 @@ export const Modal = ({ children, onClose }: ModalProps) => {
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[19] flex items-center overflow-y-auto bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center overflow-y-auto bg-black/50">
       <div
         ref={contentRef}
         className="animate-from-bottom-appear text-foreground relative mx-auto flex h-[calc(100dvh-80px)] w-[calc(100vw-80px)] flex-col items-center justify-center overflow-hidden rounded-md bg-gray-200 opacity-0 [animation-duration:_0.2s] dark:bg-gray-800"

@@ -10,7 +10,7 @@ export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({
   return (
     <button
       onClick={toggleTheme}
-      className="absolute top-1 right-2 z-[2] h-12 w-12 cursor-pointer rounded-lg p-2 hover:bg-gray-100 sm:right-6 dark:hover:bg-gray-700"
+      className="fixed top-1 right-2 z-[2] h-12 w-12 cursor-pointer rounded-lg p-2 hover:bg-gray-100 sm:right-6 dark:hover:bg-gray-700"
     >
       {isDark ? (
         <svg

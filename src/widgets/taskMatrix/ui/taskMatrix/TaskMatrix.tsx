@@ -48,7 +48,7 @@ export const TaskMatrix: React.FC = () => {
   }
 
   return (
-    <div className="relative flex w-full flex-wrap justify-center pt-6">
+    <div className="relative flex w-full flex-wrap justify-center">
       {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
 
       <InteractWithMatrix

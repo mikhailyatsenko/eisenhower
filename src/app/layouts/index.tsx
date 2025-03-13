@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { Auth } from '@/features/auth/ui/Auth';
 import { SwitchTaskSource } from '@/features/switchTaskSource/ui/SwitchTaskSource';
 import { ThemeToggle } from '@/features/toggleTheme';
+import { WelcomeModal } from '@/entities/welcomeModal';
 import { Favicons } from '@/shared/lib/Favicons';
 import { HeadScripts } from '@/shared/lib/HeadScripts';
 
@@ -50,6 +51,7 @@ export async function RootLayout({
         <Auth />
         <ThemeToggle serverThemeCookie={serverThemeCookie} />
         <SwitchTaskSource />
+        <WelcomeModal />
         {children}
       </body>
     </html>

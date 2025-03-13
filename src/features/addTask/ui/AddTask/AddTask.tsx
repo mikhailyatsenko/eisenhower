@@ -44,7 +44,7 @@ export const AddTask = () => {
     setSelectedCategoryAction(key);
   };
 
-  const handleKeyDown = (
+  const handleOnRadioKeyDown = (
     e: React.KeyboardEvent<HTMLSpanElement>,
     key: MatrixKey,
   ) => {
@@ -57,7 +57,7 @@ export const AddTask = () => {
   return (
     <AddTaskForm
       handleCategoryChange={handleCategoryChange}
-      handleKeyDown={handleKeyDown}
+      handleOnRadioKeyDown={handleOnRadioKeyDown}
       handleSubmit={handleSubmitForm}
       isValid={isValid}
       selectedCategory={selectedCategory}

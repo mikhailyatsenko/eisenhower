@@ -27,7 +27,8 @@ export const TaskSourceTabs: React.FC<TaskSourceTabsProps> = ({
 
   return (
     <div
-      className="absolute top-0 left-1/2 z-[2] flex h-6 w-32 -translate-x-1/2 cursor-pointer rounded-b-md bg-gray-300/20 font-medium select-none"
+      role="button"
+      className="fixed top-0 left-1/2 z-[2] flex h-6 w-32 -translate-x-1/2 cursor-pointer rounded-b-md bg-gray-300/50 font-medium select-none dark:bg-gray-300/20"
       onClick={handleChange}
     >
       <div className="flex w-full items-center justify-between text-center text-sm">
