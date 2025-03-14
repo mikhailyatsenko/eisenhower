@@ -61,8 +61,6 @@ export const AddTask = () => {
   const allLocalTasks = useTaskStore(getAllLocalTasks);
   const allFirebaseTasks = useTaskStore(getAllFirebaseTasks);
 
-  console.log(allLocalTasks, allFirebaseTasks);
-
   useEffect(() => {
     setInNoTasks(true);
     for (const key in MatrixQuadrants) {

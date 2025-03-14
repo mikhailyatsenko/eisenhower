@@ -1,3 +1,8 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { isTouchDevice } from '@/shared/utils/isTouchDevice';
+
 export interface FloatedButtonProps {
   isNoTasks: boolean;
   active: boolean;
@@ -9,12 +14,40 @@ export const FloatButton: React.FC<FloatedButtonProps> = ({
   toggleActive,
   isNoTasks,
 }) => {
-  console.log(isNoTasks);
+  const [bottomOffset, setBottomOffset] = useState(32); // изначальный bottom-6 (24px)
+
+  useEffect(() => {
+    if (!isTouchDevice()) return;
+
+    const updateBottomOffset = () => {
+      if (!window.visualViewport) return;
+
+      const viewportHeight = window.visualViewport.height;
+      const windowHeight = window.innerHeight;
+      const keyboardHeight = windowHeight - viewportHeight;
+
+      if (keyboardHeight > 0) {
+        setBottomOffset(keyboardHeight + 16 - window.visualViewport.offsetTop);
+      } else {
+        setBottomOffset(32);
+      }
+    };
+
+    window.visualViewport?.addEventListener('resize', updateBottomOffset);
+    window.visualViewport?.addEventListener('scroll', updateBottomOffset);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateBottomOffset);
+      window.visualViewport?.removeEventListener('scroll', updateBottomOffset);
+    };
+  }, []);
+
   return (
     <button
       title={`${active ? 'Hide form' : 'Add Task'} `}
       onClick={toggleActive}
-      className={`${!active && isNoTasks ? 'animate-bounce-button' : ''} fixed right-6 bottom-6 z-50 cursor-pointer rounded-full bg-gray-400/30 p-2 duration-150 hover:scale-110 hover:bg-gray-400/50 md:right-10 md:bottom-10 dark:bg-white/30 dark:hover:bg-white/50`}
+      style={{ bottom: bottomOffset }}
+      className={`${!active && isNoTasks ? 'animate-bounce-button' : ''} fixed right-6 z-50 cursor-pointer rounded-full bg-gray-400/30 p-2 duration-150 hover:scale-110 hover:bg-gray-400/50 sm:right-10 dark:bg-white/30 dark:hover:bg-white/50`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

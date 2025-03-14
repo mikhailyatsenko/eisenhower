@@ -35,7 +35,6 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
   const [isOpened, setIsOpened] = useState(false);
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    console.log('handleFormSubmit');
     handleSubmit(e);
   };
 
@@ -51,11 +50,10 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
       setTaskInputTextAction('');
       inputRef.current?.blur();
     } else {
-      setTimeout(() => {
-        inputRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 320);
-
       inputRef.current?.focus();
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 310);
     }
     setIsOpened(!isOpened);
   };
@@ -75,7 +73,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
         <div className="space-y-3">
           <input
             ref={inputRef}
-            className="block w-full scroll-m-16 border-b-2 border-x-transparent border-t-transparent border-b-gray-400 bg-transparent px-0 py-3 text-sm focus:border-b-black focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-gray-400 dark:text-white dark:focus:border-b-white"
+            className="block w-full scroll-m-40 border-b-2 border-x-transparent border-t-transparent border-b-gray-400 bg-transparent px-0 py-3 text-sm focus:border-b-black focus:ring-0 focus-visible:outline-0 disabled:pointer-events-none disabled:opacity-50 dark:border-b-gray-400 dark:text-white dark:focus:border-b-white"
             value={taskInputText}
             onChange={(e) => setTaskInputTextAction(e.target.value)}
             id="addTask"
