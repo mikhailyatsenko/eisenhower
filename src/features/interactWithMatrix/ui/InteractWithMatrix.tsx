@@ -190,7 +190,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
             </ul>
 
             <p
-              className={`text-foreground absolute top-0 left-1 z-0 text-7xl opacity-15 sm:top-1 sm:left-6 sm:text-sm sm:opacity-50 ${tasks[key as MatrixKey].length === 0 ? 'sm:!text-7xl sm:!opacity-25' : ''}`}
+              className={`text-foreground absolute top-0 left-1 z-0 text-7xl opacity-15 select-none sm:top-1 sm:left-6 sm:text-sm sm:opacity-50 ${tasks[key as MatrixKey].length === 0 ? 'sm:!text-7xl sm:!opacity-25' : ''}`}
             >
               {expandedQuadrant !== key &&
                 `${tasks[key as MatrixKey].length} task${tasks[key as MatrixKey].length !== 1 ? 's' : ''}`}

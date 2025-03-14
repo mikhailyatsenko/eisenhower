@@ -69,7 +69,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
       style={{ order: orderIndex }}
       className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${animateByExpandQuadrant} ${dragOverStyles} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 ease-in-out sm:p-6 dark:border dark:bg-gray-950`}
     >
-      <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 sm:text-sm dark:text-gray-300">
+      <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 select-none sm:text-sm dark:text-gray-300">
         {titleQuadrantMap[quadrantKey]}
       </h2>
       {children}
