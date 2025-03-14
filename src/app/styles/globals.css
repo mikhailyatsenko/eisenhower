@@ -148,6 +148,46 @@ body {
     }
   }
 
+  /*Bounce button*/
+  @keyframes bounce-button {
+    0% {
+      -webkit-transform: scale(1.1, 0.9);
+      transform: scale(1.1, 0.9);
+    }
+    3% {
+      -webkit-transform: scale(0.9, 1.1) translateY(-0.5rem);
+    }
+    6% {
+      -webkit-transform: scale(1);
+      transform: scale(1);
+    }
+
+    9% {
+      -webkit-transform: scale(1);
+      transform: scale(1);
+    }
+    12% {
+      -webkit-transform: scale(0.9, 1.1) translateY(-0.5rem);
+    }
+
+    15% {
+      -webkit-transform: scale(1.1, 0.9);
+      transform: scale(1.1, 0.9);
+    }
+
+    20% {
+      -webkit-transform: scale(1);
+      transform: scale(1);
+    }
+
+    100% {
+      -webkit-transform: scale(1);
+      transform: scale(1);
+    }
+  }
+
+  --animate-bounce-button: bounce-button 5s ease 1s infinite;
+
   --animate-from-bottom-appear: from-bottom-appear 0.3s forwards;
 
   --animate-from-hide-to-show: from-hide-to-show 0.35s forwards;

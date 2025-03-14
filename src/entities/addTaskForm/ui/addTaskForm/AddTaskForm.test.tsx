@@ -3,10 +3,10 @@ import React from 'react';
 import '@testing-library/jest-dom';
 // eslint-disable-next-line boundaries/element-types
 import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
-import { AddTaskForm } from './AddTaskForm';
+import { AddTaskForm, AddTaskFormProps } from './AddTaskForm';
 
 describe('AddTaskForm', () => {
-  const defaultProps = {
+  const defaultProps: AddTaskFormProps = {
     taskInputText: '',
     setTaskInputTextAction: jest.fn(),
     isValid: true,
@@ -14,6 +14,7 @@ describe('AddTaskForm', () => {
     handleCategoryChange: jest.fn(),
     handleOnRadioKeyDown: jest.fn(),
     handleSubmit: jest.fn(),
+    isNoTasks: false,
   };
 
   it('renders input and button', () => {

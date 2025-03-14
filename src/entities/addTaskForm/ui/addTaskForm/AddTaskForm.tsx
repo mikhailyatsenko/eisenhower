@@ -6,7 +6,7 @@ import { MatrixQuadrants } from '@/entities/Tasks/@x/matrixQuadrants'; //@x nota
 import { colors } from '../../lib/colors';
 import { FloatButton } from '../FloatButton/FloatButton';
 
-interface AddTaskFormProps {
+export interface AddTaskFormProps {
   taskInputText: string;
   setTaskInputTextAction: (text: string) => void;
   isValid: boolean;
@@ -17,6 +17,7 @@ interface AddTaskFormProps {
     key: MatrixKey,
   ) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  isNoTasks: boolean;
 }
 
 export const AddTaskForm: React.FC<AddTaskFormProps> = ({
@@ -27,6 +28,7 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
   handleCategoryChange,
   handleOnRadioKeyDown,
   handleSubmit,
+  isNoTasks,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -60,7 +62,11 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
 
   return (
     <>
-      <FloatButton active={isOpened} toggleActive={handleToggleActive} />
+      <FloatButton
+        isNoTasks={isNoTasks}
+        active={isOpened}
+        toggleActive={handleToggleActive}
+      />
       <form
         onSubmit={handleFormSubmit}
         autoComplete="off"
