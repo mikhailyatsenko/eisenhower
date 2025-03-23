@@ -2,17 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
-import { TaskMatrixHeaders } from '@/entities/taskMatrixHeaders';
-import { MatrixKey, syncTasks, useTaskStore } from '@/entities/Tasks';
-import { getTaskInputText } from '@/entities/Tasks';
-import { useUIStore } from '@/entities/Tasks';
 import { useAuth } from '@/shared/api/auth';
+import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
+import { useUIStore } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
+import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
 export const TaskMatrix: React.FC = () => {
   const { isLoading } = useAuth();
 
-  const taskInputText = useUIStore(getTaskInputText);
+  const { taskInputText } = useUIStore();
 
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
     null,

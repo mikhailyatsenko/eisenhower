@@ -2,12 +2,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { format } from 'date-fns';
 import { useState, useEffect } from 'react';
-// eslint-disable-next-line boundaries/element-types
-import { type MatrixKey } from '@/entities/Tasks/@x/matrixKey'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
-// eslint-disable-next-line boundaries/element-types
-import { type Task } from '@/entities/Tasks/@x/task'; //@x notation is used to cross-imports between slices (see https://feature-sliced.design/docs/guides/examples/types)
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
+import { MatrixKey } from '@/shared/stores/tasksStore';
+import { Task } from '@/shared/stores/tasksStore';
 import { isTouchDevice } from '@/shared/utils/isTouchDevice';
 import { EditForm } from './EditForm';
 

@@ -18,22 +18,13 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Quadrant } from '@/entities/quadrant';
 import { TaskItem } from '@/entities/taskItem';
-import { MatrixQuadrants, setSelectedCategoryAction } from '@/entities/Tasks';
-import {
-  getActiveState,
-  getAllFirebaseTasks,
-  getAllLocalTasks,
-} from '@/entities/Tasks';
-import { editTaskAction, deleteTaskAction } from '@/entities/Tasks';
-import { useTaskStore } from '@/entities/Tasks';
-import { useUIStore } from '@/entities/Tasks';
-import { MatrixKey, Task } from '@/entities/Tasks';
-import {
-  getRecentlyAddedQuadrant,
-  getSelectedCategory,
-} from '@/entities/Tasks/model/selectors/uiSelectors';
-
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
+import { MatrixQuadrants } from '@/shared/stores/tasksStore';
+import { editTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
+import { useTaskStore } from '@/shared/stores/tasksStore';
+import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import { setSelectedCategoryAction, useUIStore } from '@/shared/stores/uiStore';
+
 import { useDragEvents } from '../lib/useDragEvents';
 
 interface InteractWithMatrixProps {
@@ -47,10 +38,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   setExpandedQuadrant,
   taskInputText,
 }) => {
-  const activeState = useTaskStore(getActiveState);
-  const allLocalTasks = useTaskStore(getAllLocalTasks);
-  const allFirebaseTasks = useTaskStore(getAllFirebaseTasks);
-  const tasks = activeState === 'local' ? allLocalTasks : allFirebaseTasks;
+  const { activeState, localTasks, firebaseTasks } = useTaskStore();
+  const tasks = activeState === 'local' ? localTasks : firebaseTasks;
 
   const {
     isDragging,
@@ -115,7 +104,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     [expandedQuadrant, setExpandedQuadrant],
   );
 
-  const selectedCategory = useUIStore(getSelectedCategory);
+  const { selectedCategory } = useUIStore();
 
   useEffect(() => {
     if (
@@ -143,7 +132,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     return newOrder;
   }, [taskInputText, selectedCategory]);
 
-  const recentlyAddedQuadrant = useUIStore(getRecentlyAddedQuadrant);
+  const { recentlyAddedQuadrant } = useUIStore();
 
   const dropAnimation: DropAnimation | null = isSmallScreen
     ? null

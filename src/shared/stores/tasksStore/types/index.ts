@@ -1,4 +1,4 @@
-import { MatrixQuadrants } from '../consts/taskMatrixConsts';
+import { MatrixQuadrants } from '../consts';
 
 export type MatrixKey = keyof typeof MatrixQuadrants;
 
@@ -7,6 +7,13 @@ export interface Task {
   text: string;
   createdAt: Date;
   order?: number;
+}
+export type Tasks = Record<MatrixKey, Task[]>;
+
+export interface TaskState {
+  localTasks: Tasks;
+  firebaseTasks: Tasks;
+  activeState: 'local' | 'firebase';
 }
 
 export interface FirestoreTaskData {
@@ -17,5 +24,3 @@ export interface FirestoreTaskData {
   userId: string;
   order: number;
 }
-
-export type Tasks = Record<MatrixKey, Task[]>;

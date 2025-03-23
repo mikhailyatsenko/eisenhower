@@ -1,5 +1,4 @@
-// eslint-disable-next-line boundaries/element-types
-import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
+import { MatrixKey } from '@/shared/stores/tasksStore';
 import { buttonStyles } from '../../lib/buttonStyles';
 
 interface ButtonsProps {

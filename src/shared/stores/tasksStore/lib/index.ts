@@ -8,8 +8,15 @@ import {
   deleteDoc,
 } from 'firebase/firestore';
 import { db, auth } from '@/shared/config/firebaseConfig';
-import { Tasks, FirestoreTaskData } from '../../types/taskMatrixTypes';
-import { getEmptyTasksState } from '../tasksStore';
+import { MatrixQuadrantKeys } from '../consts';
+import { Tasks, FirestoreTaskData } from '../types';
+
+export const getEmptyTasksState = (): Tasks => {
+  return MatrixQuadrantKeys.reduce<Tasks>((acc, quadrant) => {
+    acc[quadrant as keyof Tasks] = [];
+    return acc;
+  }, {} as Tasks);
+};
 
 export const fetchTasksFromFirebase = async (): Promise<Tasks | null> => {
   try {

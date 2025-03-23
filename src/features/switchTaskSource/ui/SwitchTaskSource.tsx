@@ -2,19 +2,18 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { TaskSourceTabs } from '@/entities/taskSourceTabs';
+import { useAuth } from '@/shared/api/auth';
 import {
   useTaskStore,
   switchToFirebaseTasks,
   switchToLocalTasks,
-  getActiveState,
-} from '@/entities/Tasks';
-import { TaskSourceTabs } from '@/entities/taskSourceTabs';
-import { useAuth } from '@/shared/api/auth';
+} from '@/shared/stores/tasksStore';
 
 export const SwitchTaskSource = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const currentSource = useTaskStore(getActiveState);
+  const { activeState } = useTaskStore();
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
@@ -50,7 +49,7 @@ export const SwitchTaskSource = () => {
     <TaskSourceTabs
       switchToFirebaseTasks={handleSwitchToFirebase}
       switchToLocalTasks={handleSwitchToLocal}
-      currentSource={currentSource}
+      currentSource={activeState}
     />
   );
 };

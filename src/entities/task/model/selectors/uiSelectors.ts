@@ -1,4 +1,4 @@
-import { UIState } from '../store/uiStore';
+import { UIState } from '../../../../shared/stores/uiStore/hooks';
 
 export const getSelectedCategory = (state: UIState) => state.selectedCategory;
 

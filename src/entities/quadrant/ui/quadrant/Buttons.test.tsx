@@ -1,8 +1,7 @@
 import { render, fireEvent } from '@testing-library/react';
 import React from 'react';
-// eslint-disable-next-line boundaries/element-types
-import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
-import { Buttons } from './Buttons'; // Импортируйте компонент из нужного файла
+import { MatrixKey } from '@/shared/stores/tasksStore';
+import { Buttons } from './Buttons';
 
 describe('Buttons component', () => {
   const handleToggleExpand = jest.fn();

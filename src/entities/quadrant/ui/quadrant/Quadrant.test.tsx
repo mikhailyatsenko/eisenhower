@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-// eslint-disable-next-line boundaries/element-types
-import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
+import { MatrixKey } from '@/shared/stores/tasksStore';
 import { Quadrant, QuadrantProps } from './Quadrant';
 
 jest.mock('@dnd-kit/core', () => ({

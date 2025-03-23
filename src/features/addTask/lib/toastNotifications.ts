@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 import { titleQuadrantMap } from '@/entities/quadrant/ui/quadrant/Quadrant';
-import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
+import { MatrixKey } from '@/entities/Tasks/@x/addTaskForm';
 
 export const showToastNotificationByAddTask = (quadrant: MatrixKey) => {
   toast(`Task successfully added to "${titleQuadrantMap[quadrant]}"`, {

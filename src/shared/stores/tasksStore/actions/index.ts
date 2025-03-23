@@ -1,40 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { MatrixKey, Task, Tasks } from '../types/taskMatrixTypes';
+
+import { useTaskStore } from '../hooks/useTasksStore';
 import {
   fetchTasksFromFirebase,
   syncTasksToFirebase,
   deleteTaskFromFirebase,
-} from './lib/tasksFirebase';
-
-export interface TaskState {
-  localTasks: Tasks;
-  firebaseTasks: Tasks;
-  activeState: 'local' | 'firebase';
-}
-
-export const getEmptyTasksState = (): Tasks => ({
-  ImportantUrgent: [],
-  ImportantNotUrgent: [],
-  NotImportantUrgent: [],
-  NotImportantNotUrgent: [],
-});
-
-export const useTaskStore = create<TaskState>()(
-  persist(
-    immer<TaskState>(() => ({
-      localTasks: getEmptyTasksState(),
-      firebaseTasks: getEmptyTasksState(),
-      activeState: 'local',
-    })),
-    {
-      name: 'task-store',
-      partialize: (state) => ({ localTasks: state.localTasks }),
-    },
-  ),
-);
+} from '../lib';
+import { MatrixKey, Task, Tasks } from '../types';
 
 export const syncTasks = async () => {
   const tasks = await fetchTasksFromFirebase();

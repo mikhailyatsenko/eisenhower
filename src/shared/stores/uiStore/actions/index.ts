@@ -1,20 +1,5 @@
-import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import { MatrixKey } from '../types/taskMatrixTypes';
-
-export interface UIState {
-  selectedCategory: MatrixKey;
-  taskInputText: string;
-  recentlyAddedQuadrant: MatrixKey | null;
-}
-
-const initialState: UIState = {
-  selectedCategory: 'ImportantUrgent',
-  taskInputText: '',
-  recentlyAddedQuadrant: null,
-};
-
-export const useUIStore = create<UIState>()(immer(() => initialState));
+import { MatrixKey } from '@/shared/stores/tasksStore';
+import { useUIStore } from '../hooks';
 
 export const setSelectedCategoryAction = (category: MatrixKey) => {
   useUIStore.setState((state) => {

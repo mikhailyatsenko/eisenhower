@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
-// eslint-disable-next-line boundaries/element-types
-import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
+import { MatrixKey } from '@/shared/stores/tasksStore';
+import { ERROR_MESSAGE } from '../../consts';
 import { AddTaskForm, AddTaskFormProps } from './AddTaskForm';
 
 describe('AddTaskForm', () => {
@@ -10,7 +10,7 @@ describe('AddTaskForm', () => {
     taskInputText: '',
     setTaskInputTextAction: jest.fn(),
     isValid: true,
-    selectedCategory: 'ImportantUrgent' as MatrixKey, // Ensure this is a valid key in the colors object
+    selectedCategory: 'ImportantUrgent' as MatrixKey,
     handleCategoryChange: jest.fn(),
     handleOnRadioKeyDown: jest.fn(),
     handleSubmit: jest.fn(),
@@ -19,13 +19,13 @@ describe('AddTaskForm', () => {
 
   it('renders input and button', () => {
     render(<AddTaskForm {...defaultProps} />);
-    expect(screen.getByPlaceholderText('Enter task')).toBeInTheDocument();
-    expect(screen.getByText('Add task')).toBeInTheDocument();
+    expect(screen.getByTestId('add-task-input')).toBeInTheDocument();
+    expect(screen.getByTestId('add-task-button')).toBeInTheDocument();
   });
 
   it('calls setTaskInputTextAction on input change', () => {
     render(<AddTaskForm {...defaultProps} />);
-    const input = screen.getByPlaceholderText('Enter task');
+    const input = screen.getByTestId('add-task-input');
     fireEvent.change(input, { target: { value: 'New Task' } });
     expect(defaultProps.setTaskInputTextAction).toHaveBeenCalledWith(
       'New Task',
@@ -34,9 +34,7 @@ describe('AddTaskForm', () => {
 
   it('displays validation message when input is invalid', () => {
     render(<AddTaskForm {...defaultProps} isValid={false} />);
-    expect(
-      screen.getByText('Task text must be between 1 and 200 characters.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText(ERROR_MESSAGE)).toBeInTheDocument();
   });
 
   it('calls handleSubmit on form submit', () => {

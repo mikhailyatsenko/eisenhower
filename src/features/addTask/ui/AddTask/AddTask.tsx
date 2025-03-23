@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { AddTaskForm } from '@/entities/addTaskForm';
-import { MatrixKey, MatrixQuadrants } from '@/entities/Tasks';
-import { addTaskAction } from '@/entities/Tasks';
-import { getSelectedCategory, getTaskInputText } from '@/entities/Tasks';
+import { useTaskStore } from '@/shared/stores/tasksStore';
+
+import { MatrixKey, MatrixQuadrants } from '@/shared/stores/tasksStore';
+import { addTaskAction } from '@/shared/stores/tasksStore';
 import {
   setRecentlyAddedQuadrantAction,
   setSelectedCategoryAction,
   setTaskInputTextAction,
   useUIStore,
-} from '@/entities/Tasks';
-import { getAllLocalTasks, getAllFirebaseTasks } from '@/entities/Tasks';
-import { useTaskStore } from '@/entities/Tasks';
+} from '@/shared/stores/uiStore';
+
 import { showToastNotificationByAddTask } from '../../lib/toastNotifications';
 
 const useFormValidation = (taskInputText: string) => {
@@ -26,8 +26,7 @@ const useFormValidation = (taskInputText: string) => {
 };
 
 export const AddTask = () => {
-  const selectedCategory = useUIStore(getSelectedCategory);
-  const taskInputText = useUIStore(getTaskInputText);
+  const { selectedCategory, taskInputText } = useUIStore();
 
   const isValid = useFormValidation(taskInputText);
 
@@ -58,21 +57,20 @@ export const AddTask = () => {
 
   const [inNoTasks, setInNoTasks] = useState(true);
 
-  const allLocalTasks = useTaskStore(getAllLocalTasks);
-  const allFirebaseTasks = useTaskStore(getAllFirebaseTasks);
+  const { firebaseTasks, localTasks } = useTaskStore();
 
   useEffect(() => {
     setInNoTasks(true);
     for (const key in MatrixQuadrants) {
       if (
-        allLocalTasks[key as MatrixKey].length !== 0 ||
-        allFirebaseTasks[key as MatrixKey].length !== 0
+        localTasks[key as MatrixKey].length !== 0 ||
+        firebaseTasks[key as MatrixKey].length !== 0
       ) {
         setInNoTasks(false);
         break;
       }
     }
-  }, [allLocalTasks, allFirebaseTasks]);
+  }, [localTasks, firebaseTasks]);
 
   return (
     <AddTaskForm

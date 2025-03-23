@@ -5,12 +5,11 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useState } from 'react';
-// eslint-disable-next-line boundaries/element-types
-import { MatrixKey } from '@/entities/Tasks/@x/matrixKey';
-// eslint-disable-next-line boundaries/element-types
-import { Task } from '@/entities/Tasks/@x/task';
+
 import GoogleIcon from '@/shared/icons/google-icon.svg';
 import UserIcon from '@/shared/icons/user-icon.svg';
+import { MatrixKey } from '@/shared/stores/tasksStore';
+import { Task } from '@/shared/stores/tasksStore';
 import { BubbleCornerButton } from '@/shared/ui/bubbleCornerButton';
 import { SignWihGoogleButton } from '@/shared/ui/signWihGoogleButton';
 

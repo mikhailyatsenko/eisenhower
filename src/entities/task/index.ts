@@ -4,9 +4,6 @@ export {
   getAllLocalTasks,
 } from './model/selectors/tasksSelector';
 
-export { MatrixQuadrants } from './model/consts/taskMatrixConsts';
-export type { MatrixKey, Task } from './model/types/taskMatrixTypes';
-
 export {
   useTaskStore,
   switchToLocalTasks,
@@ -17,7 +14,7 @@ export {
   dragOverQuadrantAction,
   editTaskAction,
   syncTasks,
-} from './model/store/tasksStore';
+} from '../../shared/stores/tasksStore/actions';
 
 export {
   getSelectedCategory,
@@ -30,4 +27,4 @@ export {
   setSelectedCategoryAction,
   setTaskInputTextAction,
   useUIStore,
-} from './model/store/uiStore';
+} from '../../shared/stores/uiStore/hooks';

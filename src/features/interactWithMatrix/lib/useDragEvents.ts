@@ -1,9 +1,12 @@
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useState } from 'react';
-import { MatrixKey, Task } from '@/entities/Tasks';
-import { setRecentlyAddedQuadrantAction } from '@/entities/Tasks';
-import { dragEndAction, dragOverQuadrantAction } from '@/entities/Tasks';
+import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import {
+  dragEndAction,
+  dragOverQuadrantAction,
+} from '@/shared/stores/tasksStore';
+import { setRecentlyAddedQuadrantAction } from '@/shared/stores/uiStore';
 
 export const useDragEvents = (tasks: Record<MatrixKey, Task[]>) => {
   const [isDragging, setIsDragging] = useState(false);

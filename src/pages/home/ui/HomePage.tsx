@@ -3,11 +3,10 @@
 import { ToastContainer } from 'react-toastify';
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
-
-import { getActiveState, useTaskStore } from '@/entities/Tasks';
+import { useTaskStore } from '@/shared/stores/tasksStore';
 
 export const HomePage = () => {
-  const activeState = useTaskStore(getActiveState);
+  const { activeState } = useTaskStore();
 
   return (
     <>

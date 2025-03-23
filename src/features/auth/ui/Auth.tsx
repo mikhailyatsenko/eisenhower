@@ -1,18 +1,14 @@
 'use client';
 
 import { AuthIndicator } from '@/entities/authIndicator';
-import {
-  getAllFirebaseTasks,
-  getAllLocalTasks,
-  useTaskStore,
-} from '@/entities/Tasks';
 import { useAuth } from '@/shared/api/auth';
+import { useTaskStore } from '@/shared/stores/tasksStore';
 
 export const Auth: React.FC = () => {
   const { user, handleGoogleSignIn, handleLogout, isLoading } = useAuth();
 
-  const localTasks = useTaskStore(getAllLocalTasks);
-  const cloudTasks = useTaskStore(getAllFirebaseTasks);
+  const { localTasks } = useTaskStore();
+  const { firebaseTasks } = useTaskStore();
 
   return (
     <div
@@ -20,7 +16,7 @@ export const Auth: React.FC = () => {
     >
       <AuthIndicator
         localTasks={localTasks}
-        cloudTasks={cloudTasks}
+        cloudTasks={firebaseTasks}
         photoURL={user?.photoURL || undefined}
         displayName={user?.displayName || undefined}
         isSignedIn={!!user}

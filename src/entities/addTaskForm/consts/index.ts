@@ -1,5 +1,9 @@
 import { type MatrixKey } from '@/shared/stores/tasksStore';
-export const colors: Record<
+
+export const ERROR_MESSAGE = 'Task text must be between 1 and 200 characters.';
+export const BUTTON_TEXT = 'Add Task';
+
+export const BUTTON_COLORS: Record<
   MatrixKey,
   { bg: string; hover: string; peerCheckedBg: string; border: string }
 > = {
