@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '../styles';
 import { cookies } from 'next/headers';
 import { Auth } from '@/features/auth/ui/Auth';
-import { SwitchTaskSource } from '@/features/switchTaskSource/ui/SwitchTaskSource';
+import { SwitchTaskSource } from '@/features/switchTaskSource/';
 import { ThemeToggle } from '@/features/toggleTheme';
 import { WelcomeModal } from '@/entities/welcomeModal';
 import { Favicons } from '@/shared/lib/Favicons';

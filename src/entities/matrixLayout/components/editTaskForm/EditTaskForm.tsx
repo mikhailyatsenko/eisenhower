@@ -6,7 +6,7 @@ interface EditFormProps {
   handleSave: (editText: string) => void;
 }
 
-export const EditForm: React.FC<EditFormProps> = ({
+export const EditTaskForm: React.FC<EditFormProps> = ({
   setIsEditing,
   task,
   handleSave,

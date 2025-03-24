@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { useAuth } from '@/shared/api/auth';
 import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
@@ -9,21 +9,25 @@ import { LoaderFullScreen } from '@/shared/ui/loader';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
 export const TaskMatrix: React.FC = () => {
-  const { isLoading } = useAuth();
+  const { isLoading, user } = useAuth();
 
-  const { taskInputText } = useUIStore();
+  // Use specific selector to prevent unnecessary re-renders
+  const taskInputText = useUIStore((state) => state.taskInputText);
 
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
     null,
   );
+  const [syncState, setSyncState] = useState<{
+    isSyncing: boolean;
+    error: string | null;
+  }>({
+    isSyncing: false,
+    error: null,
+  });
 
-  const { user } = useAuth();
-
-  const [isSyncingTasks, setIsSyncingTasks] = useState(false);
-
-  useEffect(() => {
-    const fetchTasks = async () => {
-      setIsSyncingTasks(true);
+  const fetchTasks = useCallback(async () => {
+    setSyncState((prev) => ({ ...prev, isSyncing: true, error: null }));
+    try {
       if (user) {
         await syncTasks();
       } else {
@@ -36,14 +40,30 @@ export const TaskMatrix: React.FC = () => {
           };
         });
       }
-      setIsSyncingTasks(false);
-    };
-
-    fetchTasks();
+    } catch (error) {
+      setSyncState((prev) => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Failed to sync tasks',
+      }));
+    } finally {
+      setSyncState((prev) => ({ ...prev, isSyncing: false }));
+    }
   }, [user]);
 
-  if (isLoading || isSyncingTasks) {
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  if (isLoading || syncState.isSyncing) {
     return <LoaderFullScreen />;
+  }
+
+  if (syncState.error) {
+    return (
+      <div className="flex h-full w-full items-center justify-center text-red-500">
+        {syncState.error}
+      </div>
+    );
   }
 
   return (

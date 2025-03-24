@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom'; // Add this import
+import '@testing-library/jest-dom';
 import { act } from 'react';
-import { RootLayout } from '../index';
+import { RootLayout } from './index';
 
 jest.mock('next/headers', () => ({
   cookies: jest.fn().mockReturnValue({

@@ -7,7 +7,7 @@ import EditIcon from '@/shared/icons/edit-icon.svg';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { Task } from '@/shared/stores/tasksStore';
 import { isTouchDevice } from '@/shared/utils/isTouchDevice';
-import { EditForm } from './EditForm';
+import { EditTaskForm } from '../../editTaskForm';
 
 interface TaskItemProps {
   task: Task;
@@ -93,7 +93,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${colors[quadrantKey]} group ${!isEditing ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
     >
       {isEditing ? (
-        <EditForm
+        <EditTaskForm
           handleSave={handleSave}
           setIsEditing={setIsEditing}
           task={task}
