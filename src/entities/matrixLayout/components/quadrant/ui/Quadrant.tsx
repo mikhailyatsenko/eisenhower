@@ -2,9 +2,9 @@ import { useDroppable } from '@dnd-kit/core';
 
 import { QUADRANT_TITLES } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
+import { Buttons } from '../../quadrantButtons/ui/QuadrantButtons';
 import { QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
-import { Buttons } from './Buttons';
 
 export interface QuadrantProps {
   quadrantKey: MatrixKey;

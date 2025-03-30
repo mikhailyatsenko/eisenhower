@@ -1,1 +1,1 @@
-export { TaskSourceTabs } from './ui/TaskSourceTabs';
+export { TaskSourceTabs } from './ui';

@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-
-interface TaskSourceTabsProps {
-  switchToFirebaseTasks: () => void;
-  switchToLocalTasks: () => void;
-  currentSource: 'local' | 'firebase';
-}
+import { TAB_CLOUD_TEXT, TAB_LOCAL_TEXT } from '../consts';
+import { TaskSourceTabsProps } from '../types';
 
 export const TaskSourceTabs: React.FC<TaskSourceTabsProps> = ({
   switchToFirebaseTasks,
@@ -33,10 +29,10 @@ export const TaskSourceTabs: React.FC<TaskSourceTabsProps> = ({
     >
       <div className="flex w-full items-center justify-between text-center text-sm">
         <span className="z-2 w-1/2 text-gray-800 dark:text-gray-200">
-          Cloud
+          {TAB_CLOUD_TEXT}
         </span>
         <span className="z-2 w-1/2 text-gray-800 dark:text-gray-200">
-          Local
+          {TAB_LOCAL_TEXT}
         </span>
         <div
           className={`shadow- absolute top-0 left-0 h-full w-1/2 rounded-b-md bg-indigo-200/95 transition-transform duration-250 ease-[cubic-bezier(0.93,0.26,0.07,0.69)] dark:bg-indigo-950/95 ${!isCloud ? 'translate-x-full' : ''}`}

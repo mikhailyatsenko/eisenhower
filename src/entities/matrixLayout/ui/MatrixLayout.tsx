@@ -5,7 +5,8 @@ import {
 import { MatrixKey, MatrixQuadrants, Task } from '@/shared/stores/tasksStore';
 import { editTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
-import { Quadrant, TaskItem } from '../components';
+import { Quadrant } from '../components/quadrant';
+import { TaskItem } from '../components/taskItem';
 import { LIST_STYLES, TASK_COUNT_STYLES } from '../consts';
 
 interface MatrixLayoutProps {

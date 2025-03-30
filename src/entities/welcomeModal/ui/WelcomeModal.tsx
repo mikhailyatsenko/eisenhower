@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Modal } from '@/shared/ui/modal';
-import { CardsOnBackground } from './CardsOnBackground';
-import { TextContent } from './TextContent';
+import { CardsOnBackground } from '../components/CardsOnBackground';
+import { TextContent } from '../components/textContent';
 
 export const WelcomeModal = () => {
   const [isShowModal, setIsShowModal] = useState(false);
@@ -24,13 +24,10 @@ export const WelcomeModal = () => {
   return (
     isShowModal && (
       <Modal onClose={() => setIsShowModal(false)}>
-        {/* <div className="flex items-center"> */}
-        {/* <div className="relative h-60 w-1/4"> */}
         <div className="absolute z-1">
           <CardsOnBackground />
         </div>
-        {/* </div> */}
-        {/* <div className="w-3/4 overflow-scroll text-left"> */}
+
         <div className="animate-from-bottom-appear relative z-2 p-6 text-center opacity-0 [animation-delay:_0.5s]">
           <TextContent />
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-6">
@@ -48,8 +45,6 @@ export const WelcomeModal = () => {
             </button>
           </div>
         </div>
-        {/* </div> */}
-        {/* </div> */}
       </Modal>
     )
   );

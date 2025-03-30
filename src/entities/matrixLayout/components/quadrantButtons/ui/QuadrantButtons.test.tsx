@@ -1,7 +1,7 @@
 import { render, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { Buttons } from './Buttons';
+import { Buttons } from './QuadrantButtons';
 
 describe('Buttons component', () => {
   const handleToggleExpand = jest.fn();

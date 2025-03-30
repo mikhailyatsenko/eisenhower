@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { STORAGE_KEY, DEFAULT_ACTIVE_STATE } from '../consts';
+import { STORAGE_KEY, LOCAL_STATE_KEY } from '../consts';
 import { getEmptyTasksState } from '../lib';
 import { TaskState } from '../types';
 
@@ -10,7 +10,7 @@ export const useTaskStore = create<TaskState>()(
     immer<TaskState>(() => ({
       localTasks: getEmptyTasksState(),
       firebaseTasks: getEmptyTasksState(),
-      activeState: DEFAULT_ACTIVE_STATE,
+      activeState: LOCAL_STATE_KEY,
     })),
     {
       name: STORAGE_KEY,
