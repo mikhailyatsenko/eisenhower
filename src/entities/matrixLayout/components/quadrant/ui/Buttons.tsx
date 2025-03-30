@@ -1,5 +1,5 @@
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { buttonStyles } from '../../lib/buttonStyles';
+import { buttonStyles } from '../lib/buttonStyles';
 
 interface ButtonsProps {
   isExpandedCurrentQuadrant: boolean;

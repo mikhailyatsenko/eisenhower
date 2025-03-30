@@ -12,12 +12,12 @@ import {
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect } from 'react';
+import { MatrixLayout } from '@/entities/matrixLayout';
 import { TaskItem } from '@/entities/matrixLayout/components/taskItem';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 
-import { MatrixLayout } from '../../../entities/matrixLayout/ui/MatrixLayout';
 import { useDragEvents } from '../lib/hooks';
 import { useQuadrantExpansion } from '../lib/hooks';
 import { useQuadrantOrder } from '../lib/hooks';

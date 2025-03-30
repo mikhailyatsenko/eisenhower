@@ -1,7 +1,9 @@
 import { useDroppable } from '@dnd-kit/core';
 
+import { QUADRANT_TITLES } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { quadrantStyles } from '../../lib/quadrantStyles';
+import { QUADRANT_STYLES } from '../consts';
+import { quadrantStyles } from '../lib/quadrantStyles';
 import { Buttons } from './Buttons';
 
 export interface QuadrantProps {
@@ -16,13 +18,6 @@ export interface QuadrantProps {
   recentlyAddedQuadrant: MatrixKey | null;
   isNoTasks: boolean;
 }
-
-export const titleQuadrantMap = {
-  ImportantUrgent: 'Do First',
-  ImportantNotUrgent: 'Schedule',
-  NotImportantUrgent: 'Delegate',
-  NotImportantNotUrgent: 'Eliminate',
-};
 
 export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
@@ -44,12 +39,14 @@ export const Quadrant: React.FC<QuadrantProps> = ({
   const isExpandedCurrentQuadrant = expandedQuadrant === quadrantKey;
 
   const actionStyles = isTypingNewTask
-    ? `${orderIndex === 0 ? 'animate-from-bottom-appear w-[calc(55%-8px)] h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2)] transition-[width] duration-300' : 'w-[calc(45%-8px)] !opacity-25 h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2)] transition-[width] duration-300'}`
+    ? orderIndex === 0
+      ? QUADRANT_STYLES.TYPING_NEW_TASK_ACTIVE
+      : QUADRANT_STYLES.TYPING_NEW_TASK_INACTIVE
     : expandedQuadrant === null
-      ? 'w-[calc(50%-8px)] h-[calc((100vw)/2-32px)] sm:h-[calc(100vh/2-64px)] min-h-40'
+      ? QUADRANT_STYLES.DEFAULT
       : isExpandedCurrentQuadrant
-        ? '!order-first max-h-[calc(100dvh-200px)] min-h-40 w-full !pb-0'
-        : 'h-[calc(100vw/3-48px)] w-[calc((33.333%-8px))]';
+        ? QUADRANT_STYLES.EXPANDED
+        : QUADRANT_STYLES.COLLAPSED;
 
   const animateByExpandQuadrant = isAnimateByExpandQuadrant
     ? 'animate-from-hide-to-show'
@@ -60,17 +57,13 @@ export const Quadrant: React.FC<QuadrantProps> = ({
       ? 'animate-recently-added-quadrant'
       : '';
 
-  const dragOverStyles = isDragOver ? '!bg-gray-400' : '';
-
   return (
     <div
       ref={setNodeRef}
       style={{ order: orderIndex }}
-      className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${animateByExpandQuadrant} ${dragOverStyles} relative m-1 overflow-hidden rounded-md p-1 pt-4 text-gray-100 ease-in-out sm:p-6 dark:border dark:bg-gray-950`}
+      className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${animateByExpandQuadrant} ${isDragOver ? QUADRANT_STYLES.DRAG_OVER : ''} ${QUADRANT_STYLES.CONTAINER}`}
     >
-      <h2 className="absolute top-1 right-2 mb-2 text-[0.5rem] text-gray-600 select-none sm:text-sm dark:text-gray-300">
-        {titleQuadrantMap[quadrantKey]}
-      </h2>
+      <h2 className={QUADRANT_STYLES.TITLE}>{QUADRANT_TITLES[quadrantKey]}</h2>
       {children}
       {!isTypingNewTask && !isNoTasks && (
         <Buttons

@@ -6,6 +6,7 @@ import { MatrixKey, MatrixQuadrants, Task } from '@/shared/stores/tasksStore';
 import { editTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { Quadrant, TaskItem } from '../components';
+import { LIST_STYLES, TASK_COUNT_STYLES } from '../consts';
 
 interface MatrixLayoutProps {
   tasks: Record<MatrixKey, Task[]>;
@@ -32,6 +33,8 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
     <>
       {Object.entries(MatrixQuadrants).map(([key]) => {
         const quadrantKey = key as MatrixKey;
+        const taskCount = tasks[quadrantKey].length;
+        const taskCountText = `${taskCount} task${taskCount !== 1 ? 's' : ''}`;
 
         return (
           <Quadrant
@@ -44,14 +47,18 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             orderIndex={quadrantOrder.indexOf(quadrantKey)}
             isTypingNewTask={taskInputText.trim() !== ''}
             recentlyAddedQuadrant={recentlyAddedQuadrant}
-            isNoTasks={tasks[quadrantKey].length === 0}
+            isNoTasks={taskCount === 0}
           >
             <SortableContext
               items={tasks[quadrantKey]}
               strategy={verticalListSortingStrategy}
             >
               <ul
-                className={`scrollbar-hidden relative z-2 list-none flex-col ${expandedQuadrant === key ? 'flex pb-8' : 'hidden'} h-full overflow-x-hidden overflow-y-auto sm:flex`}
+                className={
+                  expandedQuadrant === key
+                    ? LIST_STYLES.EXPANDED
+                    : LIST_STYLES.COLLAPSED
+                }
               >
                 {tasks[quadrantKey].map((task, index) => (
                   <TaskItem
@@ -66,10 +73,13 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
               </ul>
 
               <p
-                className={`text-foreground absolute top-0 left-1 z-0 text-7xl opacity-15 select-none sm:top-1 sm:left-6 sm:text-sm sm:opacity-50 ${tasks[quadrantKey].length === 0 ? 'sm:!text-7xl sm:!opacity-25' : ''}`}
+                className={
+                  taskCount === 0
+                    ? TASK_COUNT_STYLES.EMPTY
+                    : TASK_COUNT_STYLES.DEFAULT
+                }
               >
-                {expandedQuadrant !== key &&
-                  `${tasks[quadrantKey].length} task${tasks[quadrantKey].length !== 1 ? 's' : ''}`}
+                {expandedQuadrant !== key && taskCountText}
               </p>
             </SortableContext>
           </Quadrant>

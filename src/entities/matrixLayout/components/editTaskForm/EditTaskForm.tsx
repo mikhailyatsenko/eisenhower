@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Task } from '@/shared/stores/tasksStore';
+import { BUTTON_CANCEL_TEXT, BUTTON_SAVE_TEXT } from '../../consts';
 interface EditFormProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   task: Task;
@@ -59,7 +60,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
           className="h-fit cursor-pointer rounded-md border border-gray-500 px-2 py-2 text-sm leading-1 font-bold text-gray-600 hover:scale-[0.98] active:scale-[0.95]"
           data-no-dnd="true"
         >
-          Cancel
+          {BUTTON_CANCEL_TEXT}
         </button>
         <button
           type="submit"
@@ -68,7 +69,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
           data-no-dnd="true"
           disabled={!isValid}
         >
-          Save
+          {BUTTON_SAVE_TEXT}
         </button>
       </div>
     </form>

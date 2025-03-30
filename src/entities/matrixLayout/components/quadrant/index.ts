@@ -1,1 +1,1 @@
-export { Quadrant } from './ui/quadrant/Quadrant';
+export { Quadrant } from './ui';
