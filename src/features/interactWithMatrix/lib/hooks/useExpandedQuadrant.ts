@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { MatrixKey } from '@/entities/Tasks';
+import { MatrixKey } from '@/shared/stores/tasksStore';
 
 export const useExpandedQuadrant = () => {
   const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(

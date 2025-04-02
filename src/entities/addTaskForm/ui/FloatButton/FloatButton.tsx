@@ -14,7 +14,7 @@ export const FloatButton: React.FC<FloatedButtonProps> = ({
   toggleActive,
   isNoTasks,
 }) => {
-  const [bottomOffset, setBottomOffset] = useState(32); // изначальный bottom-6 (24px)
+  const [bottomOffset, setBottomOffset] = useState(32);
 
   useEffect(() => {
     if (!isTouchDevice()) return;

@@ -68,21 +68,6 @@ describe('AuthIndicator', () => {
     expect(defaultProps.handleLogout).toHaveBeenCalled();
   });
 
-  // it('switches to cloud matrix when clicked', () => {
-  //   const mockPush = jest.fn();
-  //   jest.mock('next/navigation', () => ({
-  //     useRouter: () => ({ push: mockPush }),
-  //     useSearchParams: () => ({ has: jest.fn().mockReturnValue(false) }),
-  //   }));
-
-  //   render(<AuthIndicator {...defaultProps} isSignedIn={true} />);
-
-  //   fireEvent.click(screen.getByTestId('bubble-corner-button'));
-  //   fireEvent.click(screen.getByText(/Cloud Matrix/i));
-
-  //   expect(mockPush).toHaveBeenCalledTimes(1);
-  // });
-
   it('displays the correct number of tasks in each quadrant', () => {
     const tasks = {
       ImportantUrgent: [],
