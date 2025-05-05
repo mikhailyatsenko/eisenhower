@@ -7,7 +7,7 @@ export const TextContent = () => {
         {WELCOME_MODAL_TEXTS.TITLE}
       </h1>
       <p className="limitedHeight639:text-sm mb-4 text-sm sm:text-base lg:text-lg">
-        <strong>The Eisenhower Matrix</strong> {WELCOME_MODAL_TEXTS.DESCRIPTION}
+        {WELCOME_MODAL_TEXTS.DESCRIPTION}
       </p>
       <p className="limitedHeight639:!hidden sm576:block mb-4 hidden text-sm sm:text-base lg:text-lg">
         {WELCOME_MODAL_TEXTS.ADDITIONAL_INFO}
