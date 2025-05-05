@@ -1,7 +1,7 @@
 export const WELCOME_MODAL_TEXTS = {
   TITLE: 'Welcome to Eisenhower Matrix',
   DESCRIPTION:
-    'The Eisenhower Matrix is a time management tool that helps you prioritize tasks by urgency and importance, sorting out less urgent and important tasks which you should either delegate or not spend much time on.',
+    '„The Eisenhower Matrix“ is a time management tool that helps you prioritize tasks by urgency and importance, sorting out less urgent and important tasks which you should either delegate or not spend much time on.',
   ADDITIONAL_INFO:
     'This application implements the Eisenhower Matrix approach to help you optimize your tasks and improve productivity. You can categorize your tasks into four quadrants:',
   QUADRANTS: {
