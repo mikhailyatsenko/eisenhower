@@ -2,7 +2,8 @@
 
 ## Description
 
-This application implements the Eisenhower Matrix approach to help you optimize your tasks and improve productivity. You can categorize your tasks into four quadrants:
+This application implements the Eisenhower Matrix approach to help you optimize your tasks and improve productivity.
+You can categorize your tasks into four quadrants using a convenient drag-and-drop interface:
 
 - **Do First**: Important and Urgent tasks that need immediate attention.
 - **Schedule**: Important but Not Urgent tasks that you can plan for later.
@@ -45,11 +46,6 @@ npm run dev
  ## How It Works
  
 <img src="https://raw.githubusercontent.com/mikhailyatsenko/mikhailyatsenko/main/img/eisenhower.gif" alt="bvg-gif" width="600"/>
-
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and create a pull request.
 
 ## License
 
