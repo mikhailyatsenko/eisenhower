@@ -12,7 +12,7 @@ export interface FloatedButtonProps {
 export const FloatButton: React.FC<FloatedButtonProps> = ({
   active,
   toggleActive,
-  isNoTasks,
+  // isNoTasks,
 }) => {
   const [bottomOffset, setBottomOffset] = useState(32);
 
@@ -47,7 +47,7 @@ export const FloatButton: React.FC<FloatedButtonProps> = ({
       title={`${active ? 'Hide form' : 'Add Task'} `}
       onClick={toggleActive}
       style={{ bottom: bottomOffset }}
-      className={`${!active && isNoTasks ? 'animate-bounce-button' : ''} fixed right-6 z-50 cursor-pointer rounded-full bg-gray-400/30 p-2 duration-150 hover:scale-110 hover:bg-gray-400/50 sm:right-10 dark:bg-white/30 dark:hover:bg-white/50`}
+      className={`${!active ? 'gradient-flow-button after:content-["Add_task"]' : ''} fixed right-6 z-50 cursor-pointer rounded-full bg-gray-400/30 p-2 duration-150 after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:text-xs after:text-nowrap hover:scale-110 sm:right-10 dark:bg-white/30`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

@@ -52,11 +52,13 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
   );
 
   const router = useRouter();
-  const handleSwitchToFirebase = () => {
+  const handleSwitchToFirebase = (e: React.MouseEvent) => {
+    e.stopPropagation();
     router.push('?cloud');
   };
 
-  const handleSwitchToLocal = () => {
+  const handleSwitchToLocal = (e: React.MouseEvent) => {
+    e.stopPropagation();
     router.push('/');
   };
 
@@ -134,7 +136,12 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
             <strong onClick={handleGoogleSignIn}>sign in with Google</strong>
           </p>
           <div className="flex w-[85%]">
-            <SignWihGoogleButton onClick={handleGoogleSignIn} />
+            <SignWihGoogleButton
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                handleGoogleSignIn();
+              }}
+            />
           </div>
         </div>
       )}

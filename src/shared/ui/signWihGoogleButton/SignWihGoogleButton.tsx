@@ -1,5 +1,5 @@
 interface SignWihGoogleButtonProps {
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
 export const SignWihGoogleButton: React.FC<SignWihGoogleButtonProps> = ({

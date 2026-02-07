@@ -148,45 +148,18 @@ body {
     }
   }
 
-  /*Bounce button*/
-  @keyframes bounce-button {
+  /*Gradient flow animation*/
+  @keyframes gradient-flow {
     0% {
-      -webkit-transform: scale(1.1, 0.9);
-      transform: scale(1.1, 0.9);
+      background-position: 0% 50%;
     }
-    3% {
-      -webkit-transform: scale(0.9, 1.1) translateY(-0.5rem);
+    50% {
+      background-position: 100% 50%;
     }
-    6% {
-      -webkit-transform: scale(1);
-      transform: scale(1);
-    }
-
-    9% {
-      -webkit-transform: scale(1);
-      transform: scale(1);
-    }
-    12% {
-      -webkit-transform: scale(0.9, 1.1) translateY(-0.5rem);
-    }
-
-    15% {
-      -webkit-transform: scale(1.1, 0.9);
-      transform: scale(1.1, 0.9);
-    }
-
-    20% {
-      -webkit-transform: scale(1);
-      transform: scale(1);
-    }
-
     100% {
-      -webkit-transform: scale(1);
-      transform: scale(1);
+      background-position: 0% 50%;
     }
   }
-
-  --animate-bounce-button: bounce-button 2s ease 1s infinite;
 
   --animate-from-bottom-appear: from-bottom-appear 0.3s forwards;
 
@@ -200,6 +173,27 @@ body {
     forwards;
   --animate-diagonal-slide-in-bottom-right: diagonal-slide-in-bottom-right 1s
     forwards;
+}
+
+@layer components {
+  .gradient-flow-button {
+    background: linear-gradient(-45deg, #ffa894, #ffb3c6, #a8c0ff, #8fffd4);
+    background-size: 400% 400%;
+    animation: gradient-flow 5s ease-in-out infinite;
+    box-shadow:
+      0 0 30px rgba(255, 168, 148, 0.4),
+      0 0 60px rgba(255, 179, 198, 0.2),
+      0 0 90px rgba(168, 192, 255, 0.1);
+  }
+
+  .dark .gradient-flow-button {
+    background: linear-gradient(-45deg, #ee7752, #ea6f86, #5b7fce, #23d5ab);
+    background-size: 400% 400%;
+    box-shadow:
+      0 0 30px rgba(238, 119, 82, 0.4),
+      0 0 60px rgba(234, 111, 134, 0.2),
+      0 0 90px rgba(91, 127, 206, 0.1);
+  }
 }
 
 @utility scrollbar-hidden {
