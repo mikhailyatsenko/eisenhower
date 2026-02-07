@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { showToastNotificationByCompleteTask } from '@/shared/lib/toastNotifications';
 import { useTaskStore } from '../hooks/useTasksStore';
 import {
   fetchTasksFromFirebase,
@@ -136,6 +137,9 @@ export const completeTaskAction = async (
       tasks[quadrantKey].splice(taskIndex, 1);
     }
   });
+
+  // Show toast notification
+  showToastNotificationByCompleteTask();
 
   if (activeState === 'firebase') {
     const state = useTaskStore.getState();

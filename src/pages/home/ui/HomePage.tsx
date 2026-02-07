@@ -4,8 +4,8 @@ import { ToastContainer } from 'react-toastify';
 
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
-import { showToastNotificationByAddTask } from '@/features/addTask/lib/toastNotifications';
 import { CompletedTasksAccordion } from '@/entities/completedTasksAccordion';
+import { showToastNotificationByAddTask } from '@/shared/lib/toastNotifications';
 import {
   deleteCompletedTaskAction,
   restoreTaskAction,
