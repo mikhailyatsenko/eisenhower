@@ -53,6 +53,9 @@ export async function RootLayout({
         <SwitchTaskSource />
         <WelcomeModal />
         {children}
+        <div className="fixed bottom-2 left-2 z-20 text-[10px] text-gray-400 opacity-60">
+          Contact the author: m74901379@gmail.com
+        </div>
       </body>
     </html>
   );

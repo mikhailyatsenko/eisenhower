@@ -108,11 +108,11 @@ export const CompletedTasksAccordion: React.FC<
     <div
       ref={accordionRef}
       id="completed-tasks-accordion"
-      className="mt-4 w-full"
+      className="mt-4 mb-28 w-full"
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between rounded-t-lg bg-gray-100 px-4 py-3 py-4 transition-colors hover:cursor-pointer hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+        className="flex w-full items-center justify-between rounded-t-lg bg-gray-100 px-4 py-4 transition-colors hover:cursor-pointer hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
       >
         <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">
           Completed Tasks ({completedTasks.length})
