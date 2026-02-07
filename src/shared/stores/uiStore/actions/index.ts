@@ -25,3 +25,16 @@ export const setRecentlyAddedQuadrantAction = (quadrant: MatrixKey | null) => {
   });
   setTimeout(resetRecentlyAddedQuadrant, 550);
 };
+
+export const setIsFormOpenedAction = (isOpened: boolean) => {
+  useUIStore.setState((state) => {
+    state.isFormOpened = isOpened;
+  });
+};
+
+export const openFormWithCategoryAction = (category: MatrixKey) => {
+  useUIStore.setState((state) => {
+    state.selectedCategory = category;
+    state.isFormOpened = true;
+  });
+};

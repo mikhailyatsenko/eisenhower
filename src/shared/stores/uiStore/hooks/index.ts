@@ -7,6 +7,7 @@ const initialState: UIState = {
   selectedCategory: DEFAULT_SELECTED_CATEGORY,
   taskInputText: '',
   recentlyAddedQuadrant: null,
+  isFormOpened: false,
 };
 
 export const useUIStore = create<UIState>()(immer(() => initialState));

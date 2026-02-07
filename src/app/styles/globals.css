@@ -186,7 +186,7 @@ body {
     }
   }
 
-  --animate-bounce-button: bounce-button 5s ease 1s infinite;
+  --animate-bounce-button: bounce-button 2s ease 1s infinite;
 
   --animate-from-bottom-appear: from-bottom-appear 0.3s forwards;
 

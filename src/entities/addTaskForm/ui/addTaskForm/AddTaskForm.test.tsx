@@ -15,6 +15,8 @@ describe('AddTaskForm', () => {
     handleOnRadioKeyDown: jest.fn(),
     handleSubmit: jest.fn(),
     isNoTasks: false,
+    isOpened: false,
+    setIsOpened: jest.fn(),
   };
 
   it('renders input and button', () => {

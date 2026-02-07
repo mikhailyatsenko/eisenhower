@@ -10,6 +10,7 @@ import {
   setRecentlyAddedQuadrantAction,
   setSelectedCategoryAction,
   setTaskInputTextAction,
+  setIsFormOpenedAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
 
@@ -26,7 +27,7 @@ const useFormValidation = (taskInputText: string) => {
 };
 
 export const AddTask = () => {
-  const { selectedCategory, taskInputText } = useUIStore();
+  const { selectedCategory, taskInputText, isFormOpened } = useUIStore();
 
   const isValid = useFormValidation(taskInputText);
 
@@ -82,6 +83,8 @@ export const AddTask = () => {
       selectedCategory={selectedCategory}
       setTaskInputTextAction={setTaskInputTextAction}
       taskInputText={taskInputText}
+      isOpened={isFormOpened}
+      setIsOpened={setIsFormOpenedAction}
     />
   );
 };

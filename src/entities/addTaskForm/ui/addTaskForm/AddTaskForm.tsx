@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { MatrixQuadrants } from '@/shared/stores/tasksStore/consts';
 import { BUTTON_COLORS, ERROR_MESSAGE, BUTTON_TEXT } from '../../consts';
@@ -16,6 +16,8 @@ export interface AddTaskFormProps {
   ) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isNoTasks: boolean;
+  isOpened: boolean;
+  setIsOpened: (isOpened: boolean) => void;
 }
 
 export const AddTaskForm: React.FC<AddTaskFormProps> = ({
@@ -27,10 +29,10 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
   handleOnRadioKeyDown,
   handleSubmit,
   isNoTasks,
+  isOpened,
+  setIsOpened,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const [isOpened, setIsOpened] = useState(false);
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     handleSubmit(e);
@@ -55,6 +57,15 @@ export const AddTaskForm: React.FC<AddTaskFormProps> = ({
     }
     setIsOpened(!isOpened);
   };
+
+  useEffect(() => {
+    if (isOpened && inputRef.current) {
+      inputRef.current.focus();
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 310);
+    }
+  }, [isOpened, selectedCategory]);
 
   return (
     <>
