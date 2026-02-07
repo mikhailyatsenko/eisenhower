@@ -1,12 +1,35 @@
 'use client';
 
 import { ToastContainer } from 'react-toastify';
+
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
-import { useTaskStore } from '@/shared/stores/tasksStore';
+import { showToastNotificationByAddTask } from '@/features/addTask/lib/toastNotifications';
+import { CompletedTasksAccordion } from '@/entities/completedTasksAccordion';
+import {
+  deleteCompletedTaskAction,
+  restoreTaskAction,
+  useTaskStore,
+} from '@/shared/stores/tasksStore';
+import { setRecentlyAddedQuadrantAction } from '@/shared/stores/uiStore';
 
 export const HomePage = () => {
-  const { activeState } = useTaskStore();
+  const { activeState, localCompletedTasks, firebaseCompletedTasks } =
+    useTaskStore();
+  const completedTasks =
+    activeState === 'local' ? localCompletedTasks : firebaseCompletedTasks;
+
+  const handleRestoreTask = async (taskId: string) => {
+    // Find the task to get its original quadrant
+    const task = completedTasks.find((t) => t.id === taskId);
+    if (task?.quadrantKey) {
+      // Trigger animation on the original quadrant
+      setRecentlyAddedQuadrantAction(task.quadrantKey);
+      // Show toast notification
+      showToastNotificationByAddTask(task.quadrantKey, true);
+    }
+    await restoreTaskAction(taskId);
+  };
 
   return (
     <>
@@ -17,11 +40,17 @@ export const HomePage = () => {
             : '-translate-y-full opacity-0'
         }`}
       ></div>
-      <div className="relative z-[1] mx-auto w-[calc(100%-48px)] pt-6 lg:w-5/6">
+      <div className="relative z-[1] mx-auto w-[calc(100%-48px)] py-6 lg:w-5/6">
         {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
 
         <AddTask />
         <TaskMatrix />
+
+        <CompletedTasksAccordion
+          completedTasks={completedTasks}
+          onDeleteTask={deleteCompletedTaskAction}
+          onRestoreTask={handleRestoreTask}
+        />
 
         <ToastContainer />
       </div>

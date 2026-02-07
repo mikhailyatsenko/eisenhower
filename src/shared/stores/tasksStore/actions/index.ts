@@ -9,10 +9,11 @@ import {
 import { MatrixKey, Task, Tasks } from '../types';
 
 export const syncTasks = async () => {
-  const tasks = await fetchTasksFromFirebase();
-  if (!tasks) return;
+  const result = await fetchTasksFromFirebase();
+  if (!result) return;
   useTaskStore.setState((state) => {
-    state.firebaseTasks = tasks;
+    state.firebaseTasks = result.tasks;
+    state.firebaseCompletedTasks = result.completedTasks;
   });
 };
 
@@ -44,7 +45,11 @@ export const addTaskAction = async (
     tasks[quadrantKey].push(newTask);
   });
   if (useTaskStore.getState().activeState === 'firebase') {
-    await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
+    const state = useTaskStore.getState();
+    await syncTasksToFirebase(
+      state.firebaseTasks,
+      state.firebaseCompletedTasks,
+    );
   }
 };
 
@@ -60,7 +65,11 @@ export const editTaskAction = async (
     if (task) task.text = newText;
   });
   if (useTaskStore.getState().activeState === 'firebase') {
-    await syncTasksToFirebase(useTaskStore.getState().firebaseTasks);
+    const state = useTaskStore.getState();
+    await syncTasksToFirebase(
+      state.firebaseTasks,
+      state.firebaseCompletedTasks,
+    );
   }
 };
 
@@ -97,7 +106,78 @@ export const dragEndAction = async (newTasks: Tasks) => {
   });
 
   if (activeState === 'firebase') {
-    await syncTasksToFirebase(newTasks);
+    const state = useTaskStore.getState();
+    await syncTasksToFirebase(newTasks, state.firebaseCompletedTasks);
+  }
+};
+
+export const completeTaskAction = async (
+  quadrantKey: MatrixKey,
+  taskId: string,
+) => {
+  const { activeState } = useTaskStore.getState();
+  useTaskStore.setState((state) => {
+    const tasks =
+      activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const completedTasks =
+      activeState === 'local'
+        ? state.localCompletedTasks
+        : state.firebaseCompletedTasks;
+
+    const taskIndex = tasks[quadrantKey].findIndex(
+      (t: Task) => t.id === taskId,
+    );
+    if (taskIndex !== -1) {
+      const task = tasks[quadrantKey][taskIndex];
+      task.completed = true;
+      task.completedAt = new Date();
+      task.quadrantKey = quadrantKey; // Save original quadrant
+      completedTasks.push(task);
+      tasks[quadrantKey].splice(taskIndex, 1);
+    }
+  });
+
+  if (activeState === 'firebase') {
+    const state = useTaskStore.getState();
+    await syncTasksToFirebase(
+      state.firebaseTasks,
+      state.firebaseCompletedTasks,
+    );
+  }
+};
+
+export const restoreTaskAction = async (taskId: string) => {
+  const { activeState } = useTaskStore.getState();
+  useTaskStore.setState((state) => {
+    const tasks =
+      activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const completedTasks =
+      activeState === 'local'
+        ? state.localCompletedTasks
+        : state.firebaseCompletedTasks;
+
+    const taskIndex = completedTasks.findIndex((t: Task) => t.id === taskId);
+    if (taskIndex !== -1) {
+      const task = { ...completedTasks[taskIndex] };
+      // Default to NotImportantNotUrgent (Eliminate) if no quadrantKey
+      const originalQuadrant = task.quadrantKey || 'NotImportantNotUrgent';
+
+      task.completed = false;
+      delete task.completedAt;
+      delete task.quadrantKey;
+
+      // Restore to original quadrant (or default)
+      tasks[originalQuadrant].push(task);
+      completedTasks.splice(taskIndex, 1);
+    }
+  });
+
+  if (activeState === 'firebase') {
+    const state = useTaskStore.getState();
+    await syncTasksToFirebase(
+      state.firebaseTasks,
+      state.firebaseCompletedTasks,
+    );
   }
 };
 
@@ -113,6 +193,24 @@ export const deleteTaskAction = async (
       (t: Task) => t.id !== taskId,
     );
   });
+  if (activeState === 'firebase') {
+    await deleteTaskFromFirebase(taskId);
+  }
+};
+
+export const deleteCompletedTaskAction = async (taskId: string) => {
+  const { activeState } = useTaskStore.getState();
+  useTaskStore.setState((state) => {
+    const completedTasks =
+      activeState === 'local'
+        ? state.localCompletedTasks
+        : state.firebaseCompletedTasks;
+    const index = completedTasks.findIndex((t: Task) => t.id === taskId);
+    if (index !== -1) {
+      completedTasks.splice(index, 1);
+    }
+  });
+
   if (activeState === 'firebase') {
     await deleteTaskFromFirebase(taskId);
   }

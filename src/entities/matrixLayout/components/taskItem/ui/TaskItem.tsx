@@ -1,7 +1,9 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { format } from 'date-fns';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import CheckIcon from '@/shared/icons/check-icon.svg';
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
 import { MatrixKey } from '@/shared/stores/tasksStore';
@@ -11,7 +13,7 @@ import { EditTaskForm } from '../../editTaskForm';
 
 interface TaskItemProps {
   task: Task;
-  quadrantKey: MatrixKey;
+  quadrantKey?: MatrixKey;
   index: number;
   deleteTaskAction?: (quadrantKey: MatrixKey, taskId: string) => void;
   editTaskAction?: (
@@ -19,6 +21,8 @@ interface TaskItemProps {
     taskId: string,
     newText: string,
   ) => void;
+  completeTaskAction?: (quadrantKey: MatrixKey, taskId: string) => void;
+  isCompleted?: boolean;
 }
 
 export const colors: Record<MatrixKey, string> = {
@@ -34,6 +38,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   index,
   editTaskAction,
   deleteTaskAction,
+  completeTaskAction,
+  isCompleted = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -65,9 +71,16 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this task?')) {
-      if (deleteTaskAction) {
+      if (deleteTaskAction && quadrantKey) {
         deleteTaskAction(quadrantKey, task.id);
       }
+    }
+  };
+
+  const handleComplete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (completeTaskAction && quadrantKey) {
+      completeTaskAction(quadrantKey, task.id);
     }
   };
 
@@ -78,7 +91,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const handleSave = (editText: string) => {
-    if (editTaskAction) {
+    if (editTaskAction && quadrantKey) {
       editTaskAction(quadrantKey, task.id, editText);
     }
     setIsEditing(false);
@@ -90,7 +103,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${colors[quadrantKey]} group ${!isEditing ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
+      className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${quadrantKey ? colors[quadrantKey] : 'bg-gray-300'} group ${!isEditing ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
     >
       {isEditing ? (
         <EditTaskForm
@@ -100,31 +113,60 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         />
       ) : (
         <>
-          <div className="w-full p-2 text-center leading-5 text-black">
+          <div
+            className={`w-full p-2 text-center leading-5 text-black ${isCompleted ? 'line-through opacity-70' : ''}`}
+          >
             {task.text}
           </div>
           <div className="flex items-center justify-between border-t border-gray-500 px-1.5 pt-1 text-gray-600">
             <p className="text-[0.7rem] font-bold italic sm:text-sm">
               {format(task.createdAt, 'dd.MM.yyyy HH:mm')}
             </p>
-            {deleteTaskAction && editTaskAction && (
+            {(deleteTaskAction || editTaskAction || completeTaskAction) && (
               <div
-                className={`flex items-center gap-1 ${touchDevice ? '' : 'sm:opacity-0 sm:group-hover:opacity-100'}`}
+                className={`flex items-center gap-2 ${touchDevice ? '' : 'sm:opacity-0 sm:group-hover:opacity-100'}`}
               >
-                <button onClick={handleEdit} className="" data-no-dnd="true">
-                  <EditIcon
-                    className="cursor-pointer fill-gray-600 hover:fill-gray-200"
-                    width="18px"
-                    height="18px"
-                  />
-                </button>
-                <button onClick={handleDelete} data-no-dnd="true">
-                  <DeleteIcon
-                    className="cursor-pointer fill-gray-600 hover:fill-gray-200"
-                    width="18px"
-                    height="18px"
-                  />
-                </button>
+                {!isCompleted && completeTaskAction && (
+                  <button
+                    onClick={handleComplete}
+                    className=""
+                    data-no-dnd="true"
+                    title="Mark as completed"
+                  >
+                    <CheckIcon
+                      className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+                      width="18px"
+                      height="18px"
+                    />
+                  </button>
+                )}
+                {!isCompleted && editTaskAction && (
+                  <button
+                    onClick={handleEdit}
+                    className=""
+                    data-no-dnd="true"
+                    title="Edit task"
+                  >
+                    <EditIcon
+                      className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+                      width="18px"
+                      height="18px"
+                    />
+                  </button>
+                )}
+                {deleteTaskAction && (
+                  <button
+                    onClick={handleDelete}
+                    data-no-dnd="true"
+                    title="Delete task"
+                  >
+                    <DeleteIcon
+                      className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+                      width="18px"
+                      height="18px"
+                    />
+                  </button>
+                )}
               </div>
             )}
           </div>

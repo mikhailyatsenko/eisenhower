@@ -10,11 +10,16 @@ export const useTaskStore = create<TaskState>()(
     immer<TaskState>(() => ({
       localTasks: getEmptyTasksState(),
       firebaseTasks: getEmptyTasksState(),
+      localCompletedTasks: [],
+      firebaseCompletedTasks: [],
       activeState: LOCAL_STATE_KEY,
     })),
     {
       name: STORAGE_KEY,
-      partialize: (state) => ({ localTasks: state.localTasks }),
+      partialize: (state) => ({
+        localTasks: state.localTasks,
+        localCompletedTasks: state.localCompletedTasks,
+      }),
     },
   ),
 );

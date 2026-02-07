@@ -3,7 +3,11 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { MatrixKey, MatrixQuadrants, Task } from '@/shared/stores/tasksStore';
-import { editTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
+import {
+  editTaskAction,
+  deleteTaskAction,
+  completeTaskAction,
+} from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { Quadrant } from '../components/quadrant';
 import { TaskItem } from '../components/taskItem';
@@ -65,6 +69,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                   <TaskItem
                     deleteTaskAction={deleteTaskAction}
                     editTaskAction={editTaskAction}
+                    completeTaskAction={completeTaskAction}
                     key={task.id}
                     task={task}
                     quadrantKey={quadrantKey}

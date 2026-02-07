@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '@/shared/config/firebaseConfig';
 import { MatrixQuadrantKeys } from '../consts';
-import { Tasks, FirestoreTaskData } from '../types';
+import { Tasks, Task, FirestoreTaskData } from '../types';
 
 export const getEmptyTasksState = (): Tasks => {
   return MatrixQuadrantKeys.reduce<Tasks>((acc, quadrant) => {
@@ -18,7 +18,10 @@ export const getEmptyTasksState = (): Tasks => {
   }, {} as Tasks);
 };
 
-export const fetchTasksFromFirebase = async (): Promise<Tasks | null> => {
+export const fetchTasksFromFirebase = async (): Promise<{
+  tasks: Tasks;
+  completedTasks: Task[];
+} | null> => {
   try {
     const user = auth.currentUser;
     if (!user) return null;
@@ -28,31 +31,49 @@ export const fetchTasksFromFirebase = async (): Promise<Tasks | null> => {
     const tasksSnapshot = await getDocs(q);
 
     const tasksData: Tasks = getEmptyTasksState();
+    const completedTasksData: Task[] = [];
 
     tasksSnapshot.forEach((doc) => {
       const data = doc.data() as FirestoreTaskData;
-      if (!data.quadrantKey) return;
 
-      tasksData[data.quadrantKey].push({
+      const task = {
         id: doc.id,
         text: data.text,
         createdAt: new Date(data.createdAt),
         order: data.order,
-      });
+        completed: data.completed,
+        completedAt: data.completedAt ? new Date(data.completedAt) : undefined,
+        quadrantKey: data.quadrantKey,
+      };
+
+      if (data.completed) {
+        completedTasksData.push(task);
+      } else if (data.quadrantKey) {
+        tasksData[data.quadrantKey].push(task);
+      }
     });
 
     Object.values(tasksData).forEach((tasks) =>
       tasks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
     );
 
-    return tasksData;
+    completedTasksData.sort((a, b) => {
+      const dateA = a.completedAt?.getTime() ?? 0;
+      const dateB = b.completedAt?.getTime() ?? 0;
+      return dateB - dateA; // Most recent first
+    });
+
+    return { tasks: tasksData, completedTasks: completedTasksData };
   } catch (error) {
     console.error('Error fetching tasks:', error);
     return null;
   }
 };
 
-export const syncTasksToFirebase = async (tasks: Tasks) => {
+export const syncTasksToFirebase = async (
+  tasks: Tasks,
+  completedTasks?: Task[],
+) => {
   try {
     const user = auth.currentUser;
     if (!user) return;
@@ -68,9 +89,26 @@ export const syncTasksToFirebase = async (tasks: Tasks) => {
           userId: user.uid,
           createdAt: task.createdAt.toISOString(),
           order: index,
+          completed: false,
         });
       });
     });
+
+    if (completedTasks) {
+      completedTasks.forEach((task, index) => {
+        const taskRef = doc(db, 'tasks', task.id);
+        batch.set(taskRef, {
+          text: task.text,
+          quadrantKey: task.quadrantKey || 'NotImportantNotUrgent', // Default to Eliminate quadrant
+          userId: user.uid,
+          createdAt: task.createdAt.toISOString(),
+          order: index,
+          completed: true,
+          completedAt:
+            task.completedAt?.toISOString() || new Date().toISOString(),
+        });
+      });
+    }
 
     await batch.commit();
   } catch (error) {
