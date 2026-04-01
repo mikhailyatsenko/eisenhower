@@ -2,13 +2,18 @@
 
 import Image from 'next/image';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { useState } from 'react';
 
 import GoogleIcon from '@/shared/icons/google-icon.svg';
 import UserIcon from '@/shared/icons/user-icon.svg';
-import { MatrixKey } from '@/shared/stores/tasksStore';
+import {
+  MatrixKey,
+  useTaskStore,
+  switchToFirebaseTasks,
+  switchToLocalTasks,
+} from '@/shared/stores/tasksStore';
 import { Task } from '@/shared/stores/tasksStore';
 import { BubbleCornerButton } from '@/shared/ui/bubbleCornerButton';
 import { SignWihGoogleButton } from '@/shared/ui/signWihGoogleButton';
@@ -51,20 +56,23 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
     <UserIcon className="h-5 w-5 fill-white" />
   );
 
+  const { activeState } = useTaskStore();
+
   const router = useRouter();
+
   const handleSwitchToFirebase = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push('?cloud');
+    switchToFirebaseTasks();
+    router.push('/');
   };
 
   const handleSwitchToLocal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push('/');
+    switchToLocalTasks();
+    router.push('?local');
   };
 
-  const searchParams = useSearchParams();
-
-  const isCloud = searchParams && searchParams.has('cloud');
+  const isCloud = activeState === 'firebase';
 
   const [isOpen, setIsOpen] = useState(false);
 

@@ -5,11 +5,14 @@ import { AuthIndicator, AuthIndicatorProps } from './AuthIndicator';
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
-    pathname: '/',
   }),
-  useSearchParams: () => ({
-    has: jest.fn().mockReturnValue(false),
-  }),
+}));
+
+jest.mock('@/shared/stores/tasksStore', () => ({
+  ...jest.requireActual('@/shared/stores/tasksStore'),
+  useTaskStore: jest.fn().mockReturnValue({ activeState: 'local' }),
+  switchToFirebaseTasks: jest.fn(),
+  switchToLocalTasks: jest.fn(),
 }));
 
 const defaultProps: AuthIndicatorProps = {
