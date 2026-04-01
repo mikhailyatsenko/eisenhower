@@ -2,8 +2,6 @@
 
 import Image from 'next/image';
 
-import { useRouter } from 'next/navigation';
-
 import { useState } from 'react';
 
 import GoogleIcon from '@/shared/icons/google-icon.svg';
@@ -58,18 +56,14 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
 
   const { activeState } = useTaskStore();
 
-  const router = useRouter();
-
   const handleSwitchToFirebase = (e: React.MouseEvent) => {
     e.stopPropagation();
     switchToFirebaseTasks();
-    router.push('/');
   };
 
   const handleSwitchToLocal = (e: React.MouseEvent) => {
     e.stopPropagation();
     switchToLocalTasks();
-    router.push('?local');
   };
 
   const isCloud = activeState === 'firebase';
