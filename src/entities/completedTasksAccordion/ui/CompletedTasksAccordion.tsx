@@ -24,6 +24,7 @@ const CompletedTaskItem: React.FC<CompletedTaskItemProps> = ({
   onDelete,
   onRestore,
 }) => {
+  const [isCompletedHovered, setIsCompletedHovered] = useState(false);
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (
@@ -50,9 +51,17 @@ const CompletedTaskItem: React.FC<CompletedTaskItemProps> = ({
         {task.text}
       </div>
       <div className="flex items-center justify-between border-t border-gray-500 px-1.5 pt-1 text-gray-600 dark:text-gray-400">
-        <p className="text-[0.7rem] font-bold italic sm:text-sm">
-          {format(task.createdAt, 'dd.MM.yyyy HH:mm')}
-        </p>
+        {task.completedAt && (
+          <p
+            onMouseEnter={() => setIsCompletedHovered(true)}
+            onMouseLeave={() => setIsCompletedHovered(false)}
+            className="min-w-[224px] text-[0.7rem] font-bold italic sm:text-sm"
+          >
+            {isCompletedHovered
+              ? `Created at ${format(task.createdAt, 'dd.MM.yyyy HH:mm')}`
+              : `Completed at ${format(task.completedAt, 'dd.MM.yyyy HH:mm')}`}
+          </p>
+        )}
         <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100">
           <button onClick={handleRestore} title="Restore task">
             <RestoreIcon

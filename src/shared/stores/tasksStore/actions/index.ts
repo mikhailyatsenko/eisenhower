@@ -1,6 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { showToastNotificationByCompleteTask } from '@/shared/lib/toastNotifications';
+import {
+  showToastNotificationByCompleteTask,
+  showToastNotificationByDeleteTask,
+  showToastNotificationByEditTask,
+} from '@/shared/lib/toastNotifications';
 import { useTaskStore } from '../hooks/useTasksStore';
 import {
   fetchTasksFromFirebase,
@@ -59,18 +63,28 @@ export const editTaskAction = async (
   taskId: string,
   newText: string,
 ) => {
+  let isChanged = false;
   useTaskStore.setState((state) => {
     const tasks =
       state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
     const task = tasks[quadrantKey].find((t) => t.id === taskId);
-    if (task) task.text = newText;
+    if (task && task.text !== newText) {
+      task.text = newText;
+      isChanged = true;
+    }
   });
-  if (useTaskStore.getState().activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(
-      state.firebaseTasks,
-      state.firebaseCompletedTasks,
-    );
+
+  if (isChanged) {
+    // Show toast notification
+    showToastNotificationByEditTask();
+
+    if (useTaskStore.getState().activeState === 'firebase') {
+      const state = useTaskStore.getState();
+      await syncTasksToFirebase(
+        state.firebaseTasks,
+        state.firebaseCompletedTasks,
+      );
+    }
   }
 };
 
@@ -117,6 +131,7 @@ export const completeTaskAction = async (
   taskId: string,
 ) => {
   const { activeState } = useTaskStore.getState();
+  let completed = false;
   useTaskStore.setState((state) => {
     const tasks =
       activeState === 'local' ? state.localTasks : state.firebaseTasks;
@@ -135,18 +150,21 @@ export const completeTaskAction = async (
       task.quadrantKey = quadrantKey; // Save original quadrant
       completedTasks.push(task);
       tasks[quadrantKey].splice(taskIndex, 1);
+      completed = true;
     }
   });
 
-  // Show toast notification
-  showToastNotificationByCompleteTask();
+  if (completed) {
+    // Show toast notification
+    showToastNotificationByCompleteTask();
 
-  if (activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(
-      state.firebaseTasks,
-      state.firebaseCompletedTasks,
-    );
+    if (activeState === 'firebase') {
+      const state = useTaskStore.getState();
+      await syncTasksToFirebase(
+        state.firebaseTasks,
+        state.firebaseCompletedTasks,
+      );
+    }
   }
 };
 
@@ -190,20 +208,32 @@ export const deleteTaskAction = async (
   taskId: string,
 ) => {
   const { activeState } = useTaskStore.getState();
+  let deleted = false;
   useTaskStore.setState((state) => {
     const tasks =
       activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const initialLength = tasks[quadrantKey].length;
     tasks[quadrantKey] = tasks[quadrantKey].filter(
       (t: Task) => t.id !== taskId,
     );
+    if (tasks[quadrantKey].length < initialLength) {
+      deleted = true;
+    }
   });
-  if (activeState === 'firebase') {
-    await deleteTaskFromFirebase(taskId);
+
+  if (deleted) {
+    // Show toast notification
+    showToastNotificationByDeleteTask();
+
+    if (activeState === 'firebase') {
+      await deleteTaskFromFirebase(taskId);
+    }
   }
 };
 
 export const deleteCompletedTaskAction = async (taskId: string) => {
   const { activeState } = useTaskStore.getState();
+  let deleted = false;
   useTaskStore.setState((state) => {
     const completedTasks =
       activeState === 'local'
@@ -212,10 +242,16 @@ export const deleteCompletedTaskAction = async (taskId: string) => {
     const index = completedTasks.findIndex((t: Task) => t.id === taskId);
     if (index !== -1) {
       completedTasks.splice(index, 1);
+      deleted = true;
     }
   });
 
-  if (activeState === 'firebase') {
-    await deleteTaskFromFirebase(taskId);
+  if (deleted) {
+    // Show toast notification
+    showToastNotificationByDeleteTask();
+
+    if (activeState === 'firebase') {
+      await deleteTaskFromFirebase(taskId);
+    }
   }
 };

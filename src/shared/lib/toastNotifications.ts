@@ -9,7 +9,7 @@ export const showToastNotificationByAddTask = (
   toast(
     `Task successfully ${isRestored ? 'restored' : `added to "${QUADRANT_TITLES[quadrant]}"`} `,
     {
-      position: 'bottom-left',
+      position: 'bottom-center',
       autoClose: 2500,
       pauseOnFocusLoss: false,
       closeButton: false,
@@ -19,7 +19,26 @@ export const showToastNotificationByAddTask = (
 
 export const showToastNotificationByCompleteTask = () => {
   toast('Task marked as completed', {
-    position: 'bottom-left',
+    
+    position: 'bottom-center',
+    autoClose: 2500,
+    pauseOnFocusLoss: false,
+    closeButton: false,
+  });
+};
+
+export const showToastNotificationByDeleteTask = () => {
+  toast('Task successfully deleted', {
+    position: 'bottom-center',
+    autoClose: 2500,
+    pauseOnFocusLoss: false,
+    closeButton: false,
+  });
+};
+
+export const showToastNotificationByEditTask = () => {
+  toast('Task successfully updated', {
+    position: 'bottom-center',
     autoClose: 2500,
     pauseOnFocusLoss: false,
     closeButton: false,
