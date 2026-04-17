@@ -26,10 +26,10 @@ interface TaskItemProps {
 }
 
 export const colors: Record<MatrixKey, string> = {
-  ImportantUrgent: 'bg-red-300',
-  ImportantNotUrgent: 'bg-amber-300',
-  NotImportantUrgent: 'bg-blue-300',
-  NotImportantNotUrgent: 'bg-green-300',
+  ImportantUrgent: 'bg-red-300 dark:bg-red-900/40',
+  ImportantNotUrgent: 'bg-yellow-300 dark:bg-yellow-800/40',
+  NotImportantUrgent: 'bg-blue-300 dark:bg-blue-900/40',
+  NotImportantNotUrgent: 'bg-green-300 dark:bg-green-900/40',
 };
 
 export const TaskItem: React.FC<TaskItemProps> = ({
@@ -103,7 +103,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       {...listeners}
       {...attributes}
       style={style}
-      className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${quadrantKey ? colors[quadrantKey] : 'bg-gray-300'} group ${!isEditing ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
+      className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${quadrantKey ? colors[quadrantKey] : 'bg-gray-300 dark:bg-gray-800'} group ${!isEditing ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
     >
       {isEditing ? (
         <EditTaskForm
@@ -114,11 +114,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       ) : (
         <>
           <div
-            className={`w-full p-2 text-center leading-5 text-black ${isCompleted ? 'line-through opacity-70' : ''}`}
+            className={`w-full p-2 text-center leading-5 text-black dark:text-gray-200 ${isCompleted ? 'line-through opacity-70' : ''}`}
           >
             {task.text}
           </div>
-          <div className="flex items-center justify-between border-t border-gray-500 px-1.5 pt-1 text-gray-600">
+          <div className="flex items-center justify-between border-t border-gray-500 px-1.5 pt-1 text-gray-600 dark:text-gray-400">
             <p className="text-[0.7rem] font-bold italic sm:text-sm">
               {format(task.createdAt, 'dd.MM.yyyy HH:mm')}
             </p>
@@ -134,7 +134,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                     title="Mark as completed"
                   >
                     <CheckIcon
-                      className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+                      className="cursor-pointer fill-gray-600 hover:fill-gray-200 dark:fill-gray-400 dark:hover:fill-gray-100"
                       width="18px"
                       height="18px"
                     />
@@ -148,7 +148,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                     title="Edit task"
                   >
                     <EditIcon
-                      className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+                      className="cursor-pointer fill-gray-600 hover:fill-gray-200 dark:fill-gray-400 dark:hover:fill-gray-100"
                       width="18px"
                       height="18px"
                     />
@@ -161,7 +161,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                     title="Delete task"
                   >
                     <DeleteIcon
-                      className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+                      className="cursor-pointer fill-gray-600 hover:fill-gray-200 dark:fill-gray-400 dark:hover:fill-gray-100"
                       width="18px"
                       height="18px"
                     />

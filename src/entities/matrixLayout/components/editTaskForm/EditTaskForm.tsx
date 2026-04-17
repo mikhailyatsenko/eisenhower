@@ -40,32 +40,39 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   };
 
   return (
-    <form className="flex w-full flex-col" autoComplete="off" onSubmit={onSave}>
+    <form
+      className="flex w-full flex-col"
+      autoComplete="off"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave();
+      }}
+    >
       <input
         autoFocus
         type="text"
         value={editText}
         onChange={(e) => setEditText(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="mb-2 rounded-md px-3 py-1 text-gray-900"
+        className="mb-2 rounded-md px-3 py-1 text-gray-900 focus:outline-none dark:bg-gray-800 dark:text-gray-100"
       />
       {!isValid && (
-        <p className="mb-1 text-xs text-red-900">
+        <p className="mb-1 text-xs text-red-900 dark:text-red-400">
           Task text must be between 1 and 200 characters.
         </p>
       )}
       <div className="flex justify-between">
         <button
+          type="button"
           onClick={handleCancel}
-          className="h-fit cursor-pointer rounded-md border border-gray-500 px-2 py-2 text-sm leading-1 font-bold text-gray-600 hover:scale-[0.98] active:scale-[0.95]"
+          className="h-fit cursor-pointer rounded-md border border-gray-500 px-2 py-2 text-sm font-bold leading-1 text-gray-600 hover:scale-[0.98] active:scale-[0.95] dark:text-gray-400"
           data-no-dnd="true"
         >
           {BUTTON_CANCEL_TEXT}
         </button>
         <button
           type="submit"
-          onClick={onSave}
-          className={`h-fit cursor-pointer rounded-md border border-gray-950 px-2 py-2 text-sm leading-1 font-bold text-gray-950 hover:scale-[0.98] active:scale-[0.95] ${!isValid ? 'pointer-events-none opacity-30' : ''}`}
+          className={`h-fit cursor-pointer rounded-md border border-gray-950 px-2 py-2 text-sm font-bold leading-1 text-gray-950 hover:scale-[0.98] active:scale-[0.95] dark:border-gray-400 dark:text-gray-200 ${!isValid ? 'pointer-events-none opacity-30' : ''}`}
           data-no-dnd="true"
           disabled={!isValid}
         >

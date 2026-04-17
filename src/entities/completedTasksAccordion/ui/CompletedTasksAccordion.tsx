@@ -8,7 +8,7 @@ import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 // Muted colors for completed tasks based on quadrant
 const completedColors: Record<MatrixKey, string> = {
   ImportantUrgent: 'bg-red-200 dark:bg-red-900/40',
-  ImportantNotUrgent: 'bg-amber-200 dark:bg-amber-900/40',
+  ImportantNotUrgent: 'bg-yellow-200 dark:bg-yellow-800/40',
   NotImportantUrgent: 'bg-blue-200 dark:bg-blue-900/40',
   NotImportantNotUrgent: 'bg-green-200 dark:bg-green-900/40',
 };
@@ -65,14 +65,14 @@ const CompletedTaskItem: React.FC<CompletedTaskItemProps> = ({
         <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100">
           <button onClick={handleRestore} title="Restore task">
             <RestoreIcon
-              className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+              className="cursor-pointer fill-gray-600 hover:fill-gray-200 dark:fill-gray-400 dark:hover:fill-gray-100"
               width="18px"
               height="18px"
             />
           </button>
           <button onClick={handleDelete} title="Delete permanently">
             <DeleteIcon
-              className="cursor-pointer fill-gray-600 hover:fill-gray-200"
+              className="cursor-pointer fill-gray-600 hover:fill-gray-200 dark:fill-gray-400 dark:hover:fill-gray-100"
               width="18px"
               height="18px"
             />
