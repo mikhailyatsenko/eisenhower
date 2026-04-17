@@ -65,14 +65,14 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
         <button
           type="button"
           onClick={handleCancel}
-          className="h-fit cursor-pointer rounded-md border border-gray-500 px-2 py-2 text-sm font-bold leading-1 text-gray-600 hover:scale-[0.98] active:scale-[0.95] dark:text-gray-400"
+          className="h-fit cursor-pointer rounded-md border border-gray-500 px-2 py-2 text-sm leading-1 font-bold text-gray-600 hover:scale-[0.98] active:scale-[0.95] dark:text-gray-400"
           data-no-dnd="true"
         >
           {BUTTON_CANCEL_TEXT}
         </button>
         <button
           type="submit"
-          className={`h-fit cursor-pointer rounded-md border border-gray-950 px-2 py-2 text-sm font-bold leading-1 text-gray-950 hover:scale-[0.98] active:scale-[0.95] dark:border-gray-400 dark:text-gray-200 ${!isValid ? 'pointer-events-none opacity-30' : ''}`}
+          className={`h-fit cursor-pointer rounded-md border border-gray-950 px-2 py-2 text-sm leading-1 font-bold text-gray-950 hover:scale-[0.98] active:scale-[0.95] dark:border-gray-400 dark:text-gray-200 ${!isValid ? 'pointer-events-none opacity-30' : ''}`}
           data-no-dnd="true"
           disabled={!isValid}
         >

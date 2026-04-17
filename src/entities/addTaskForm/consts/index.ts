@@ -16,7 +16,8 @@ export const BUTTON_COLORS: Record<
   ImportantNotUrgent: {
     bg: 'bg-yellow-300 dark:bg-yellow-800/40',
     hover: 'hover:bg-yellow-400 dark:hover:bg-yellow-800/60',
-    peerCheckedBg: 'peer-checked:bg-yellow-400 dark:peer-checked:bg-yellow-800/60',
+    peerCheckedBg:
+      'peer-checked:bg-yellow-400 dark:peer-checked:bg-yellow-800/60',
     border: 'border-yellow-200 dark:border-yellow-800/50',
   },
   NotImportantUrgent: {
@@ -28,7 +29,8 @@ export const BUTTON_COLORS: Record<
   NotImportantNotUrgent: {
     bg: 'bg-green-300 dark:bg-green-900/40',
     hover: 'hover:bg-green-400 dark:hover:bg-green-800/60',
-    peerCheckedBg: 'peer-checked:bg-green-400 dark:peer-checked:bg-green-800/60',
+    peerCheckedBg:
+      'peer-checked:bg-green-400 dark:peer-checked:bg-green-800/60',
     border: 'border-green-200 dark:border-green-800/50',
   },
 };
