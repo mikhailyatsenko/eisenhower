@@ -162,13 +162,13 @@ export const completeTaskAction = async (
       task.completed = true;
       task.completedAt = new Date();
       task.quadrantKey = quadrantKey; // Save original quadrant
-      
+
       if (typeof index === 'number') {
         completedTasks.splice(index, 0, task);
       } else {
         completedTasks.push(task);
       }
-      
+
       tasks[quadrantKey].splice(taskIndex, 1);
       completed = true;
     }
@@ -226,7 +226,7 @@ export const restoreTaskAction = async (
       } else {
         tasks[originalQuadrant].push(task);
       }
-      
+
       completedTasks.splice(taskIndex, 1);
       restoredToQuadrant = originalQuadrant;
     }
