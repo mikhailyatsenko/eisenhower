@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  showToastNotificationByAddTask,
   showToastNotificationByCompleteTask,
   showToastNotificationByDeleteTask,
   showToastNotificationByEditTask,
@@ -39,8 +40,9 @@ export const addTaskAction = async (
   taskInputText: string,
 ) => {
   if (taskInputText.length > 200) return;
+  const taskId = uuidv4();
   const newTask: Task = {
-    id: uuidv4(),
+    id: taskId,
     text: taskInputText,
     createdAt: new Date(),
   };
@@ -56,27 +58,34 @@ export const addTaskAction = async (
       state.firebaseCompletedTasks,
     );
   }
+  return taskId;
 };
 
 export const editTaskAction = async (
   quadrantKey: MatrixKey,
   taskId: string,
   newText: string,
+  skipToast: boolean = false,
 ) => {
   let isChanged = false;
+  let oldText = '';
   useTaskStore.setState((state) => {
     const tasks =
       state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
     const task = tasks[quadrantKey].find((t) => t.id === taskId);
     if (task && task.text !== newText) {
+      oldText = task.text;
       task.text = newText;
       isChanged = true;
     }
   });
 
   if (isChanged) {
-    // Show toast notification
-    showToastNotificationByEditTask();
+    if (!skipToast) {
+      showToastNotificationByEditTask(() =>
+        editTaskAction(quadrantKey, taskId, oldText, true),
+      );
+    }
 
     if (useTaskStore.getState().activeState === 'firebase') {
       const state = useTaskStore.getState();
@@ -129,9 +138,13 @@ export const dragEndAction = async (newTasks: Tasks) => {
 export const completeTaskAction = async (
   quadrantKey: MatrixKey,
   taskId: string,
+  skipToast: boolean = false,
+  index?: number,
 ) => {
   const { activeState } = useTaskStore.getState();
   let completed = false;
+  let originalIndex: number | undefined;
+
   useTaskStore.setState((state) => {
     const tasks =
       activeState === 'local' ? state.localTasks : state.firebaseTasks;
@@ -144,19 +157,30 @@ export const completeTaskAction = async (
       (t: Task) => t.id === taskId,
     );
     if (taskIndex !== -1) {
+      originalIndex = taskIndex;
       const task = tasks[quadrantKey][taskIndex];
       task.completed = true;
       task.completedAt = new Date();
       task.quadrantKey = quadrantKey; // Save original quadrant
-      completedTasks.push(task);
+      
+      if (typeof index === 'number') {
+        completedTasks.splice(index, 0, task);
+      } else {
+        completedTasks.push(task);
+      }
+      
       tasks[quadrantKey].splice(taskIndex, 1);
       completed = true;
     }
   });
 
   if (completed) {
-    // Show toast notification
-    showToastNotificationByCompleteTask();
+    if (!skipToast) {
+      const indexToRestore = originalIndex;
+      showToastNotificationByCompleteTask(() =>
+        restoreTaskAction(taskId, true, indexToRestore),
+      );
+    }
 
     if (activeState === 'firebase') {
       const state = useTaskStore.getState();
@@ -168,8 +192,15 @@ export const completeTaskAction = async (
   }
 };
 
-export const restoreTaskAction = async (taskId: string) => {
+export const restoreTaskAction = async (
+  taskId: string,
+  skipToast: boolean = false,
+  index?: number,
+) => {
   const { activeState } = useTaskStore.getState();
+  let restoredToQuadrant: MatrixKey | undefined;
+  let originalIndexInCompleted: number | undefined;
+
   useTaskStore.setState((state) => {
     const tasks =
       activeState === 'local' ? state.localTasks : state.firebaseTasks;
@@ -180,6 +211,7 @@ export const restoreTaskAction = async (taskId: string) => {
 
     const taskIndex = completedTasks.findIndex((t: Task) => t.id === taskId);
     if (taskIndex !== -1) {
+      originalIndexInCompleted = taskIndex;
       const task = { ...completedTasks[taskIndex] };
       // Default to NotImportantNotUrgent (Eliminate) if no quadrantKey
       const originalQuadrant = task.quadrantKey || 'NotImportantNotUrgent';
@@ -188,13 +220,62 @@ export const restoreTaskAction = async (taskId: string) => {
       delete task.completedAt;
       delete task.quadrantKey;
 
-      // Restore to original quadrant (or default)
-      tasks[originalQuadrant].push(task);
+      // Restore to original quadrant (or default) at specific index if provided
+      if (typeof index === 'number') {
+        tasks[originalQuadrant].splice(index, 0, task);
+      } else {
+        tasks[originalQuadrant].push(task);
+      }
+      
       completedTasks.splice(taskIndex, 1);
+      restoredToQuadrant = originalQuadrant;
     }
   });
 
+  if (restoredToQuadrant && !skipToast) {
+    const indexToRestore = originalIndexInCompleted;
+    showToastNotificationByAddTask(restoredToQuadrant, true, () =>
+      completeTaskAction(restoredToQuadrant!, taskId, true, indexToRestore),
+    );
+  }
+
   if (activeState === 'firebase') {
+    const state = useTaskStore.getState();
+    await syncTasksToFirebase(
+      state.firebaseTasks,
+      state.firebaseCompletedTasks,
+    );
+  }
+};
+
+const undoDeleteTaskAction = async (
+  taskToRestore: Task,
+  isCompleted: boolean,
+  quadrantKey?: MatrixKey,
+  index?: number,
+) => {
+  useTaskStore.setState((state) => {
+    const isLocal = state.activeState === 'local';
+    if (isCompleted) {
+      const completedTasks = isLocal
+        ? state.localCompletedTasks
+        : state.firebaseCompletedTasks;
+      if (typeof index === 'number') {
+        completedTasks.splice(index, 0, taskToRestore);
+      } else {
+        completedTasks.push(taskToRestore);
+      }
+    } else if (quadrantKey) {
+      const tasks = isLocal ? state.localTasks : state.firebaseTasks;
+      if (typeof index === 'number') {
+        tasks[quadrantKey].splice(index, 0, taskToRestore);
+      } else {
+        tasks[quadrantKey].push(taskToRestore);
+      }
+    }
+  });
+
+  if (useTaskStore.getState().activeState === 'firebase') {
     const state = useTaskStore.getState();
     await syncTasksToFirebase(
       state.firebaseTasks,
@@ -206,24 +287,33 @@ export const restoreTaskAction = async (taskId: string) => {
 export const deleteTaskAction = async (
   quadrantKey: MatrixKey,
   taskId: string,
+  skipToast: boolean = false,
 ) => {
   const { activeState } = useTaskStore.getState();
-  let deleted = false;
+  let deletedTask: Task | undefined;
+  let originalIndex: number | undefined;
+
   useTaskStore.setState((state) => {
     const tasks =
       activeState === 'local' ? state.localTasks : state.firebaseTasks;
-    const initialLength = tasks[quadrantKey].length;
-    tasks[quadrantKey] = tasks[quadrantKey].filter(
-      (t: Task) => t.id !== taskId,
+    const taskIndex = tasks[quadrantKey].findIndex(
+      (t: Task) => t.id === taskId,
     );
-    if (tasks[quadrantKey].length < initialLength) {
-      deleted = true;
+    if (taskIndex !== -1) {
+      originalIndex = taskIndex;
+      deletedTask = { ...tasks[quadrantKey][taskIndex] };
+      tasks[quadrantKey].splice(taskIndex, 1);
     }
   });
 
-  if (deleted) {
-    // Show toast notification
-    showToastNotificationByDeleteTask();
+  if (deletedTask) {
+    if (!skipToast) {
+      const taskToRestore = deletedTask;
+      const indexToRestore = originalIndex;
+      showToastNotificationByDeleteTask(() =>
+        undoDeleteTaskAction(taskToRestore, false, quadrantKey, indexToRestore),
+      );
+    }
 
     if (activeState === 'firebase') {
       await deleteTaskFromFirebase(taskId);
@@ -231,9 +321,14 @@ export const deleteTaskAction = async (
   }
 };
 
-export const deleteCompletedTaskAction = async (taskId: string) => {
+export const deleteCompletedTaskAction = async (
+  taskId: string,
+  skipToast: boolean = false,
+) => {
   const { activeState } = useTaskStore.getState();
-  let deleted = false;
+  let deletedTask: Task | undefined;
+  let originalIndex: number | undefined;
+
   useTaskStore.setState((state) => {
     const completedTasks =
       activeState === 'local'
@@ -241,14 +336,20 @@ export const deleteCompletedTaskAction = async (taskId: string) => {
         : state.firebaseCompletedTasks;
     const index = completedTasks.findIndex((t: Task) => t.id === taskId);
     if (index !== -1) {
+      originalIndex = index;
+      deletedTask = { ...completedTasks[index] };
       completedTasks.splice(index, 1);
-      deleted = true;
     }
   });
 
-  if (deleted) {
-    // Show toast notification
-    showToastNotificationByDeleteTask();
+  if (deletedTask) {
+    if (!skipToast) {
+      const taskToRestore = deletedTask;
+      const indexToRestore = originalIndex;
+      showToastNotificationByDeleteTask(() =>
+        undoDeleteTaskAction(taskToRestore, true, undefined, indexToRestore),
+      );
+    }
 
     if (activeState === 'firebase') {
       await deleteTaskFromFirebase(taskId);

@@ -5,7 +5,7 @@ import { AddTaskForm } from '@/entities/addTaskForm';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 
 import { MatrixKey, MatrixQuadrants } from '@/shared/stores/tasksStore';
-import { addTaskAction } from '@/shared/stores/tasksStore';
+import { addTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
 import {
   setRecentlyAddedQuadrantAction,
   setSelectedCategoryAction,
@@ -31,14 +31,18 @@ export const AddTask = () => {
 
   const isValid = useFormValidation(taskInputText);
 
-  const handleSubmitForm = (e: React.FormEvent) => {
+  const handleSubmitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     const isValid = taskInputText.trim().length > 0;
     if (isValid) {
-      addTaskAction(selectedCategory, taskInputText);
+      const taskId = await addTaskAction(selectedCategory, taskInputText);
       setTaskInputTextAction('');
       setRecentlyAddedQuadrantAction(selectedCategory);
-      showToastNotificationByAddTask(selectedCategory);
+      if (taskId) {
+        showToastNotificationByAddTask(selectedCategory, false, () =>
+          deleteTaskAction(selectedCategory, taskId, true),
+        );
+      }
     }
   };
 

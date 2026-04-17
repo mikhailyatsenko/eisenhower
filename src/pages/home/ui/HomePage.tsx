@@ -5,7 +5,6 @@ import { ToastContainer } from 'react-toastify';
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
 import { CompletedTasksAccordion } from '@/entities/completedTasksAccordion';
-import { showToastNotificationByAddTask } from '@/shared/lib/toastNotifications';
 import {
   deleteCompletedTaskAction,
   restoreTaskAction,
@@ -20,13 +19,10 @@ export const HomePage = () => {
     activeState === 'local' ? localCompletedTasks : firebaseCompletedTasks;
 
   const handleRestoreTask = async (taskId: string) => {
-    // Find the task to get its original quadrant
+    // Find the task to get its original quadrant for animation
     const task = completedTasks.find((t) => t.id === taskId);
     if (task?.quadrantKey) {
-      // Trigger animation on the original quadrant
       setRecentlyAddedQuadrantAction(task.quadrantKey);
-      // Show toast notification
-      showToastNotificationByAddTask(task.quadrantKey, true);
     }
     await restoreTaskAction(taskId);
   };
