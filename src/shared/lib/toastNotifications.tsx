@@ -91,3 +91,15 @@ export const showToastNotificationByEditTask = (
     commonToastOptions,
   );
 };
+
+export const showToastNotificationByCopyTasks = () => {
+  toast(
+    ({ closeToast }) => (
+      <ToastContent
+        message="All local tasks copied to cloud"
+        closeToast={closeToast}
+      />
+    ),
+    commonToastOptions,
+  );
+};
