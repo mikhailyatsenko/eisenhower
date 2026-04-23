@@ -13,8 +13,8 @@ import {
 export const SwitchTaskSource = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { activeState } = useTaskStore();
   const { user, isLoading } = useAuth();
+  const { activeState } = useTaskStore();
   const initialAuthRedirectDone = useRef(false);
 
   useEffect(() => {
@@ -62,10 +62,12 @@ export const SwitchTaskSource = () => {
   };
 
   return (
-    <TaskSourceTabs
-      switchToFirebaseTasks={handleSwitchToFirebase}
-      switchToLocalTasks={handleSwitchToLocal}
-      currentSource={activeState}
-    />
+    <div className="fixed top-0 left-1/2 z-[2] -translate-x-1/2">
+      <TaskSourceTabs
+        switchToFirebaseTasks={handleSwitchToFirebase}
+        switchToLocalTasks={handleSwitchToLocal}
+        currentSource={activeState}
+      />
+    </div>
   );
 };

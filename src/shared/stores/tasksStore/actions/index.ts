@@ -356,3 +356,34 @@ export const deleteCompletedTaskAction = async (
     }
   }
 };
+
+export const copyLocalTasksToFirebaseAction = async () => {
+  const { localTasks, localCompletedTasks } = useTaskStore.getState();
+
+  useTaskStore.setState((state) => {
+    // Copy active tasks
+    (Object.keys(localTasks) as MatrixKey[]).forEach((quadrant) => {
+      const newTasks = localTasks[quadrant].map((task) => ({
+        ...task,
+        id: uuidv4(),
+        createdAt: new Date(task.createdAt),
+      }));
+      state.firebaseTasks[quadrant].push(...newTasks);
+    });
+
+    // Copy completed tasks
+    const newCompletedTasks = localCompletedTasks.map((task) => ({
+      ...task,
+      id: uuidv4(),
+      createdAt: new Date(task.createdAt),
+      completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
+    }));
+    state.firebaseCompletedTasks.push(...newCompletedTasks);
+  });
+
+  const updatedState = useTaskStore.getState();
+  await syncTasksToFirebase(
+    updatedState.firebaseTasks,
+    updatedState.firebaseCompletedTasks,
+  );
+};
