@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud/ui/CopyLocalToCloudButton';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { useAuth } from '@/shared/api/auth';
 import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
@@ -67,14 +68,18 @@ export const TaskMatrix: React.FC = () => {
   }
 
   return (
-    <div className="relative flex w-full flex-wrap justify-center">
-      {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
+    <>
+      <div className="relative flex w-full flex-wrap justify-center">
+        {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
 
-      <InteractWithMatrix
-        expandedQuadrant={expandedQuadrant}
-        setExpandedQuadrant={setExpandedQuadrant}
-        taskInputText={taskInputText}
-      />
-    </div>
+        <InteractWithMatrix
+          expandedQuadrant={expandedQuadrant}
+          setExpandedQuadrant={setExpandedQuadrant}
+          taskInputText={taskInputText}
+        />
+      </div>
+
+      <CopyLocalToCloudButton isExpanded={!!expandedQuadrant} />
+    </>
   );
 };
