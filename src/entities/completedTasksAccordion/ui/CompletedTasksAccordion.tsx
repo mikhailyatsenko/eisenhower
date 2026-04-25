@@ -3,7 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import RestoreIcon from '@/shared/icons/restore-icon.svg';
-import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import {
+  MatrixKey,
+  Task,
+  clearAllCompletedTasksAction,
+} from '@/shared/stores/tasksStore';
+import { Loader } from '@/shared/ui/loader';
 
 // Muted colors for completed tasks based on quadrant
 const completedColors: Record<MatrixKey, string> = {
@@ -93,6 +98,7 @@ export const CompletedTasksAccordion: React.FC<
   CompletedTasksAccordionProps
 > = ({ completedTasks, onDeleteTask, onRestoreTask }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const accordionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -108,6 +114,32 @@ export const CompletedTasksAccordion: React.FC<
       });
     }
   }, [isOpen]);
+
+  const handleClearAll = async () => {
+    if (isDeleting) return;
+
+    if (
+      window.confirm(
+        'Are you sure you want to permanently delete all completed tasks?',
+      )
+    ) {
+      try {
+        setIsDeleting(true);
+        await clearAllCompletedTasksAction();
+      } catch (error) {
+        console.error('Failed to clear completed tasks:', error);
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClearAll();
+    }
+  };
 
   if (completedTasks.length === 0) {
     return null;
@@ -143,10 +175,27 @@ export const CompletedTasksAccordion: React.FC<
 
       {isOpen && (
         <div className="rounded-b-lg bg-gray-50 p-4 dark:bg-gray-900">
-          <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-            Click the restore button to move tasks back to their original
-            quadrant, or delete them permanently.
-          </p>
+          <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <span>
+              Click the restore button to move tasks back, or{' '}
+              {isDeleting ? (
+                <span className="inline-flex items-center font-bold text-red-600 dark:text-red-400">
+                  clearing... <Loader className="ml-1 scale-50" />
+                </span>
+              ) : (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={handleClearAll}
+                  onKeyDown={handleKeyDown}
+                  className="cursor-pointer font-bold text-red-600 underline-offset-2 hover:underline focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none dark:text-red-400 dark:focus:ring-offset-gray-900"
+                >
+                  delete all
+                </span>
+              )}{' '}
+              completed tasks.
+            </span>
+          </div>
           <ul className="space-y-2">
             {completedTasks.map((task) => (
               <CompletedTaskItem

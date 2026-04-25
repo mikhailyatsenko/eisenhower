@@ -6,6 +6,8 @@ import {
   where,
   writeBatch,
   deleteDoc,
+  DocumentReference,
+  DocumentData,
 } from 'firebase/firestore';
 import { db, auth } from '@/shared/config/firebaseConfig';
 import { MatrixQuadrantKeys } from '../consts';
@@ -78,39 +80,55 @@ export const syncTasksToFirebase = async (
     const user = auth.currentUser;
     if (!user) return;
 
-    const batch = writeBatch(db);
+    // Collect the data we need to set
+    const tasksToSync: {
+      ref: DocumentReference<DocumentData>;
+      data: DocumentData;
+    }[] = [];
 
     Object.entries(tasks).forEach(([key, taskList]) => {
       taskList.forEach((task, index) => {
-        const taskRef = doc(db, 'tasks', task.id);
-        batch.set(taskRef, {
-          text: task.text,
-          quadrantKey: key,
-          userId: user.uid,
-          createdAt: task.createdAt.toISOString(),
-          order: index,
-          completed: false,
+        tasksToSync.push({
+          ref: doc(db, 'tasks', task.id),
+          data: {
+            text: task.text,
+            quadrantKey: key,
+            userId: user.uid,
+            createdAt: task.createdAt.toISOString(),
+            order: index,
+            completed: false,
+          },
         });
       });
     });
 
     if (completedTasks) {
       completedTasks.forEach((task, index) => {
-        const taskRef = doc(db, 'tasks', task.id);
-        batch.set(taskRef, {
-          text: task.text,
-          quadrantKey: task.quadrantKey || 'NotImportantNotUrgent', // Default to Eliminate quadrant
-          userId: user.uid,
-          createdAt: task.createdAt.toISOString(),
-          order: index,
-          completed: true,
-          completedAt:
-            task.completedAt?.toISOString() || new Date().toISOString(),
+        tasksToSync.push({
+          ref: doc(db, 'tasks', task.id),
+          data: {
+            text: task.text,
+            quadrantKey: task.quadrantKey || 'NotImportantNotUrgent',
+            userId: user.uid,
+            createdAt: task.createdAt.toISOString(),
+            order: index,
+            completed: true,
+            completedAt:
+              task.completedAt?.toISOString() || new Date().toISOString(),
+          },
         });
       });
     }
 
-    await batch.commit();
+    const batchSize = 500;
+    for (let i = 0; i < tasksToSync.length; i += batchSize) {
+      const batch = writeBatch(db);
+      const chunk = tasksToSync.slice(i, i + batchSize);
+      chunk.forEach((item) => {
+        batch.set(item.ref, item.data);
+      });
+      await batch.commit();
+    }
   } catch (error) {
     console.error('Error syncing tasks:', error);
   }
@@ -125,5 +143,37 @@ export const deleteTaskFromFirebase = async (taskId: string) => {
     await deleteDoc(taskRef);
   } catch (error) {
     console.error('Error deleting task:', error);
+  }
+};
+
+export const clearCompletedTasksFromFirebase = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('User must be authenticated to clear tasks');
+    }
+
+    const tasksCollection = collection(db, 'tasks');
+    const q = query(
+      tasksCollection,
+      where('userId', '==', user.uid),
+      where('completed', '==', true),
+    );
+    const tasksSnapshot = await getDocs(q);
+
+    const docs = tasksSnapshot.docs;
+    const batchSize = 500;
+
+    for (let i = 0; i < docs.length; i += batchSize) {
+      const batch = writeBatch(db);
+      const chunk = docs.slice(i, i + batchSize);
+      chunk.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+    }
+  } catch (error) {
+    console.error('Error clearing completed tasks from firebase:', error);
+    throw error;
   }
 };

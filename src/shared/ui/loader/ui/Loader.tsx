@@ -1,5 +1,9 @@
 import cls from './Loader.module.css';
 
-export const Loader = () => {
-  return <div className={cls.loader}></div>;
+interface LoaderProps {
+  className?: string;
+}
+
+export const Loader = ({ className }: LoaderProps) => {
+  return <div className={`${cls.loader} ${className || ''}`}></div>;
 };

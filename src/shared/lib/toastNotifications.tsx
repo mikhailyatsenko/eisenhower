@@ -103,3 +103,10 @@ export const showToastNotificationByCopyTasks = () => {
     commonToastOptions,
   );
 };
+
+export const showErrorToast = (message: string) => {
+  toast.error(message, {
+    ...commonToastOptions,
+    autoClose: 5000,
+  });
+};

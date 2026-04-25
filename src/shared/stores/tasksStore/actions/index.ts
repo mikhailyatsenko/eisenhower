@@ -5,12 +5,14 @@ import {
   showToastNotificationByCompleteTask,
   showToastNotificationByDeleteTask,
   showToastNotificationByEditTask,
+  showErrorToast,
 } from '@/shared/lib/toastNotifications';
 import { useTaskStore } from '../hooks/useTasksStore';
 import {
   fetchTasksFromFirebase,
   syncTasksToFirebase,
   deleteTaskFromFirebase,
+  clearCompletedTasksFromFirebase,
 } from '../lib';
 import { MatrixKey, Task, Tasks } from '../types';
 
@@ -354,6 +356,27 @@ export const deleteCompletedTaskAction = async (
     if (activeState === 'firebase') {
       await deleteTaskFromFirebase(taskId);
     }
+  }
+};
+
+export const clearAllCompletedTasksAction = async () => {
+  const { activeState } = useTaskStore.getState();
+
+  try {
+    if (activeState === 'firebase') {
+      await clearCompletedTasksFromFirebase();
+    }
+
+    useTaskStore.setState((state) => {
+      if (activeState === 'local') {
+        state.localCompletedTasks = [];
+      } else {
+        state.firebaseCompletedTasks = [];
+      }
+    });
+  } catch (error) {
+    showErrorToast('Failed to clear completed tasks. Please try again.');
+    throw error;
   }
 };
 
