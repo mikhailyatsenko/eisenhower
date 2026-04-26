@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '../styles';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 import { Auth } from '@/features/auth/ui/Auth';
-import { SwitchTaskSource } from '@/features/switchTaskSource/';
 import { ThemeToggle } from '@/features/toggleTheme';
 import { WelcomeModal } from '@/entities/welcomeModal';
 import { Favicons } from '@/shared/lib/Favicons';
@@ -50,11 +50,13 @@ export async function RootLayout({
       >
         <Auth />
         <ThemeToggle serverThemeCookie={serverThemeCookie} />
-        <SwitchTaskSource />
         <WelcomeModal />
         {children}
-        <div className="fixed bottom-2 left-2 z-20 text-[10px] text-gray-400 opacity-60">
-          Contact the author: m74901379@gmail.com
+        <div className="fixed bottom-2 left-2 z-20 flex flex-col gap-1 text-[10px] text-gray-400 opacity-60">
+          <div>Contact the author: m74901379@gmail.com</div>
+          <Link href="/privacy" className="hover:underline">
+            Privacy Policy
+          </Link>
         </div>
       </body>
     </html>

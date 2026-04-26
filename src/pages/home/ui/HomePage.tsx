@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
+import { SwitchTaskSource } from '@/features/switchTaskSource';
 import { CompletedTasksAccordion } from '@/entities/completedTasksAccordion';
 import {
   deleteCompletedTaskAction,
@@ -36,6 +37,7 @@ export const HomePage = () => {
             : '-translate-y-full opacity-0'
         }`}
       ></div>
+      <SwitchTaskSource />
       <div className="relative z-[1] mx-auto w-[calc(100%-48px)] py-6 lg:w-5/6">
         {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
 
