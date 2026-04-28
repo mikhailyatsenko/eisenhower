@@ -13,10 +13,6 @@ jest.mock('@/features/auth/ui/Auth', () => ({
   Auth: () => <div>Auth Component</div>,
 }));
 
-jest.mock('@/features/switchTaskSource/ui/SwitchTaskSource', () => ({
-  SwitchTaskSource: () => <div>SwitchTaskSource Component</div>,
-}));
-
 jest.mock('@/features/toggleTheme', () => ({
   ThemeToggle: ({
     serverThemeCookie,
@@ -57,12 +53,10 @@ describe('RootLayout', () => {
       expect(
         screen.getByText('ThemeToggle Component - dark'),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText('SwitchTaskSource Component'),
-      ).toBeInTheDocument();
       expect(document.querySelector('link[rel="icon"]')).toBeInTheDocument();
       expect(document.querySelector('script')).toBeInTheDocument();
       expect(screen.getByText('Child Component')).toBeInTheDocument();
+      expect(screen.getByText('Privacy Policy')).toBeInTheDocument();
     });
   });
 });

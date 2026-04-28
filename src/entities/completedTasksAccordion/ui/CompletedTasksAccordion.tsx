@@ -8,6 +8,7 @@ import {
   Task,
   clearAllCompletedTasksAction,
 } from '@/shared/stores/tasksStore';
+import { Linkify } from '@/shared/ui/linkify';
 import { Loader } from '@/shared/ui/loader';
 
 // Muted colors for completed tasks based on quadrant
@@ -53,7 +54,7 @@ const CompletedTaskItem: React.FC<CompletedTaskItemProps> = ({
       className={`group relative my-1 min-h-10 shrink-0 list-none rounded-md p-1 text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600 ${bgColor}`}
     >
       <div className="w-full p-2 text-center leading-5 text-black line-through opacity-70 dark:text-gray-200">
-        {task.text}
+        <Linkify text={task.text} />
       </div>
       <div className="flex items-center justify-between border-t border-gray-500 px-1.5 pt-1 text-gray-600 dark:text-gray-400">
         {task.completedAt && (

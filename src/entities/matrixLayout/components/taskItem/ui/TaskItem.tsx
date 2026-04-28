@@ -8,6 +8,7 @@ import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { Task } from '@/shared/stores/tasksStore';
+import { Linkify } from '@/shared/ui/linkify';
 import { isTouchDevice } from '@/shared/utils/isTouchDevice';
 import { EditTaskForm } from '../../editTaskForm';
 
@@ -116,7 +117,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           <div
             className={`w-full p-2 text-center leading-5 text-black dark:text-gray-200 ${isCompleted ? 'line-through opacity-70' : ''}`}
           >
-            {task.text}
+            <Linkify text={task.text} />
           </div>
           <div className="flex items-center justify-between border-t border-gray-500 px-1.5 pt-1 text-gray-600 dark:text-gray-400">
             <p className="text-[0.7rem] font-bold italic sm:text-sm">
