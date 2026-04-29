@@ -38,7 +38,7 @@ export const HomePage = () => {
         }`}
       ></div>
       <SwitchTaskSource />
-      <div className="relative z-[1] mx-auto w-[calc(100%-48px)] py-6 lg:w-5/6">
+      <div className="relative top-6 z-[1] mx-auto w-[calc(100%-48px)] py-6 md:top-0 lg:w-5/6">
         {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
 
         <AddTask />
