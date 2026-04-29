@@ -51,7 +51,7 @@ const CompletedTaskItem: React.FC<CompletedTaskItemProps> = ({
 
   return (
     <li
-      className={`group relative my-1 min-h-10 shrink-0 list-none rounded-md p-1 text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600 ${bgColor}`}
+      className={`group relative my-1 min-h-10 shrink-0 list-none rounded-md p-1 text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600 ${bgColor} cursor-default`}
     >
       <div className="w-full p-2 text-center leading-5 text-black line-through opacity-70 dark:text-gray-200">
         <Linkify text={task.text} />
@@ -150,7 +150,7 @@ export const CompletedTasksAccordion: React.FC<
     <div
       ref={accordionRef}
       id="completed-tasks-accordion"
-      className="mt-4 mb-28 w-full"
+      className="mx-auto mt-4 mb-28 w-full max-w-2xl"
     >
       <button
         onClick={() => setIsOpen(!isOpen)}

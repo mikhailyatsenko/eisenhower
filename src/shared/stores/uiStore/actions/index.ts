@@ -38,3 +38,21 @@ export const openFormWithCategoryAction = (category: MatrixKey) => {
     state.isFormOpened = true;
   });
 };
+
+export const setViewModeAction = (viewMode: 'matrix' | 'list') => {
+  useUIStore.setState((state) => {
+    state.viewMode = viewMode;
+  });
+};
+
+export const setSortFieldAction = (field: 'createdAt' | 'importance') => {
+  useUIStore.setState((state) => {
+    state.sortField = field;
+  });
+};
+
+export const setSortDirectionAction = (direction: 'asc' | 'desc') => {
+  useUIStore.setState((state) => {
+    state.sortDirection = direction;
+  });
+};

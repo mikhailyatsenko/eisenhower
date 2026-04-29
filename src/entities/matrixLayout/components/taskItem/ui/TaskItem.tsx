@@ -24,6 +24,7 @@ interface TaskItemProps {
   ) => void;
   completeTaskAction?: (quadrantKey: MatrixKey, taskId: string) => void;
   isCompleted?: boolean;
+  disableDnd?: boolean;
 }
 
 export const colors: Record<MatrixKey, string> = {

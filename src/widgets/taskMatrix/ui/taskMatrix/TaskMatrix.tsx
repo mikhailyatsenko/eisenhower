@@ -7,10 +7,15 @@ import { useAuth } from '@/shared/api/auth';
 import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
+import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
 export const TaskMatrix: React.FC = () => {
   const { isLoading, user } = useAuth();
+  const tasks = useTaskStore((state) =>
+    state.activeState === 'local' ? state.localTasks : state.firebaseTasks,
+  );
+  const viewMode = useUIStore((state) => state.viewMode);
 
   // Use specific selector to prevent unnecessary re-renders
   const taskInputText = useUIStore((state) => state.taskInputText);
@@ -70,13 +75,19 @@ export const TaskMatrix: React.FC = () => {
   return (
     <>
       <div className="relative flex w-full flex-wrap justify-center">
-        {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
+        {viewMode === 'matrix' ? (
+          <>
+            {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
 
-        <InteractWithMatrix
-          expandedQuadrant={expandedQuadrant}
-          setExpandedQuadrant={setExpandedQuadrant}
-          taskInputText={taskInputText}
-        />
+            <InteractWithMatrix
+              expandedQuadrant={expandedQuadrant}
+              setExpandedQuadrant={setExpandedQuadrant}
+              taskInputText={taskInputText}
+            />
+          </>
+        ) : (
+          <TaskListView tasks={tasks} />
+        )}
       </div>
 
       <CopyLocalToCloudButton isExpanded={!!expandedQuadrant} />

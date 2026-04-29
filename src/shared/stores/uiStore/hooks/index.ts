@@ -1,6 +1,7 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { DEFAULT_SELECTED_CATEGORY } from '../consts';
+import { DEFAULT_SELECTED_CATEGORY, UI_STORAGE_KEY } from '../consts';
 import { UIState } from '../types';
 
 const initialState: UIState = {
@@ -8,6 +9,21 @@ const initialState: UIState = {
   taskInputText: '',
   recentlyAddedQuadrant: null,
   isFormOpened: false,
+  viewMode: 'matrix',
+  sortField: 'createdAt',
+  sortDirection: 'desc',
 };
 
-export const useUIStore = create<UIState>()(immer(() => initialState));
+export const useUIStore = create<UIState>()(
+  persist(
+    immer<UIState>(() => initialState),
+    {
+      name: UI_STORAGE_KEY,
+      partialize: (state) => ({
+        viewMode: state.viewMode,
+        sortField: state.sortField,
+        sortDirection: state.sortDirection,
+      }),
+    },
+  ),
+);

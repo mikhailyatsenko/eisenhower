@@ -41,7 +41,7 @@ const ToastContent = ({ message, onUndo, closeToast }: ToastContentProps) => (
 
 const commonToastOptions = {
   position: 'bottom-center' as const,
-  autoClose: 3500, // Increased a bit to give time to click Undo
+  autoClose: 223500, // Increased a bit to give time to click Undo
   pauseOnFocusLoss: false,
   closeButton: false,
 };
