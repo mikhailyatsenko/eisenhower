@@ -51,7 +51,7 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks }) => {
 
   return (
     <div className="flex w-full flex-col items-center">
-      <div className="mb-4 flex w-full max-w-2xl justify-end gap-4 text-sm">
+      <div className="mb-4 flex w-full max-w-2xl justify-center gap-4 text-sm">
         <div className="flex items-center gap-2">
           <span className="text-gray-500">Sort by:</span>
           <select
