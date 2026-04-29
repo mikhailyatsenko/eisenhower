@@ -8,6 +8,7 @@ import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { Task } from '@/shared/stores/tasksStore';
+import { useUIStore } from '@/shared/stores/uiStore';
 import { Linkify } from '@/shared/ui/linkify';
 import { isTouchDevice } from '@/shared/utils/isTouchDevice';
 import { EditTaskForm } from '../../editTaskForm';
@@ -99,13 +100,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     setIsEditing(false);
   };
 
+  const viewMode = useUIStore((state) => state.viewMode);
+
   return (
     <li
       ref={setNodeRef}
       {...listeners}
       {...attributes}
       style={style}
-      className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${quadrantKey ? colors[quadrantKey] : 'bg-gray-300 dark:bg-gray-800'} group ${!isEditing ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
+      className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${quadrantKey ? colors[quadrantKey] : 'bg-gray-300 dark:bg-gray-800'} group ${!isEditing && viewMode === 'matrix' ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600`}
     >
       {isEditing ? (
         <EditTaskForm
