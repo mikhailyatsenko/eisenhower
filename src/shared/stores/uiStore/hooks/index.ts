@@ -10,7 +10,7 @@ const initialState: UIState = {
   recentlyAddedQuadrant: null,
   isFormOpened: false,
   viewMode: 'matrix',
-  sortField: 'createdAt',
+  sortField: 'importance',
   sortDirection: 'desc',
 };
 
