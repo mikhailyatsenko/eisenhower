@@ -54,8 +54,6 @@ export const ViewToggle: React.FC = () => {
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <title>ic_fluent_grid_28_filled</title>
-          <desc>Created with Sketch.</desc>
           <g
             id="🔍-Product-Icons"
             stroke="none"
