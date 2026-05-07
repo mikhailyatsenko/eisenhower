@@ -49,6 +49,9 @@ export const SwitchTaskSource = () => {
     }
   }, [router, searchParams, user, isLoading]);
 
+  // Test to hide this switch
+  return null;
+
   if (!user) {
     return null;
   }

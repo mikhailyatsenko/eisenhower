@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Auth } from '@/features/auth/ui/Auth';
 import { ViewToggle } from '@/features/switchViewMode';
 import { ThemeToggle } from '@/features/toggleTheme';
+import { ViewAnalytics } from '@/features/viewAnalytics';
 import { WelcomeModal } from '@/entities/welcomeModal';
 import { Favicons } from '@/shared/lib/Favicons';
 import { HeadScripts } from '@/shared/lib/HeadScripts';
@@ -52,6 +53,7 @@ export async function RootLayout({
         <Auth />
         <ThemeToggle serverThemeCookie={serverThemeCookie} />
         <ViewToggle />
+        <ViewAnalytics />
         <WelcomeModal />
         {children}
         <div className="fixed bottom-2 left-2 z-20 flex flex-col gap-1 text-[10px] text-gray-400 opacity-60">
