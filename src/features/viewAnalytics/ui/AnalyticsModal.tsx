@@ -89,17 +89,17 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose }) => {
               <QuadrantMini
                 label={MatrixQuadrants.ImportantNotUrgent}
                 stats={quadrantStats['ImportantNotUrgent' as MatrixKey]}
-                color="bg-green-400/20 border-green-400"
+                color="bg-orange-400/20 border-orange-400"
               />
               <QuadrantMini
                 label={MatrixQuadrants.NotImportantUrgent}
                 stats={quadrantStats['NotImportantUrgent' as MatrixKey]}
-                color="bg-orange-400/20 border-orange-400"
+                color="bg-blue-400/20 border-blue-400"
               />
               <QuadrantMini
                 label={MatrixQuadrants.NotImportantNotUrgent}
                 stats={quadrantStats['NotImportantNotUrgent' as MatrixKey]}
-                color="bg-blue-400/20 border-blue-400"
+                color="bg-green-400/20 border-green-400"
               />
             </div>
           </div>
