@@ -24,9 +24,9 @@ export const TASK_COUNT_STYLES = {
 // List styles
 export const LIST_STYLES = {
   DEFAULT:
-    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto sm:flex',
+    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto px-1 sm:flex',
   EXPANDED:
-    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto flex pb-8 sm:flex',
+    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto flex pb-8 px-1 sm:flex',
   COLLAPSED:
-    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto hidden sm:flex',
+    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto hidden px-1 sm:flex',
 } as const;

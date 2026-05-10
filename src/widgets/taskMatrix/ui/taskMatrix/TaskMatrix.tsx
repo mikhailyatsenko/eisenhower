@@ -74,7 +74,7 @@ export const TaskMatrix: React.FC = () => {
 
   return (
     <>
-      <div className="relative flex w-full flex-wrap justify-center">
+      <div className="relative mt-14 flex w-full flex-wrap justify-center">
         {viewMode === 'matrix' ? (
           <>
             {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}

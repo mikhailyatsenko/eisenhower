@@ -37,10 +37,10 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose }) => {
   };
 
   return (
-    <Modal onClose={onClose}>
-      <div className="flex h-full w-full flex-col p-6 text-gray-800 dark:text-gray-100">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Analytics</h2>
+    <Modal onClose={onClose} width="2xl">
+      <div className="flex max-h-[calc(100dvh-40px)] w-full flex-col overflow-hidden p-4 text-gray-800 sm:p-6 dark:text-gray-100">
+        <div className="mb-4 flex shrink-0 items-center justify-between">
+          <h2 className="text-xl font-bold sm:text-2xl">Analytics</h2>
           <button
             onClick={onClose}
             className="rounded-full p-2 hover:bg-black/10 dark:hover:bg-white/10"
@@ -64,7 +64,7 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose }) => {
 
         <div className="scrollbar-hidden flex-1 overflow-y-auto">
           {/* Summary Cards */}
-          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatsCard label="Total Tasks" value={totalAll} />
             <StatsCard
               label="Completed"
@@ -76,8 +76,8 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose }) => {
           </div>
 
           {/* Matrix Visualization */}
-          <div className="mb-8">
-            <h3 className="mb-4 text-lg font-semibold">
+          <div className="mb-6">
+            <h3 className="mb-3 text-base font-semibold sm:text-lg">
               Quadrant Distribution
             </h3>
             <div className="mx-auto grid aspect-square w-full max-w-md grid-cols-2 gap-2 sm:aspect-video sm:max-w-none">
@@ -121,7 +121,9 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose }) => {
               </svg>
               Smart Tip
             </h4>
-            <p className="text-sm italic">{getTip()}</p>
+            <div className="max-h-24 overflow-y-auto sm:max-h-none">
+              <p className="text-sm italic">{getTip()}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -138,11 +140,11 @@ const StatsCard = ({
   value: string | number;
   color?: string;
 }) => (
-  <div className="flex flex-col items-center justify-center rounded-xl bg-white p-4 shadow-sm dark:bg-gray-700/50">
-    <span className="text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+  <div className="flex flex-col items-center justify-center rounded-xl bg-white p-3 shadow-sm sm:p-4 dark:bg-gray-700/50">
+    <span className="text-center text-[10px] leading-tight font-medium tracking-wider text-gray-500 uppercase sm:text-xs dark:text-gray-400">
       {label}
     </span>
-    <span className={`text-2xl font-bold ${color}`}>{value}</span>
+    <span className={`text-xl font-bold sm:text-2xl ${color}`}>{value}</span>
   </div>
 );
 

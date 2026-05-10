@@ -40,6 +40,7 @@ export const switchToFirebaseTasks = () => {
 export const addTaskAction = async (
   quadrantKey: MatrixKey,
   taskInputText: string,
+  dueDate?: Date | null,
 ) => {
   if (taskInputText.length > 200) return;
   const taskId = uuidv4();
@@ -47,6 +48,7 @@ export const addTaskAction = async (
     id: taskId,
     text: taskInputText,
     createdAt: new Date(),
+    dueDate: dueDate || undefined,
   };
   useTaskStore.setState((state) => {
     const tasks =
@@ -67,25 +69,60 @@ export const editTaskAction = async (
   quadrantKey: MatrixKey,
   taskId: string,
   newText: string,
+  newDueDate?: Date | null,
+  newQuadrantKey?: MatrixKey,
   skipToast: boolean = false,
 ) => {
   let isChanged = false;
   let oldText = '';
+  let oldDueDate: Date | undefined;
+  const oldQuadrant: MatrixKey = quadrantKey;
+  const finalQuadrant: MatrixKey = newQuadrantKey || quadrantKey;
+
   useTaskStore.setState((state) => {
     const tasks =
       state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
-    const task = tasks[quadrantKey].find((t) => t.id === taskId);
-    if (task && task.text !== newText) {
-      oldText = task.text;
-      task.text = newText;
-      isChanged = true;
+
+    // Find the task in the original quadrant
+    const taskIndex = tasks[quadrantKey].findIndex((t) => t.id === taskId);
+
+    if (taskIndex !== -1) {
+      const task = tasks[quadrantKey][taskIndex];
+
+      const textChanged = task.text !== newText;
+      const dateChanged = task.dueDate?.getTime() !== newDueDate?.getTime();
+      const quadrantChanged = newQuadrantKey && newQuadrantKey !== quadrantKey;
+
+      if (textChanged || dateChanged || quadrantChanged) {
+        oldText = task.text;
+        oldDueDate = task.dueDate;
+
+        task.text = newText;
+        task.dueDate =
+          newDueDate === null ? undefined : newDueDate || task.dueDate;
+
+        if (quadrantChanged && newQuadrantKey) {
+          const [movedTask] = tasks[quadrantKey].splice(taskIndex, 1);
+          movedTask.quadrantKey = newQuadrantKey;
+          tasks[newQuadrantKey].push(movedTask);
+        }
+
+        isChanged = true;
+      }
     }
   });
 
   if (isChanged) {
     if (!skipToast) {
       showToastNotificationByEditTask(() =>
-        editTaskAction(quadrantKey, taskId, oldText, true),
+        editTaskAction(
+          finalQuadrant,
+          taskId,
+          oldText,
+          oldDueDate,
+          oldQuadrant,
+          true,
+        ),
       );
     }
 

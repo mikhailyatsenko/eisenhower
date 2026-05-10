@@ -42,6 +42,7 @@ export const fetchTasksFromFirebase = async (): Promise<{
         id: doc.id,
         text: data.text,
         createdAt: new Date(data.createdAt),
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         order: data.order,
         completed: data.completed,
         completedAt: data.completedAt ? new Date(data.completedAt) : undefined,
@@ -95,6 +96,7 @@ export const syncTasksToFirebase = async (
             quadrantKey: key,
             userId: user.uid,
             createdAt: task.createdAt.toISOString(),
+            dueDate: task.dueDate?.toISOString() || null,
             order: index,
             completed: false,
           },
@@ -111,6 +113,7 @@ export const syncTasksToFirebase = async (
             quadrantKey: task.quadrantKey || 'NotImportantNotUrgent',
             userId: user.uid,
             createdAt: task.createdAt.toISOString(),
+            dueDate: task.dueDate?.toISOString() || null,
             order: index,
             completed: true,
             completedAt:

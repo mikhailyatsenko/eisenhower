@@ -64,8 +64,8 @@ const CompletedTaskItem: React.FC<CompletedTaskItemProps> = ({
             className="min-w-[224px] text-[0.7rem] font-bold italic sm:text-sm"
           >
             {isCompletedHovered
-              ? `Created at ${format(task.createdAt, 'dd.MM.yyyy HH:mm')}`
-              : `Completed at ${format(task.completedAt, 'dd.MM.yyyy HH:mm')}`}
+              ? `Created at ${format(task.createdAt, 'dd/MM/yyyy HH:mm')}`
+              : `Completed at ${format(task.completedAt, 'dd/MM/yyyy HH:mm')}`}
           </p>
         )}
         <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100">

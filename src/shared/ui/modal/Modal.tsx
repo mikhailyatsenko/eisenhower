@@ -1,19 +1,34 @@
 'use client';
 
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useScrollLock } from '@/shared/hooks/useScrollLock';
 
 interface ModalProps {
   children: ReactNode;
   onClose: () => void;
+  className?: string;
+  width?: 'lg' | 'xl' | '2xl';
 }
 
-export const Modal = ({ children, onClose }: ModalProps) => {
-  useScrollLock();
+const widthClasses = {
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+};
 
+export const Modal = ({
+  children,
+  onClose,
+  className,
+  width = 'lg',
+}: ModalProps) => {
+  useScrollLock();
+  const [mounted, setMounted] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMounted(true);
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
@@ -38,15 +53,17 @@ export const Modal = ({ children, onClose }: ModalProps) => {
     };
   }, [onClose]);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center overflow-y-auto bg-black/50">
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div
         ref={contentRef}
-        className="animate-from-bottom-appear text-foreground relative mx-auto flex h-[calc(100dvh-80px)] w-[calc(100vw-80px)] flex-col items-center justify-center overflow-hidden rounded-md bg-gray-200 opacity-0 [animation-duration:_0.2s] dark:bg-gray-800"
+        className={`animate-from-bottom-appear text-foreground relative mx-auto flex h-fit max-h-[calc(100dvh-40px)] w-full ${widthClasses[width]} flex-col items-center rounded-xl opacity-0 shadow-2xl [animation-duration:_0.2s] ${className || 'bg-gray-50 dark:bg-gray-900'}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
       </div>
     </div>
   );
+
+  return mounted ? createPortal(modalContent, document.body) : null;
 };

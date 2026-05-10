@@ -7,6 +7,7 @@ export interface Task {
   id: string;
   text: string;
   createdAt: Date;
+  dueDate?: Date;
   order?: number;
   completed?: boolean;
   completedAt?: Date;
@@ -28,6 +29,7 @@ export interface FirestoreTaskData {
   id: string;
   text: string;
   createdAt: string;
+  dueDate?: string;
   quadrantKey?: MatrixKey;
   userId: string;
   order: number;
