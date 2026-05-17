@@ -65,7 +65,7 @@ export const SwitchTaskSource = () => {
   };
 
   return (
-    <div className="fixed top-0 left-1/2 z-[2] -translate-x-1/2">
+    <div className="fixed top-0 left-1/2 z-[20] -translate-x-1/2">
       <TaskSourceTabs
         switchToFirebaseTasks={handleSwitchToFirebase}
         switchToLocalTasks={handleSwitchToLocal}

@@ -1,16 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import {
+  useUIStore,
+  setIsAnalyticsOpenedAction,
+} from '@/shared/stores/uiStore';
 import { AnalyticsModal } from './AnalyticsModal';
 
 export const ViewAnalytics = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const isAnalyticsOpened = useUIStore((state) => state.isAnalyticsOpened);
 
   return (
     <>
       <button
-        onClick={() => setIsOpen(true)}
-        className="fixed top-1 right-[102px] z-[2] h-12 w-12 cursor-pointer rounded-lg p-2.5 hover:bg-gray-100 sm:right-[120px] dark:hover:bg-gray-700"
+        onClick={() => setIsAnalyticsOpenedAction(true)}
+        className="fixed top-1 right-[102px] z-[20] h-12 w-12 cursor-pointer rounded-lg p-2.5 hover:bg-gray-100 sm:right-[120px] dark:hover:bg-gray-700"
         title="View Analytics"
       >
         <svg
@@ -29,7 +33,9 @@ export const ViewAnalytics = () => {
         </svg>
       </button>
 
-      {isOpen && <AnalyticsModal onClose={() => setIsOpen(false)} />}
+      {isAnalyticsOpened && (
+        <AnalyticsModal onClose={() => setIsAnalyticsOpenedAction(false)} />
+      )}
     </>
   );
 };

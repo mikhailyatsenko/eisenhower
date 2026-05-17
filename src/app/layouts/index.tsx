@@ -10,6 +10,7 @@ import { ViewAnalytics } from '@/features/viewAnalytics';
 import { WelcomeModal } from '@/entities/welcomeModal';
 import { Favicons } from '@/shared/lib/Favicons';
 import { HeadScripts } from '@/shared/lib/HeadScripts';
+import { ClientShortcuts } from './ClientShortcuts';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -50,6 +51,9 @@ export async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} relative antialiased`}
       >
+        {/* Scroll mask for top buttons */}
+        <div className="bg-background/60 pointer-events-none fixed top-0 left-0 z-10 h-12 w-full backdrop-blur-xl" />
+        <ClientShortcuts />
         <Auth />
         <ThemeToggle serverThemeCookie={serverThemeCookie} />
         <ViewToggle />
@@ -57,10 +61,17 @@ export async function RootLayout({
         <WelcomeModal />
         {children}
         <div className="fixed bottom-2 left-2 z-20 flex flex-col gap-1 text-[10px] text-gray-400 opacity-60">
-          <div>Contact the author: m74901379@gmail.com</div>
           <Link href="/privacy" className="hover:underline">
             Privacy Policy
           </Link>
+        </div>
+        <div className="fixed top-2 right-44 z-20 flex flex-col gap-1 text-right text-sm text-gray-400">
+          <span className="hidden sm:block">
+            Quick add: press keys <span className="font-bold">1-4</span>
+          </span>
+          <div className="text-[10px] leading-1.5 opacity-60">
+            Contact the author: m74901379@gmail.com
+          </div>
         </div>
       </body>
     </html>

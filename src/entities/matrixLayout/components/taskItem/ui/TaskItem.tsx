@@ -123,7 +123,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         {...listeners}
         {...attributes}
         style={style}
-        className={`relative my-1 p-1 ${isDragging ? 'opacity-50' : ''} min-h-10 ${quadrantKey ? colors[quadrantKey] : 'bg-gray-300 dark:bg-gray-800'} group ${!isEditing && viewMode === 'matrix' ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600 ${isOverdue ? 'ring-2 ring-red-500 ring-offset-1 dark:ring-offset-gray-900' : ''}`}
+        className={`relative p-1 ${isDragging ? 'opacity-50' : ''} ${viewMode === 'matrix' ? '' : 'my-1'} min-h-10 ${quadrantKey ? colors[quadrantKey] : 'bg-gray-300 dark:bg-gray-800'} group ${!isEditing && viewMode === 'matrix' ? 'cursor-grab' : ''} shrink-0 list-none rounded-md text-gray-100 transition-transform hover:shadow-md dark:shadow-gray-600 ${isOverdue ? 'ring-2 ring-red-500 ring-offset-1 dark:ring-offset-gray-900' : ''}`}
       >
         <div
           className={`w-full p-2 text-center leading-5 text-black dark:text-gray-200 ${isCompleted ? 'line-through opacity-70' : ''}`}

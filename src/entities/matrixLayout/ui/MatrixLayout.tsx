@@ -2,6 +2,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import React from 'react';
 import { MatrixKey, MatrixQuadrants, Task } from '@/shared/stores/tasksStore';
 import {
   editTaskAction,
@@ -9,6 +10,7 @@ import {
   completeTaskAction,
 } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
+import { InsertTaskZone } from '../components/InsertTaskZone';
 import { Quadrant } from '../components/quadrant';
 import { TaskItem } from '../components/taskItem';
 import { LIST_STYLES, TASK_COUNT_STYLES } from '../consts';
@@ -38,7 +40,8 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
     <>
       {Object.entries(MatrixQuadrants).map(([key]) => {
         const quadrantKey = key as MatrixKey;
-        const taskCount = tasks[quadrantKey].length;
+        const quadrantTasks = tasks[quadrantKey];
+        const taskCount = quadrantTasks.length;
         const taskCountText = `${taskCount} task${taskCount !== 1 ? 's' : ''}`;
 
         return (
@@ -55,7 +58,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             isNoTasks={taskCount === 0}
           >
             <SortableContext
-              items={tasks[quadrantKey]}
+              items={quadrantTasks}
               strategy={verticalListSortingStrategy}
             >
               <ul
@@ -65,16 +68,27 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                     : LIST_STYLES.COLLAPSED
                 }
               >
-                {tasks[quadrantKey].map((task, index) => (
-                  <TaskItem
-                    deleteTaskAction={deleteTaskAction}
-                    editTaskAction={editTaskAction}
-                    completeTaskAction={completeTaskAction}
-                    key={task.id}
-                    task={task}
-                    quadrantKey={quadrantKey}
-                    index={index}
-                  />
+                {/* Top Insert Zone */}
+                {taskCount > 0 && (
+                  <InsertTaskZone quadrantKey={quadrantKey} index={0} />
+                )}
+
+                {quadrantTasks.map((task, index) => (
+                  <React.Fragment key={task.id}>
+                    <TaskItem
+                      deleteTaskAction={deleteTaskAction}
+                      editTaskAction={editTaskAction}
+                      completeTaskAction={completeTaskAction}
+                      task={task}
+                      quadrantKey={quadrantKey}
+                      index={index}
+                    />
+                    {/* Intermediate and Bottom Insert Zone */}
+                    <InsertTaskZone
+                      quadrantKey={quadrantKey}
+                      index={index + 1}
+                    />
+                  </React.Fragment>
                 ))}
               </ul>
 

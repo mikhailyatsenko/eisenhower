@@ -13,7 +13,7 @@ export const ViewToggle: React.FC = () => {
   return (
     <button
       onClick={toggleViewMode}
-      className="fixed top-1 right-[54px] z-[2] flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg p-2 hover:bg-gray-100 sm:right-[72px] dark:hover:bg-gray-700"
+      className="fixed top-1 right-[54px] z-[20] flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg p-2 hover:bg-gray-100 sm:right-[72px] dark:hover:bg-gray-700"
       title={
         viewMode === 'matrix' ? 'Switch to List View' : 'Switch to Matrix View'
       }

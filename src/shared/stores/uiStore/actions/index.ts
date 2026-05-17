@@ -26,16 +26,35 @@ export const setRecentlyAddedQuadrantAction = (quadrant: MatrixKey | null) => {
   setTimeout(resetRecentlyAddedQuadrant, 550);
 };
 
-export const setIsFormOpenedAction = (isOpened: boolean) => {
+export const setTaskInsertIndexAction = (index: number | null) => {
   useUIStore.setState((state) => {
-    state.isFormOpened = isOpened;
+    state.taskInsertIndex = index;
   });
 };
 
-export const openFormWithCategoryAction = (category: MatrixKey) => {
+export const setIsFormOpenedAction = (isOpened: boolean) => {
+  useUIStore.setState((state) => {
+    state.isFormOpened = isOpened;
+    if (!isOpened) {
+      state.taskInsertIndex = null;
+    }
+  });
+};
+
+export const setIsAnalyticsOpenedAction = (isOpened: boolean) => {
+  useUIStore.setState((state) => {
+    state.isAnalyticsOpened = isOpened;
+  });
+};
+
+export const openFormWithCategoryAction = (
+  category: MatrixKey,
+  index: number | null = null,
+) => {
   useUIStore.setState((state) => {
     state.selectedCategory = category;
     state.isFormOpened = true;
+    state.taskInsertIndex = index;
   });
 };
 

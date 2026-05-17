@@ -31,8 +31,14 @@ export const AddTask = () => {
     dueDate: Date | null,
     quadrant?: MatrixKey,
   ) => {
+    const { taskInsertIndex } = useUIStore.getState();
     const finalQuadrant = quadrant || selectedCategory;
-    const taskId = await addTaskAction(finalQuadrant, text, dueDate);
+    const taskId = await addTaskAction(
+      finalQuadrant,
+      text,
+      dueDate,
+      taskInsertIndex,
+    );
 
     if (taskId) {
       setRecentlyAddedQuadrantAction(finalQuadrant);

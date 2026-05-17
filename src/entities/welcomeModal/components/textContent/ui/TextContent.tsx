@@ -13,7 +13,7 @@ export const TextContent = () => {
       </div>
 
       <div className="limitedHeight639:!hidden sm576:block hidden space-y-4">
-        <p className="text-sm font-bold tracking-widest text-gray-500 uppercase dark:text-gray-400">
+        <p className="text-sm font-bold tracking-widest text-gray-500 dark:text-gray-400">
           {WELCOME_MODAL_TEXTS.ADDITIONAL_INFO}
         </p>
 
@@ -48,6 +48,10 @@ export const TextContent = () => {
       <p className="limitedHeight639:text-sm text-sm font-bold text-gray-500 italic dark:text-gray-400">
         {WELCOME_MODAL_TEXTS.FINAL_NOTE}
       </p>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-400">
+        {WELCOME_MODAL_TEXTS.SHORTCUTS_HINT}
+      </div>
     </div>
   );
 };

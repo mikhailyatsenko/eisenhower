@@ -1,5 +1,10 @@
-import { addHours, startOfTomorrow, isValid as isValidDate } from 'date-fns';
-import { useEffect, useState } from 'react';
+import {
+  addHours,
+  startOfTomorrow,
+  nextMonday,
+  isValid as isValidDate,
+} from 'date-fns';
+import { useEffect, useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import { toast } from 'react-toastify';
 import { Task, MatrixKey, MatrixQuadrants } from '@/shared/stores/tasksStore';
@@ -59,8 +64,19 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(true);
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const autoResizeTextarea = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
   useEffect(() => {
     setIsValid(editText.length > 0 && editText.length <= 200);
+    autoResizeTextarea();
   }, [editText]);
 
   const handleCancel = () => {
@@ -71,6 +87,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   const handleQuadrantClick = (key: MatrixKey) => {
     setSelectedQuadrant(key);
     onQuadrantChange?.(key);
+    textareaRef.current?.focus();
   };
 
   const toggleDeadline = (enabled: boolean) => {
@@ -81,12 +98,14 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
     if (!enabled) {
       setSelectedPreset(null);
     }
+    textareaRef.current?.focus();
   };
 
   const setPreset = (date: Date, label: string) => {
     setHasDeadline(true);
     setDueDate(date);
     setSelectedPreset(label);
+    textareaRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -127,11 +146,12 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
             Task Description
           </label>
           <textarea
+            ref={textareaRef}
             autoFocus
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="min-h-[100px] w-full resize-none rounded-md border border-gray-300 bg-white/50 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
+            className="min-h-[100px] w-full resize-none overflow-hidden rounded-md border border-gray-300 bg-white/50 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
             placeholder="What needs to be done?"
           />
         </div>
@@ -193,6 +213,13 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                   }
                   label="Tmr 9am"
                   isActive={selectedPreset === 'Tmr 9am'}
+                />
+                <PresetButton
+                  onClick={() =>
+                    setPreset(addHours(nextMonday(new Date()), 9), 'Mon 9am')
+                  }
+                  label="Mon 9am"
+                  isActive={selectedPreset === 'Mon 9am'}
                 />
               </div>
               <div className="flex gap-2">

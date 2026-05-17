@@ -16,4 +16,6 @@ export const WELCOME_MODAL_TEXTS = {
   },
   FINAL_NOTE:
     'Use this tool to manage your tasks effectively and focus on what truly matters.',
+  SHORTCUTS_HINT:
+    'Pro tip: Use keyboard keys 1, 2, 3, or 4 to quickly add a task to a specific quadrant.',
 } as const;
