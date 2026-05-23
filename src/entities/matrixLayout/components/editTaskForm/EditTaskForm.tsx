@@ -109,8 +109,11 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && isValid) {
-      onSave();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (isValid) {
+        onSave();
+      }
     }
     if (e.key === 'Escape') {
       handleCancel();
@@ -154,6 +157,9 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
             className="min-h-[100px] w-full resize-none overflow-hidden rounded-md border border-gray-300 bg-white/50 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
             placeholder="What needs to be done?"
           />
+          <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
+            Shift + Enter for new line
+          </p>
         </div>
 
         <div className="mb-4 flex flex-col">

@@ -22,17 +22,7 @@ const jestConfig = async () => {
       '^@/(.*)$': '<rootDir>/src/$1',
       ...nextJestConfig.moduleNameMapper,
     },
-    preset: 'ts-jest',
-
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-    transform: {
-      '^.+\\.(ts|tsx|jsx|js)$': [
-        'ts-jest',
-        {
-          tsconfig: 'tsconfig.jest.json',
-        },
-      ],
-    },
     transformIgnorePatterns: [
       '/node_modules/(?!@testing-library|@babel/runtime)',
     ],

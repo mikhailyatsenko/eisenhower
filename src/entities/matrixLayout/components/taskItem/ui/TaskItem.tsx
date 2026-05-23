@@ -3,6 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 
+import CalendarIcon from '@/shared/icons/calendar-icon.svg';
 import CheckIcon from '@/shared/icons/check-icon.svg';
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
@@ -11,6 +12,7 @@ import { Task } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { Linkify } from '@/shared/ui/linkify';
 import { Modal } from '@/shared/ui/modal';
+import { getGoogleCalendarLink } from '@/shared/utils/calendarUtils';
 import { isTouchDevice } from '@/shared/utils/isTouchDevice';
 import { EditTaskForm } from '../../editTaskForm';
 
@@ -111,6 +113,14 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     setIsEditing(false);
   };
 
+  const handleCalendarClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (task.dueDate) {
+      const link = getGoogleCalendarLink(task.text, new Date(task.dueDate));
+      window.open(link, '_blank');
+    }
+  };
+
   const viewMode = useUIStore((state) => state.viewMode);
 
   const isOverdue =
@@ -160,6 +170,19 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             <div
               className={`flex items-center gap-2 ${touchDevice ? '' : 'sm:opacity-0 sm:group-hover:opacity-100'}`}
             >
+              {!isCompleted && task.dueDate && (
+                <button
+                  onClick={handleCalendarClick}
+                  data-no-dnd="true"
+                  title="Add to Google Calendar"
+                >
+                  <CalendarIcon
+                    className="cursor-pointer fill-gray-600 hover:fill-gray-200 dark:fill-gray-400 dark:hover:fill-gray-100"
+                    width="18px"
+                    height="18px"
+                  />
+                </button>
+              )}
               {!isCompleted && completeTaskAction && (
                 <button
                   onClick={handleComplete}
