@@ -69,9 +69,10 @@ export async function RootLayout({
           <span className="hidden sm:block">
             Quick add: press keys <span className="font-bold">1-4</span>
           </span>
-          <div className="text-[10px] leading-1.5 opacity-60">
-            Contact the author: m74901379@gmail.com
-          </div>
+        </div>
+        <div className="fixed top-1 left-14 z-10 flex flex-col text-left text-[10px] opacity-40">
+          <span>Contact the author:</span>
+          <span>m74901379@gmail.com</span>
         </div>
       </body>
     </html>
