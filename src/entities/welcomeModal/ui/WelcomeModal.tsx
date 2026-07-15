@@ -28,7 +28,7 @@ export const WelcomeModal = () => {
         className="!max-w-3xl overflow-hidden border-none"
       >
         <div className="animate-from-bottom-appear relative z-2 w-full overflow-y-auto text-center">
-          <div className="rounded-2xl bg-white/70 shadow-2xl backdrop-blur-xl sm:p-10 dark:bg-gray-900/70">
+          <div className="rounded-2xl bg-white/70 p-5 shadow-2xl backdrop-blur-xl sm:p-10 dark:bg-gray-900/70">
             <TextContent />
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-8">
               <button
