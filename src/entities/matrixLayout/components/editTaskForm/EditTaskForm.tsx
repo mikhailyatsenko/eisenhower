@@ -1,9 +1,4 @@
-import {
-  addHours,
-  startOfTomorrow,
-  nextMonday,
-  isValid as isValidDate,
-} from 'date-fns';
+import { addHours, addDays, addWeeks, isValid as isValidDate } from 'date-fns';
 import { useEffect, useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import { toast } from 'react-toastify';
@@ -198,28 +193,24 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
             <div className="animate-in fade-in slide-in-from-top-1 duration-200">
               <div className="mb-2 flex flex-wrap gap-1">
                 <PresetButton
-                  onClick={() => setPreset(addHours(new Date(), 1), '+1h')}
-                  label="+1h"
-                  isActive={selectedPreset === '+1h'}
-                />
-                <PresetButton
                   onClick={() => setPreset(addHours(new Date(), 3), '+3h')}
                   label="+3h"
                   isActive={selectedPreset === '+3h'}
                 />
                 <PresetButton
-                  onClick={() =>
-                    setPreset(addHours(startOfTomorrow(), 9), 'Tmr 9am')
-                  }
-                  label="Tmr 9am"
-                  isActive={selectedPreset === 'Tmr 9am'}
+                  onClick={() => setPreset(addHours(new Date(), 24), '+24h')}
+                  label="+24h"
+                  isActive={selectedPreset === '+24h'}
                 />
                 <PresetButton
-                  onClick={() =>
-                    setPreset(addHours(nextMonday(new Date()), 9), 'Mon 9am')
-                  }
-                  label="Mon 9am"
-                  isActive={selectedPreset === 'Mon 9am'}
+                  onClick={() => setPreset(addDays(new Date(), 3), '+3d')}
+                  label="+3d"
+                  isActive={selectedPreset === '+3d'}
+                />
+                <PresetButton
+                  onClick={() => setPreset(addWeeks(new Date(), 1), '+1w')}
+                  label="+1w"
+                  isActive={selectedPreset === '+1w'}
                 />
               </div>
               <div className="flex gap-2">
