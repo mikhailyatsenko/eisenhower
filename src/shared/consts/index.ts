@@ -4,3 +4,5 @@ export const QUADRANT_TITLES = {
   NotImportantUrgent: 'Delegate',
   NotImportantNotUrgent: 'Eliminate',
 } as const;
+
+export const SITE_URL = 'https://howereisen.com';

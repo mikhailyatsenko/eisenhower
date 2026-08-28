@@ -7,6 +7,7 @@ import { ViewToggle } from '@/features/switchViewMode';
 import { ThemeToggle } from '@/features/toggleTheme';
 import { ViewAnalytics } from '@/features/viewAnalytics';
 import { WelcomeModal } from '@/entities/welcomeModal';
+import { SITE_URL } from '@/shared/consts';
 import { Favicons } from '@/shared/lib/Favicons';
 import { HeadScripts } from '@/shared/lib/HeadScripts';
 import { Footer } from '@/shared/ui/footer';
@@ -23,8 +24,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'Eisenhower Matrix - Online App',
   description: 'Organize your priorities and workload',
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export async function RootLayout({
