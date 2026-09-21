@@ -219,7 +219,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             <EditTaskForm
               handleSave={handleSave}
               setIsEditing={setIsEditing}
-              task={task}
+              // Active tasks don't store their quadrant, so take it from where the task is rendered
+              task={quadrantKey ? { ...task, quadrantKey } : task}
               onQuadrantChange={setCurrentEditingQuadrant}
             />
           </div>
