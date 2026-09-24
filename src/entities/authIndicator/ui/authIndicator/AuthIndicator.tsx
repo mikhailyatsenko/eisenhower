@@ -54,6 +54,13 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
     <UserIcon className="h-5 w-5 fill-white" />
   );
 
+  const signInLabel = (
+    <>
+      <GoogleIcon aria-hidden className="h-5 w-5 fill-current" />
+      Sign in
+    </>
+  );
+
   const { activeState } = useTaskStore();
 
   const handleSwitchToFirebase = (e: React.MouseEvent) => {
@@ -74,9 +81,8 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
     <BubbleCornerButton
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      iconWhenClosed={
-        isSignedIn ? userImage : <GoogleIcon className="h-5 w-5 fill-white" />
-      }
+      closedLabel={isSignedIn ? displayName || 'Account' : undefined}
+      iconWhenClosed={isSignedIn ? userImage : signInLabel}
     >
       {isSignedIn ? (
         <div className="flex h-full flex-col gap-8">

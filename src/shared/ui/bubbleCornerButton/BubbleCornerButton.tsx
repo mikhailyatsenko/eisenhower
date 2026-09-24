@@ -5,6 +5,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 interface BubbleCornerButtonProps {
   children: React.ReactNode;
   iconWhenClosed: React.ReactNode;
+  /** Accessible name of the closed button, for when its content has no text */
+  closedLabel?: string;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }
@@ -12,6 +14,7 @@ interface BubbleCornerButtonProps {
 export const BubbleCornerButton: React.FC<BubbleCornerButtonProps> = ({
   children,
   iconWhenClosed,
+  closedLabel,
   isOpen,
   setIsOpen,
 }) => {
@@ -65,9 +68,10 @@ export const BubbleCornerButton: React.FC<BubbleCornerButtonProps> = ({
 
   return (
     <div
-      data-testid="bubble-corner-button"
       ref={ref}
-      className={`fixed top-0 left-0 z-[20] overflow-hidden bg-indigo-200/95 transition-all duration-300 [clip-path:_circle(100%_at_0_0)] dark:bg-indigo-950/95 ${isOpen ? 'h-90 w-90 p-5 shadow-lg' : 'h-12 w-12 cursor-pointer hover:h-14 hover:w-14 hover:p-1'} ${isHidden ? '-translate-x-full -translate-y-full' : 'translate-x-0 translate-y-0'}`}
+      // Slid off-screen on scroll: keep it out of the Tab order too
+      inert={isHidden}
+      className={`fixed top-0 left-0 z-[20] overflow-hidden bg-indigo-200/95 transition-all duration-300 dark:bg-indigo-950/95 ${isOpen ? 'h-90 w-90 p-5 shadow-lg [clip-path:_circle(100%_at_0_0)]' : 'h-12 min-w-12 rounded-br-3xl hover:h-14'} ${isHidden ? '-translate-x-full -translate-y-full' : 'translate-x-0 translate-y-0'}`}
       onClick={() => {
         setIsOpen(!isOpen);
       }}
@@ -75,9 +79,14 @@ export const BubbleCornerButton: React.FC<BubbleCornerButtonProps> = ({
       {isOpen ? (
         children
       ) : (
-        <div data-testid="icon-when-closed" className="flex h-full w-full p-2">
+        // The click bubbles up to the wrapper, which opens the bubble
+        <button
+          type="button"
+          aria-label={closedLabel}
+          className="flex h-full w-full cursor-pointer items-center gap-2 px-3 text-sm font-semibold text-gray-900 focus-visible:ring-2 focus-visible:ring-indigo-700 focus-visible:outline-none focus-visible:ring-inset dark:text-gray-100 dark:focus-visible:ring-indigo-300"
+        >
           {iconWhenClosed}
-        </div>
+        </button>
       )}
     </div>
   );
