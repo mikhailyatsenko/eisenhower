@@ -11,6 +11,9 @@ import { getEmptyTasksState } from '@/shared/stores/tasksStore/lib';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { AppShell } from '../layouts/AppShell';
 
+// These mocks apply to modules loaded after this file: a test imports
+// renderHomePage before anything that pulls in Firebase or the router.
+
 // External boundary: no real Firebase. Auth reports "signed out" right away.
 jest.mock('@/shared/config/firebaseConfig', () => ({
   db: {},
@@ -50,10 +53,12 @@ export interface Viewport {
 const DESKTOP: Viewport = { pointer: 'fine', width: 1280 };
 
 let viewport: Viewport = DESKTOP;
+type ChangeListener = (event: MediaQueryListEvent) => void;
+
 const mediaQueryLists = new Set<{
-  query: string;
+  list: MediaQueryList;
   matches: boolean;
-  listeners: Set<(event: MediaQueryListEvent) => void>;
+  listeners: Set<ChangeListener>;
 }>();
 
 const matchesFeature = (feature: string) => {
@@ -65,7 +70,6 @@ const matchesFeature = (feature: string) => {
 
   switch (name) {
     case 'hover':
-      return value === (coarse ? 'none' : 'hover');
     case 'any-hover':
       return value === (coarse ? 'none' : 'hover');
     case 'pointer':
@@ -75,9 +79,13 @@ const matchesFeature = (feature: string) => {
       return viewport.width <= parseFloat(value);
     case 'min-width':
       return viewport.width >= parseFloat(value);
-    // Light theme, motion allowed, anything unknown doesn't match
+    // Light theme, motion allowed
+    case 'prefers-color-scheme':
+      return value === 'light';
+    case 'prefers-reduced-motion':
+      return value === 'no-preference';
     default:
-      return false;
+      throw new Error(`renderHomePage: unsupported media feature ${feature}`);
   }
 };
 
@@ -92,44 +100,46 @@ const evaluateQuery = (query: string) =>
   );
 
 const matchMedia = (query: string): MediaQueryList => {
-  const list = {
-    query,
-    matches: evaluateQuery(query),
-    listeners: new Set<(event: MediaQueryListEvent) => void>(),
+  const listeners = new Set<ChangeListener>();
+  const entry = { matches: evaluateQuery(query), listeners } as {
+    list: MediaQueryList;
+    matches: boolean;
+    listeners: Set<ChangeListener>;
   };
-  mediaQueryLists.add(list);
 
-  const addListener = (listener: (event: MediaQueryListEvent) => void) =>
-    list.listeners.add(listener);
-  const removeListener = (listener: (event: MediaQueryListEvent) => void) =>
-    list.listeners.delete(listener);
-
-  return {
+  entry.list = {
     media: query,
     get matches() {
-      return list.matches;
+      return entry.matches;
     },
     onchange: null,
-    addListener,
-    removeListener,
-    addEventListener: (_type: string, listener: EventListener) =>
-      addListener(listener as (event: MediaQueryListEvent) => void),
-    removeEventListener: (_type: string, listener: EventListener) =>
-      removeListener(listener as (event: MediaQueryListEvent) => void),
+    addListener: (listener) => listener && listeners.add(listener),
+    removeListener: (listener) => listener && listeners.delete(listener),
+    addEventListener: (type: string, listener: EventListener) => {
+      if (type === 'change') listeners.add(listener as ChangeListener);
+    },
+    removeEventListener: (type: string, listener: EventListener) => {
+      if (type === 'change') listeners.delete(listener as ChangeListener);
+    },
     dispatchEvent: () => false,
-  };
+  } as MediaQueryList;
+  mediaQueryLists.add(entry);
+
+  return entry.list;
 };
 
 const applyViewport = (next: Viewport) => {
   viewport = next;
   window.innerWidth = next.width;
 
-  mediaQueryLists.forEach((list) => {
-    const matches = evaluateQuery(list.query);
-    if (matches === list.matches) return;
-    list.matches = matches;
-    const event = { matches, media: list.query } as MediaQueryListEvent;
-    list.listeners.forEach((listener) => listener(event));
+  mediaQueryLists.forEach((entry) => {
+    const { list } = entry;
+    const matches = evaluateQuery(list.media);
+    if (matches === entry.matches) return;
+    entry.matches = matches;
+    const event = { matches, media: list.media } as MediaQueryListEvent;
+    entry.listeners.forEach((listener) => listener(event));
+    list.onchange?.call(list, event);
   });
   window.dispatchEvent(new Event('resize'));
 };
