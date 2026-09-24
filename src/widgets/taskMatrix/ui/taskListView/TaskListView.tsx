@@ -1,6 +1,6 @@
 'use client';
 
-import { TaskItem } from '@/entities/matrixLayout/components/taskItem';
+import { TaskItem } from '@/entities/matrixLayout';
 import {
   completeTaskAction,
   deleteTaskAction,

@@ -21,6 +21,23 @@ const eslintConfig = [
     plugins: ['prettier'],
     rules: {
       'prettier/prettier': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@/entities/*/*',
+                '@/features/*/*',
+                '@/widgets/*/*',
+                '@/pages/*/*',
+              ],
+              message:
+                'Import a slice only through its public API (@/<layer>/<slice>). See docs/agents/architecture.md.',
+            },
+          ],
+        },
+      ],
     },
   }),
 ];

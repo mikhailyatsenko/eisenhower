@@ -9,7 +9,8 @@ jest.mock('next/headers', () => ({
   }),
 }));
 
-jest.mock('@/features/auth/ui/Auth', () => ({
+jest.mock('@/features/auth', () => ({
+  ...jest.requireActual('@/features/auth'),
   Auth: () => <div>Auth Component</div>,
 }));
 

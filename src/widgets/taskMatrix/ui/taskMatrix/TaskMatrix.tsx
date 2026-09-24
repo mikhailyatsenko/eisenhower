@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud/ui/CopyLocalToCloudButton';
+import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { useAuth } from '@/shared/api/auth';
 import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';

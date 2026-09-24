@@ -1,4 +1,4 @@
-import { Auth } from '@/features/auth/ui/Auth';
+import { Auth } from '@/features/auth';
 import { ViewToggle } from '@/features/switchViewMode';
 import { ThemeToggle } from '@/features/toggleTheme';
 import { Footer } from '@/shared/ui/footer';

@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { FloatButton } from '@/entities/addTaskForm';
-import { EditTaskForm } from '@/entities/matrixLayout/components/editTaskForm';
-import { colors } from '@/entities/matrixLayout/components/taskItem/ui/TaskItem';
+import { colors, EditTaskForm } from '@/entities/matrixLayout';
 import { MATRIX_KEYS } from '@/shared/consts';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 

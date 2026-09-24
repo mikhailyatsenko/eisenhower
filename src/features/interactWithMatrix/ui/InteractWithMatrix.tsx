@@ -13,7 +13,7 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect } from 'react';
 import { MatrixLayout } from '@/entities/matrixLayout';
-import { TaskItem } from '@/entities/matrixLayout/components/taskItem';
+import { TaskItem } from '@/entities/matrixLayout';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
