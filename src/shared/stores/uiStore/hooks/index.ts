@@ -16,6 +16,7 @@ const initialState: UIState = {
   taskToFocus: null,
   selectedTaskId: null,
   lastSelectedTaskId: null,
+  fullScreenQuadrant: null,
 };
 
 export const useUIStore = create<UIState>()(

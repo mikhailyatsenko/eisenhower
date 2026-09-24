@@ -15,4 +15,6 @@ export interface UIState {
   selectedTaskId: string | null;
   /** The latest task to be selected; Tab into the matrix comes back to it */
   lastSelectedTaskId: string | null;
+  /** The quadrant open full screen on a phone; the 2×2 grid when null */
+  fullScreenQuadrant: MatrixKey | null;
 }

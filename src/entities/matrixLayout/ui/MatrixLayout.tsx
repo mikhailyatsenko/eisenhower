@@ -5,11 +5,15 @@ import {
 import React, { useId } from 'react';
 import { MATRIX_KEYS } from '@/shared/consts';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
-import { useUIStore } from '@/shared/stores/uiStore';
+import {
+  setFullScreenQuadrantAction,
+  useUIStore,
+} from '@/shared/stores/uiStore';
 import { InsertTaskZone } from '../components/InsertTaskZone';
 import { Quadrant } from '../components/quadrant';
 import { QuadrantTaskList } from '../components/quadrantTaskList';
 import { TaskItem } from '../components/taskItem';
+import { useFullScreenQuadrant } from '../hooks';
 import { tabStopTaskId } from '../lib';
 
 interface MatrixLayoutProps {
@@ -33,13 +37,18 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   const titleIdPrefix = useId();
   // The whole matrix is one Tab stop; the keys move on from there
   const tabStopId = tabStopTaskId(tasks, selectedTaskId, lastSelectedTaskId);
+  const { fullScreenQuadrant, isPhone } = useFullScreenQuadrant(tasks);
+  const shownQuadrants = fullScreenQuadrant
+    ? [fullScreenQuadrant]
+    : MATRIX_KEYS;
 
   return (
     <>
-      {MATRIX_KEYS.map((quadrantKey) => {
+      {shownQuadrants.map((quadrantKey) => {
         const quadrantTasks = tasks[quadrantKey];
         const taskCount = quadrantTasks.length;
         const titleId = `${titleIdPrefix}-${quadrantKey}`;
+        const isFullScreen = quadrantKey === fullScreenQuadrant;
 
         return (
           <Quadrant
@@ -51,6 +60,10 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             isTypingNewTask={taskInputText.trim() !== ''}
             recentlyAddedQuadrant={recentlyAddedQuadrant}
             taskCount={taskCount}
+            fullScreen={isFullScreen ? 'open' : isPhone ? 'closed' : 'off'}
+            onFullScreenChange={(isOpen) =>
+              setFullScreenQuadrantAction(isOpen ? quadrantKey : null)
+            }
           >
             <SortableContext
               items={quadrantTasks}
@@ -69,6 +82,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                       quadrantKey={quadrantKey}
                       index={index}
                       isTabStop={task.id === tabStopId}
+                      isFullText={isFullScreen}
                     />
                     {/* Intermediate and Bottom Insert Zone */}
                     <InsertTaskZone

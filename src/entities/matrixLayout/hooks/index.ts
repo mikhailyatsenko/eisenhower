@@ -1,0 +1,1 @@
+export { useFullScreenQuadrant } from './useFullScreenQuadrant';

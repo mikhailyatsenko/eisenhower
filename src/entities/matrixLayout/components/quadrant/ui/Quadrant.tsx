@@ -1,12 +1,13 @@
 import { useDroppable } from '@dnd-kit/core';
+import { twMerge } from 'tailwind-merge';
 
-import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import {
   openFormWithCategoryAction,
   selectTaskAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
+import { FullScreenMode, QuadrantHeader } from '../../quadrantHeader';
 import { QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
 
@@ -20,6 +21,8 @@ export interface QuadrantProps {
   children: React.ReactNode;
   recentlyAddedQuadrant: MatrixKey | null;
   taskCount: number;
+  fullScreen: FullScreenMode;
+  onFullScreenChange: (isOpen: boolean) => void;
 }
 
 export const Quadrant: React.FC<QuadrantProps> = ({
@@ -30,6 +33,8 @@ export const Quadrant: React.FC<QuadrantProps> = ({
   isTypingNewTask,
   recentlyAddedQuadrant,
   taskCount,
+  fullScreen,
+  onFullScreenChange,
   children,
 }) => {
   const { setNodeRef } = useDroppable({
@@ -39,11 +44,14 @@ export const Quadrant: React.FC<QuadrantProps> = ({
 
   const isNoTasks = taskCount === 0;
 
-  const actionStyles = isTypingNewTask
-    ? orderIndex === 0
-      ? QUADRANT_STYLES.TYPING_NEW_TASK_ACTIVE
-      : QUADRANT_STYLES.TYPING_NEW_TASK_INACTIVE
-    : QUADRANT_STYLES.DEFAULT;
+  const isFullScreen = fullScreen === 'open';
+
+  const actionStyles =
+    isTypingNewTask && !isFullScreen
+      ? orderIndex === 0
+        ? QUADRANT_STYLES.TYPING_NEW_TASK_ACTIVE
+        : QUADRANT_STYLES.TYPING_NEW_TASK_INACTIVE
+      : QUADRANT_STYLES.DEFAULT;
 
   const animateByRecentlyAddedQuadrant =
     recentlyAddedQuadrant === quadrantKey
@@ -64,21 +72,24 @@ export const Quadrant: React.FC<QuadrantProps> = ({
     <div
       ref={setNodeRef}
       style={{ order: orderIndex }}
-      className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${isDragOver ? QUADRANT_STYLES.DRAG_OVER : ''} ${QUADRANT_STYLES.CONTAINER} ${isNoTasks ? 'cursor-pointer' : ''}`}
+      className={twMerge(
+        quadrantStyles[quadrantKey],
+        actionStyles,
+        animateByRecentlyAddedQuadrant,
+        isDragOver && QUADRANT_STYLES.DRAG_OVER,
+        QUADRANT_STYLES.CONTAINER,
+        isNoTasks && 'cursor-pointer',
+        isFullScreen && QUADRANT_STYLES.FULL_SCREEN,
+      )}
       onClick={handleQuadrantClick}
     >
-      <div className={QUADRANT_STYLES.HEADER}>
-        {/* Names the task list, so it holds the title only */}
-        <h2 id={titleId} className={QUADRANT_STYLES.TITLE}>
-          {QUADRANTS[quadrantKey].title}
-        </h2>
-        <span className={QUADRANT_STYLES.COUNT}>
-          <span aria-hidden="true">{taskCount}</span>
-          <span className="sr-only">
-            {taskCount} task{taskCount === 1 ? '' : 's'}
-          </span>
-        </span>
-      </div>
+      <QuadrantHeader
+        quadrantKey={quadrantKey}
+        titleId={titleId}
+        taskCount={taskCount}
+        fullScreen={fullScreen}
+        onFullScreenChange={onFullScreenChange}
+      />
       {children}
     </div>
   );

@@ -19,6 +19,7 @@ export const TaskMatrix: React.FC = () => {
     state.activeState === 'local' ? state.localTasks : state.firebaseTasks,
   );
   const viewMode = useUIStore((state) => state.viewMode);
+  const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
   const matrixRef = useRef<HTMLDivElement>(null);
 
   // Use specific selector to prevent unnecessary re-renders
@@ -89,7 +90,12 @@ export const TaskMatrix: React.FC = () => {
       >
         {viewMode === 'matrix' ? (
           <>
-            {!taskInputText && <TaskMatrixHeaders />}
+            {/* The stored quadrant opens on a phone only, hence max-sm */}
+            {!taskInputText && (
+              <TaskMatrixHeaders
+                isHiddenOnPhone={fullScreenQuadrant !== null}
+              />
+            )}
 
             <InteractWithMatrix
               taskInputText={taskInputText}
