@@ -1,6 +1,7 @@
 import { RefObject, useEffect, useRef } from 'react';
 import { firstTaskId } from '@/entities/matrixLayout';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
+import { isDialogOpen } from '@/shared/lib/isDialogOpen';
 import { isTextField } from '@/shared/lib/isTextField';
 import { Tasks } from '@/shared/stores/tasksStore';
 import {
@@ -18,6 +19,7 @@ interface MatrixKeysOptions extends TaskActionHandlers {
   /** List view has no selection yet (slice N): only the add keys work there */
   isMatrixView: boolean;
   toolbarRef: RefObject<HTMLElement | null>;
+  onShowShortcuts: () => void;
 }
 
 const selectAndFocus = (taskId: string) => {
@@ -27,8 +29,9 @@ const selectAndFocus = (taskId: string) => {
 
 /**
  * The matrix keyboard, one handler for the page: arrows, 1–4, C/Space,
- * E/Enter, Del/Backspace, N and Esc. Keys in a text field or an open dialog
- * are left alone. Until slice G "add" opens the add form.
+ * E/Enter, Del/Backspace, N, Esc and ? for the cheatsheet. Keys in a text
+ * field or an open dialog are left alone. Until slice G "add" opens the add
+ * form.
  */
 export const useMatrixKeys = (options: MatrixKeysOptions) => {
   const optionsRef = useRef(options);
@@ -42,8 +45,7 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       if (event.defaultPrevented || event.ctrlKey || event.metaKey) return;
       if (event.altKey || isTextField(target)) return;
       if (target instanceof HTMLSelectElement) return;
-      // Both the current modal and a native <dialog> opened with showModal()
-      if (document.querySelector('[aria-modal="true"], dialog[open]')) return;
+      if (isDialogOpen()) return;
       // Holding an action key down must not repeat the action
       if (event.repeat && !isArrowKey(key)) return;
 
@@ -56,6 +58,7 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
         onEdit,
         onMove,
         onDelete,
+        onShowShortcuts,
       } = optionsRef.current;
       const letter = keyLetter(event);
       const quadrant = MATRIX_KEYS.find(
@@ -69,6 +72,12 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       // List view keeps only 1–4, as before; its keys come with slice N
       if (!isMatrixView) {
         if (quadrant) handle(() => openFormWithCategoryAction(quadrant));
+        return;
+      }
+
+      // Shift with the ?/ key, whatever it types on the layout
+      if (key === '?' || (event.code === 'Slash' && event.shiftKey)) {
+        handle(onShowShortcuts);
         return;
       }
 

@@ -14,6 +14,7 @@ import {
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { ActionToolbar } from '../components/ActionToolbar';
+import { ShortcutsDialog } from '../components/ShortcutsDialog';
 import { useFocusAfterAction, useMatrixKeys } from '../hooks';
 import { locateTask, neighbourTaskId } from '../lib';
 import { TaskActions, TaskLocation } from '../types';
@@ -46,6 +47,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   // By id: a dialog left open for another task must not pop up on a later selection
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const lastLocation = useRef<TaskLocation | null>(null);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
   const found = locateTask(tasks, selectedTaskId);
   // The selected task has left the matrix (Complete, Delete, a change in the
@@ -115,38 +117,47 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     onEdit: handleEdit,
     onMove: handleMove,
     onDelete: handleDelete,
+    onShowShortcuts: () => setIsShortcutsOpen(true),
   });
-
-  if (!location) return null;
-  const { task, quadrantKey } = location;
 
   const handleSave = (
     editText: string,
     dueDate: Date | null,
     newQuadrant?: MatrixKey,
   ) => {
+    if (!location) return;
+    const { task, quadrantKey } = location;
     editTaskAction(quadrantKey, task.id, editText, dueDate, newQuadrant);
     setEditingTaskId(null);
   };
 
   return (
     <>
-      <ActionToolbar
-        toolbarRef={toolbarRef}
-        location={location}
-        onComplete={handleComplete}
-        onEdit={handleEdit}
-        onMove={handleMove}
-        onDelete={handleDelete}
-      />
+      {location && (
+        <ActionToolbar
+          toolbarRef={toolbarRef}
+          location={location}
+          onComplete={handleComplete}
+          onEdit={handleEdit}
+          onMove={handleMove}
+          onDelete={handleDelete}
+        />
+      )}
 
-      {editingTaskId === task.id && (
+      {location && editingTaskId === location.task.id && (
         <EditTaskDialog
-          task={task}
-          quadrantKey={quadrantKey}
+          task={location.task}
+          quadrantKey={location.quadrantKey}
           onSave={handleSave}
           onClose={() => setEditingTaskId(null)}
+          // Back to the task, wherever the edit has put it, not to the Edit button
+          restoreFocus={() => requestTaskFocusAction(location.task.id)}
         />
+      )}
+
+      {/* ? works with nothing selected too */}
+      {isShortcutsOpen && (
+        <ShortcutsDialog onClose={() => setIsShortcutsOpen(false)} />
       )}
     </>
   );

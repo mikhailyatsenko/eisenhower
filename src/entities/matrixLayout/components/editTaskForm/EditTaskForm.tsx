@@ -1,6 +1,14 @@
 import { addHours, addDays, addWeeks, isValid as isValidDate } from 'date-fns';
-import { useEffect, useId, useState, useRef } from 'react';
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useId,
+  useState,
+  useRef,
+} from 'react';
 import DatePicker from 'react-datepicker';
+import { createPortal } from 'react-dom';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { Task, MatrixKey } from '@/shared/stores/tasksStore';
 import { BUTTON_CANCEL_TEXT, BUTTON_SAVE_TEXT } from '../../consts';
@@ -119,9 +127,6 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
     if (e.key === 'Enter' && !e.shiftKey && isValid) {
       onSave();
     }
-    if (e.key === 'Escape') {
-      handleCancel();
-    }
   };
 
   const onSave = () => {
@@ -138,8 +143,22 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
     }
   };
 
+  // Everything outside a modal <dialog> is inert, so the calendar opens
+  // inside the dialog, which doesn't clip it
+  const formRef = useRef<HTMLFormElement>(null);
+  const [pickerHost, setPickerHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setPickerHost(formRef.current?.closest('dialog') ?? null);
+  }, []);
+  const PickerPopper = useCallback(
+    ({ children }: { children?: ReactNode }) =>
+      createPortal(children, pickerHost ?? document.body),
+    [pickerHost],
+  );
+
   return (
     <form
+      ref={formRef}
       className="flex flex-1 flex-col overflow-hidden"
       autoComplete="off"
       onSubmit={(e) => {
@@ -252,7 +271,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                       deadlineInvalid ? deadlineErrorId : undefined
                     }
                     dateFormat="dd/MM/yyyy"
-                    portalId="datepicker-portal"
+                    popperContainer={PickerPopper}
                     className="w-full rounded-md border border-gray-300 bg-white/50 px-2 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
                     placeholderText="Select date"
                   />
@@ -278,7 +297,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                     timeCaption="Time"
                     dateFormat="HH:mm"
                     timeFormat="HH:mm"
-                    portalId="datepicker-portal"
+                    popperContainer={PickerPopper}
                     className="w-full rounded-md border border-gray-300 bg-white/50 px-2 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
                     placeholderText="Time"
                   />

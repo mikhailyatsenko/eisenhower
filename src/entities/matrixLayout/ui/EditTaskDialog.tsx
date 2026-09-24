@@ -15,6 +15,8 @@ interface EditTaskDialogProps {
     newQuadrant?: MatrixKey,
   ) => void;
   onClose: () => void;
+  /** Where the focus goes on close; by default back to where it was */
+  restoreFocus?: () => void;
 }
 
 /** The usual edit form in a dialog, tinted by the quadrant being picked */
@@ -23,6 +25,7 @@ export const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
   quadrantKey,
   onSave,
   onClose,
+  restoreFocus,
 }) => {
   const [currentQuadrant, setCurrentQuadrant] =
     useState<MatrixKey>(quadrantKey);
@@ -31,6 +34,7 @@ export const EditTaskDialog: React.FC<EditTaskDialogProps> = ({
     <Modal
       label="Edit task"
       onClose={onClose}
+      restoreFocus={restoreFocus}
       width="lg"
       className={twMerge(
         colors[currentQuadrant],

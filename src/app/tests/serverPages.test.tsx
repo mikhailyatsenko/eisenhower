@@ -1,6 +1,6 @@
 import { within } from '@testing-library/react';
 import { renderToString } from 'react-dom/server.node';
-import { SITE_URL } from '@/shared/consts';
+import { MATRIX_SHORTCUTS, SITE_URL } from '@/shared/consts';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts/quadrants';
 import EisenhowerMatrixPage, {
   metadata,
@@ -84,6 +84,30 @@ describe('Server pages', () => {
       expect(cards[0]).toHaveTextContent(
         'e.g. Server is down, tax return due tomorrow',
       );
+    });
+
+    it('explains selection, the action panel, the keys and drag', () => {
+      const page = renderServerHtml(<EisenhowerMatrixPage />);
+      const howTo = within(page).getByRole('region', {
+        name: 'How to use the app',
+      });
+
+      expect(howTo).toHaveTextContent('Click or tap a task to select it');
+      expect(howTo).toHaveTextContent('action panel');
+      expect(howTo).toHaveTextContent('Move to');
+      expect(howTo).toHaveTextContent(
+        'Drag a task to reorder or move it; long-press on touch',
+      );
+      MATRIX_SHORTCUTS.forEach(({ keys, action }) => {
+        keys.forEach((key) =>
+          expect(
+            within(howTo).getAllByText(key, { selector: 'kbd' }).length,
+          ).toBeGreaterThan(0),
+        );
+        expect(howTo).toHaveTextContent(action);
+      });
+      // Selection replaced the hover buttons
+      expect(howTo).not.toHaveTextContent('Hover over a task');
     });
 
     it('ends with a link that opens the matrix', () => {

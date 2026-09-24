@@ -4,12 +4,6 @@
   width: 100%;
 }
 
-/* Ensure the portal container itself is on top */
-#datepicker-portal {
-  position: relative;
-  z-index: 9999 !important;
-}
-
 .react-datepicker-popper {
   z-index: 9999 !important;
 }
