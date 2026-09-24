@@ -176,7 +176,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                 </span>
                 <span
                   id={`${quadrantIdPrefix}-${key}-criteria`}
-                  className="block font-normal opacity-80"
+                  className="block text-[9px] font-normal opacity-80"
                 >
                   {QUADRANTS[key].criteria}
                 </span>

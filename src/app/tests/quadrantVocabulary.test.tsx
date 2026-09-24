@@ -47,6 +47,7 @@ describe('Quadrant vocabulary', () => {
     await user.click(screen.getByRole('button', { name: 'Edit task' }));
 
     expectQuadrantPicker();
+    expect(document.body).not.toHaveTextContent(OLD_NAMES);
   });
 
   it('names only the quadrant in the toast after adding a task', async () => {
