@@ -8,7 +8,7 @@ import {
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { FullScreenMode, QuadrantHeader } from '../../quadrantHeader';
-import { QUADRANT_STYLES } from '../consts';
+import { DRAG_OVER_RING, QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
 
 export interface QuadrantProps {
@@ -76,7 +76,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
         quadrantStyles[quadrantKey],
         actionStyles,
         animateByRecentlyAddedQuadrant,
-        isDragOver && QUADRANT_STYLES.DRAG_OVER,
+        isDragOver && [QUADRANT_STYLES.DRAG_OVER, DRAG_OVER_RING[quadrantKey]],
         QUADRANT_STYLES.CONTAINER,
         isNoTasks && 'cursor-pointer',
         isFullScreen && QUADRANT_STYLES.FULL_SCREEN,
