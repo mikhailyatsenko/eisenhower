@@ -203,7 +203,3 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-
-@custom-variant limitedHeight639 (@media (max-height: 639px));
-
-@custom-variant sm576 (@media (min-width: 576px));

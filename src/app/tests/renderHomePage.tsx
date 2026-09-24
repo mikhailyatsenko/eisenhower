@@ -151,8 +151,6 @@ export interface RenderHomePageOptions {
   tasks?: Partial<Record<MatrixKey, SeedTask[]>>;
   completedTasks?: Task[];
   viewport?: Partial<Viewport>;
-  /** The welcome modal is suppressed unless a test is about it */
-  showWelcome?: boolean;
 }
 
 const SEED_DATE = new Date('2026-09-20T10:00:00.000Z');
@@ -170,7 +168,6 @@ export const renderHomePage = async ({
   tasks = {},
   completedTasks = [],
   viewport: viewportOverrides,
-  showWelcome = false,
 }: RenderHomePageOptions = {}) => {
   // Stores are module singletons: drop what a previous test left behind.
   // Resetting persists the empty state, so it goes before seeding.
@@ -198,9 +195,6 @@ export const renderHomePage = async ({
       version: 0,
     }),
   );
-  if (!showWelcome) {
-    localStorage.setItem('dontShowPopup', 'true');
-  }
 
   await useTaskStore.persist.rehydrate();
   await useUIStore.persist.rehydrate();

@@ -1,57 +1,28 @@
-'use client';
-
 import { ToastContainer } from 'react-toastify';
 
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
 import { SwitchTaskSource } from '@/features/switchTaskSource';
-import { CompletedTasksAccordion } from '@/entities/completedTasksAccordion';
-import {
-  deleteCompletedTaskAction,
-  restoreTaskAction,
-  useTaskStore,
-} from '@/shared/stores/tasksStore';
-import { setRecentlyAddedQuadrantAction } from '@/shared/stores/uiStore';
+import { CompletedTasks } from './CompletedTasks';
+import { SyncGlow } from './SyncGlow';
 
-export const HomePage = () => {
-  const { activeState, localCompletedTasks, firebaseCompletedTasks } =
-    useTaskStore();
-  const completedTasks =
-    activeState === 'local' ? localCompletedTasks : firebaseCompletedTasks;
+// Server component: the h1 is in the HTML before hydration
+export const HomePage = () => (
+  <>
+    <SyncGlow />
+    <SwitchTaskSource />
+    <div className="relative top-6 z-[1] mx-auto w-[calc(100%-48px)] py-6 md:top-0 lg:w-5/6">
+      {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
 
-  const handleRestoreTask = async (taskId: string) => {
-    // Find the task to get its original quadrant for animation
-    const task = completedTasks.find((t) => t.id === taskId);
-    if (task?.quadrantKey) {
-      setRecentlyAddedQuadrantAction(task.quadrantKey);
-    }
-    await restoreTaskAction(taskId);
-  };
+      <h1 className="mt-1 mb-4 text-center text-sm font-medium text-gray-600 md:mt-7 dark:text-gray-400">
+        Eisenhower Matrix — prioritize tasks by urgency and importance
+      </h1>
+      <AddTask />
+      <TaskMatrix />
 
-  return (
-    <>
-      <div
-        className={`fixed inset-0 z-[11] h-10 w-1/2 translate-x-1/2 rounded-full blur-2xl transition-all duration-500 [background:_linear-gradient(45deg,_#ffd324,_#ff4f4f,_#9e71ff)] ${
-          activeState === 'firebase'
-            ? '-translate-y-1/2 opacity-100'
-            : '-translate-y-full opacity-0'
-        }`}
-      ></div>
-      <SwitchTaskSource />
-      <div className="relative top-6 z-[1] mx-auto w-[calc(100%-48px)] py-6 md:top-0 lg:w-5/6">
-        {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
+      <CompletedTasks />
 
-        <AddTask />
-        <TaskMatrix />
-
-        <CompletedTasksAccordion
-          completedTasks={completedTasks}
-          onDeleteTask={deleteCompletedTaskAction}
-          onRestoreTask={handleRestoreTask}
-        />
-
-        <ToastContainer />
-      </div>
-    </>
-  );
-};
+      <ToastContainer />
+    </div>
+  </>
+);
