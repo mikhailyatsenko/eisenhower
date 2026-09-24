@@ -3,7 +3,6 @@ import { useEffect, useId, useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { Task, MatrixKey } from '@/shared/stores/tasksStore';
-import { showToast } from '@/shared/ui/toast';
 import { BUTTON_CANCEL_TEXT, BUTTON_SAVE_TEXT } from '../../consts';
 
 interface EditFormProps {
@@ -59,9 +58,19 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   );
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(true);
+  const [deadlineInvalid, setDeadlineInvalid] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const quadrantIdPrefix = useId();
+  const deadlineErrorId = useId();
+  const deadlineDateId = useId();
+  const deadlineTimeId = useId();
+
+  // Any change of the deadline clears the error shown for the old one
+  const changeDueDate = (date: Date | null) => {
+    setDueDate(date);
+    setDeadlineInvalid(false);
+  };
 
   const autoResizeTextarea = () => {
     const textarea = textareaRef.current;
@@ -89,8 +98,9 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
 
   const toggleDeadline = (enabled: boolean) => {
     setHasDeadline(enabled);
+    setDeadlineInvalid(false);
     if (enabled && !dueDate) {
-      setDueDate(new Date());
+      changeDueDate(new Date());
     }
     if (!enabled) {
       setSelectedPreset(null);
@@ -100,7 +110,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
 
   const setPreset = (date: Date, label: string) => {
     setHasDeadline(true);
-    setDueDate(date);
+    changeDueDate(date);
     setSelectedPreset(label);
     textareaRef.current?.focus();
   };
@@ -119,7 +129,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
 
     if (hasDeadline) {
       if (!dueDate || !isValidDate(dueDate)) {
-        showToast({ message: 'Please select a valid deadline date and time' });
+        setDeadlineInvalid(true);
         return;
       }
       handleSave(editText, dueDate, selectedQuadrant);
@@ -227,12 +237,20 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
               </div>
               <div className="flex gap-2">
                 <div className="w-[135px] shrink-0">
+                  <label htmlFor={deadlineDateId} className="sr-only">
+                    Deadline date
+                  </label>
                   <DatePicker
+                    id={deadlineDateId}
                     selected={dueDate}
                     onChange={(date: Date | null) => {
-                      setDueDate(date);
+                      changeDueDate(date);
                       setSelectedPreset(null);
                     }}
+                    ariaInvalid={deadlineInvalid ? 'true' : undefined}
+                    ariaDescribedBy={
+                      deadlineInvalid ? deadlineErrorId : undefined
+                    }
                     dateFormat="dd/MM/yyyy"
                     portalId="datepicker-portal"
                     className="w-full rounded-md border border-gray-300 bg-white/50 px-2 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
@@ -240,12 +258,20 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                   />
                 </div>
                 <div className="w-[85px] shrink-0">
+                  <label htmlFor={deadlineTimeId} className="sr-only">
+                    Deadline time
+                  </label>
                   <DatePicker
+                    id={deadlineTimeId}
                     selected={dueDate}
                     onChange={(date: Date | null) => {
-                      setDueDate(date);
+                      changeDueDate(date);
                       setSelectedPreset(null);
                     }}
+                    ariaInvalid={deadlineInvalid ? 'true' : undefined}
+                    ariaDescribedBy={
+                      deadlineInvalid ? deadlineErrorId : undefined
+                    }
                     showTimeSelect
                     showTimeSelectOnly
                     timeIntervals={15}
@@ -258,6 +284,15 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                   />
                 </div>
               </div>
+              {deadlineInvalid && (
+                <p
+                  id={deadlineErrorId}
+                  role="alert"
+                  className="mt-1 text-[10px] font-medium text-red-600 dark:text-red-400"
+                >
+                  Please select a valid deadline date and time
+                </p>
+              )}
             </div>
           )}
         </div>

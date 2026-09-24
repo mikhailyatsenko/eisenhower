@@ -103,6 +103,7 @@ export const CompletedTasksAccordion: React.FC<
 > = ({ completedTasks, onDeleteTask, onRestoreTask }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [clearFailed, setClearFailed] = useState(false);
   const accordionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -122,6 +123,7 @@ export const CompletedTasksAccordion: React.FC<
   const handleClearAll = async () => {
     if (isDeleting) return;
 
+    // Until slice O brings its own dialog, the only window.confirm left
     if (
       window.confirm(
         'Are you sure you want to permanently delete all completed tasks?',
@@ -129,9 +131,11 @@ export const CompletedTasksAccordion: React.FC<
     ) {
       try {
         setIsDeleting(true);
+        setClearFailed(false);
         await clearAllCompletedTasksAction();
       } catch (error) {
         console.error('Failed to clear completed tasks:', error);
+        setClearFailed(true);
       } finally {
         setIsDeleting(false);
       }
@@ -156,7 +160,10 @@ export const CompletedTasksAccordion: React.FC<
       className="mx-auto mt-4 mb-28 w-full max-w-2xl"
     >
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setClearFailed(false);
+        }}
         className="flex w-full items-center justify-between rounded-t-lg bg-gray-100 px-4 py-4 transition-colors hover:cursor-pointer hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
       >
         <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">
@@ -200,6 +207,14 @@ export const CompletedTasksAccordion: React.FC<
               completed tasks.
             </span>
           </div>
+          {clearFailed && (
+            <p
+              role="alert"
+              className="mb-3 text-sm font-medium text-red-600 dark:text-red-400"
+            >
+              Couldn&apos;t delete. Try again
+            </p>
+          )}
           <ul className="space-y-2">
             {completedTasks.map((task) => (
               <CompletedTaskItem

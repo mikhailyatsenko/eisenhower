@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { showToast } from '@/shared/ui/toast';
 import { RESTORE_FALLBACK_QUADRANT } from '../consts';
 import { useTaskStore } from '../hooks/useTasksStore';
 import {
@@ -422,27 +421,21 @@ export const deleteCompletedTaskAction = async (
     undoDeleteTaskAction(taskToRestore, true, undefined, indexToRestore);
 };
 
+/** Throws if the cloud refuses; the completed tasks then stay in place */
 export const clearAllCompletedTasksAction = async () => {
   const { activeState } = useTaskStore.getState();
 
-  try {
-    if (activeState === 'firebase') {
-      await clearCompletedTasksFromFirebase();
-    }
-
-    useTaskStore.setState((state) => {
-      if (activeState === 'local') {
-        state.localCompletedTasks = [];
-      } else {
-        state.firebaseCompletedTasks = [];
-      }
-    });
-  } catch (error) {
-    showToast({
-      message: 'Failed to clear completed tasks. Please try again.',
-    });
-    throw error;
+  if (activeState === 'firebase') {
+    await clearCompletedTasksFromFirebase();
   }
+
+  useTaskStore.setState((state) => {
+    if (activeState === 'local') {
+      state.localCompletedTasks = [];
+    } else {
+      state.firebaseCompletedTasks = [];
+    }
+  });
 };
 
 export const copyLocalTasksToFirebaseAction = async () => {
