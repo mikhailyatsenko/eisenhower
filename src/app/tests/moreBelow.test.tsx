@@ -120,13 +120,10 @@ describe('"+N below" on an overflowing quadrant', () => {
   });
 
   it('works at phone width too', async () => {
-    const { user } = await renderHomePage({
+    await renderHomePage({
       tasks: { ImportantUrgent: SIX },
       viewport: { width: 375, pointer: 'coarse' },
     });
-
-    // On a phone only the expanded quadrant shows its list
-    await user.click(screen.getByRole('button', { name: 'Expand' }));
 
     expect(moreBelow()).toHaveAccessibleName('4 more tasks below');
   });

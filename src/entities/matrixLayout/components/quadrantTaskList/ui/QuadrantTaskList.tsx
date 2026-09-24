@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { twMerge } from 'tailwind-merge';
 
 import { useMediaQuery } from '@/shared/hooks';
 import { LIST_STYLES } from '../consts';
@@ -10,14 +9,12 @@ import { MoreBelowButton } from './MoreBelowButton';
 interface QuadrantTaskListProps {
   /** Id of the quadrant title, which names the list */
   labelledBy: string;
-  isExpanded: boolean;
   children: React.ReactNode;
 }
 
 /** A quadrant's scrolling task list with "+N below" when tasks don't fit */
 export const QuadrantTaskList: React.FC<QuadrantTaskListProps> = ({
   labelledBy,
-  isExpanded,
   children,
 }) => {
   const listRef = useRef<HTMLUListElement>(null);
@@ -34,32 +31,17 @@ export const QuadrantTaskList: React.FC<QuadrantTaskListProps> = ({
   };
 
   return (
-    <div
-      className={
-        isExpanded
-          ? LIST_STYLES.WRAPPER_EXPANDED
-          : LIST_STYLES.WRAPPER_COLLAPSED
-      }
-    >
+    <div className={LIST_STYLES.WRAPPER}>
       <ul
         ref={listRef}
         role="listbox"
         aria-labelledby={labelledBy}
         onScroll={recount}
-        className={twMerge(
-          LIST_STYLES.LIST,
-          isExpanded && LIST_STYLES.LIST_EXPANDED,
-        )}
+        className={LIST_STYLES.LIST}
       >
         {children}
       </ul>
-      {count > 0 && (
-        <MoreBelowButton
-          count={count}
-          onClick={scrollDown}
-          className={isExpanded ? LIST_STYLES.MORE_BELOW_EXPANDED : undefined}
-        />
-      )}
+      {count > 0 && <MoreBelowButton count={count} onClick={scrollDown} />}
     </div>
   );
 };

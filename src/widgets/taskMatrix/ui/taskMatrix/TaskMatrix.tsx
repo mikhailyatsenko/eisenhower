@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { useAuth } from '@/shared/api/auth';
-import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
+import { syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { TaskListView } from '../taskListView/TaskListView';
@@ -23,9 +24,6 @@ export const TaskMatrix: React.FC = () => {
   // Use specific selector to prevent unnecessary re-renders
   const taskInputText = useUIStore((state) => state.taskInputText);
 
-  const [expandedQuadrant, setExpandedQuadrant] = useState<MatrixKey | null>(
-    null,
-  );
   const [syncState, setSyncState] = useState<{
     isSyncing: boolean;
     error: string | null;
@@ -83,15 +81,17 @@ export const TaskMatrix: React.FC = () => {
         role="group"
         aria-label="Task matrix"
         tabIndex={-1}
-        className="relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300"
+        // The phone grid's axis labels are small: less room above it
+        className={twMerge(
+          'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
+          viewMode === 'matrix' && 'mt-5 sm:mt-14',
+        )}
       >
         {viewMode === 'matrix' ? (
           <>
-            {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
+            {!taskInputText && <TaskMatrixHeaders />}
 
             <InteractWithMatrix
-              expandedQuadrant={expandedQuadrant}
-              setExpandedQuadrant={setExpandedQuadrant}
               taskInputText={taskInputText}
               moveTask={moveTask}
             />
@@ -110,7 +110,7 @@ export const TaskMatrix: React.FC = () => {
         />
       </div>
 
-      <CopyLocalToCloudButton isExpanded={!!expandedQuadrant} />
+      <CopyLocalToCloudButton />
     </>
   );
 };

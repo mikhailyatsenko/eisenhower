@@ -7,7 +7,6 @@ import {
   selectTaskAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
-import { Buttons } from '../../quadrantButtons/ui/QuadrantButtons';
 import { QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
 
@@ -16,27 +15,21 @@ export interface QuadrantProps {
   /** Id of the title, which names the quadrant's task list */
   titleId: string;
   isDragOver: boolean;
-  isAnimateByExpandQuadrant: boolean;
-  expandedQuadrant: MatrixKey | null;
-  handleToggleExpand: (quadrant: MatrixKey) => void;
   orderIndex: number;
   isTypingNewTask: boolean;
   children: React.ReactNode;
   recentlyAddedQuadrant: MatrixKey | null;
-  isNoTasks: boolean;
+  taskCount: number;
 }
 
 export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
   titleId,
   isDragOver,
-  expandedQuadrant,
-  isAnimateByExpandQuadrant,
-  handleToggleExpand,
   orderIndex,
   isTypingNewTask,
   recentlyAddedQuadrant,
-  isNoTasks,
+  taskCount,
   children,
 }) => {
   const { setNodeRef } = useDroppable({
@@ -44,21 +37,13 @@ export const Quadrant: React.FC<QuadrantProps> = ({
     data: { quadrantKey },
   });
 
-  const isExpandedCurrentQuadrant = expandedQuadrant === quadrantKey;
+  const isNoTasks = taskCount === 0;
 
   const actionStyles = isTypingNewTask
     ? orderIndex === 0
       ? QUADRANT_STYLES.TYPING_NEW_TASK_ACTIVE
       : QUADRANT_STYLES.TYPING_NEW_TASK_INACTIVE
-    : expandedQuadrant === null
-      ? QUADRANT_STYLES.DEFAULT
-      : isExpandedCurrentQuadrant
-        ? QUADRANT_STYLES.EXPANDED
-        : QUADRANT_STYLES.COLLAPSED;
-
-  const animateByExpandQuadrant = isAnimateByExpandQuadrant
-    ? 'animate-from-hide-to-show'
-    : '';
+    : QUADRANT_STYLES.DEFAULT;
 
   const animateByRecentlyAddedQuadrant =
     recentlyAddedQuadrant === quadrantKey
@@ -79,20 +64,22 @@ export const Quadrant: React.FC<QuadrantProps> = ({
     <div
       ref={setNodeRef}
       style={{ order: orderIndex }}
-      className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${animateByExpandQuadrant} ${isDragOver ? QUADRANT_STYLES.DRAG_OVER : ''} ${QUADRANT_STYLES.CONTAINER} ${isNoTasks ? 'cursor-pointer' : ''}`}
+      className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${isDragOver ? QUADRANT_STYLES.DRAG_OVER : ''} ${QUADRANT_STYLES.CONTAINER} ${isNoTasks ? 'cursor-pointer' : ''}`}
       onClick={handleQuadrantClick}
     >
-      <h2 id={titleId} className={QUADRANT_STYLES.TITLE}>
-        {QUADRANTS[quadrantKey].title}
-      </h2>
+      <div className={QUADRANT_STYLES.HEADER}>
+        {/* Names the task list, so it holds the title only */}
+        <h2 id={titleId} className={QUADRANT_STYLES.TITLE}>
+          {QUADRANTS[quadrantKey].title}
+        </h2>
+        <span className={QUADRANT_STYLES.COUNT}>
+          <span aria-hidden="true">{taskCount}</span>
+          <span className="sr-only">
+            {taskCount} task{taskCount === 1 ? '' : 's'}
+          </span>
+        </span>
+      </div>
       {children}
-      {!isTypingNewTask && !isNoTasks && (
-        <Buttons
-          handleToggleExpand={handleToggleExpand}
-          quadrantKey={quadrantKey}
-          isExpandedCurrentQuadrant={isExpandedCurrentQuadrant}
-        />
-      )}
     </div>
   );
 };

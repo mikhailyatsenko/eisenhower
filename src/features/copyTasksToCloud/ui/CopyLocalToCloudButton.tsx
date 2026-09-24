@@ -9,13 +9,7 @@ import {
 } from '@/shared/stores/tasksStore';
 import { showToast } from '@/shared/ui/toast';
 
-interface CopyLocalToCloudButtonProps {
-  isExpanded: boolean;
-}
-
-export const CopyLocalToCloudButton: React.FC<CopyLocalToCloudButtonProps> = ({
-  isExpanded,
-}) => {
+export const CopyLocalToCloudButton: React.FC = () => {
   const { user } = useAuth();
   const {
     activeState,
@@ -35,11 +29,7 @@ export const CopyLocalToCloudButton: React.FC<CopyLocalToCloudButtonProps> = ({
     firebaseCompletedTasks.length === 0;
 
   const shouldShow =
-    !!user &&
-    activeState === 'local' &&
-    hasLocalTasks &&
-    isCloudEmpty &&
-    !isExpanded;
+    !!user && activeState === 'local' && hasLocalTasks && isCloudEmpty;
 
   if (!shouldShow) return null;
 

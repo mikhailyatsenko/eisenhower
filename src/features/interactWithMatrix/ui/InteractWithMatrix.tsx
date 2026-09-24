@@ -11,27 +11,21 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { useEffect } from 'react';
 import { MatrixLayout, TaskDragPreview } from '@/entities/matrixLayout';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 
 import { useDragEvents } from '../lib/hooks';
-import { useQuadrantExpansion } from '../lib/hooks';
 import { useQuadrantOrder } from '../lib/hooks';
 import { useScreenSize } from '../lib/hooks';
 import { MoveTask } from '../types';
 
 interface InteractWithMatrixProps {
-  setExpandedQuadrant: React.Dispatch<React.SetStateAction<MatrixKey | null>>;
-  expandedQuadrant: MatrixKey | null;
   taskInputText: string;
   moveTask: MoveTask;
 }
 
 export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
-  expandedQuadrant,
-  setExpandedQuadrant,
   taskInputText,
   moveTask,
 }) => {
@@ -39,7 +33,6 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   const tasks = activeState === 'local' ? localTasks : firebaseTasks;
 
   const {
-    isDragging,
     dragOverQuadrant,
     activeTaskId,
     handleDragStart,
@@ -61,20 +54,6 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
 
   const { isSmallScreen } = useScreenSize();
 
-  const { isAnimateByExpandQuadrant, handleToggleExpand } =
-    useQuadrantExpansion(expandedQuadrant, setExpandedQuadrant);
-
-  // Auto-collapse empty quadrants
-  useEffect(() => {
-    if (
-      !isDragging &&
-      expandedQuadrant &&
-      tasks[expandedQuadrant].length === 0
-    ) {
-      handleToggleExpand(expandedQuadrant);
-    }
-  }, [tasks, expandedQuadrant, isDragging, handleToggleExpand]);
-
   const quadrantOrder = useQuadrantOrder(taskInputText);
 
   const dropAnimation: DropAnimation | null = isSmallScreen
@@ -94,9 +73,6 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
         tasks={tasks}
         quadrantOrder={quadrantOrder}
         dragOverQuadrant={dragOverQuadrant}
-        expandedQuadrant={expandedQuadrant}
-        isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
-        handleToggleExpand={handleToggleExpand}
         taskInputText={taskInputText}
       />
 

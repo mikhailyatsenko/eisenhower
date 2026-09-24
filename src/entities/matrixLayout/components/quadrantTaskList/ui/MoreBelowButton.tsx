@@ -1,9 +1,6 @@
-import { twMerge } from 'tailwind-merge';
-
 interface MoreBelowButtonProps {
   count: number;
   onClick: () => void;
-  className?: string;
 }
 
 /**
@@ -16,7 +13,6 @@ interface MoreBelowButtonProps {
 export const MoreBelowButton: React.FC<MoreBelowButtonProps> = ({
   count,
   onClick,
-  className,
 }) => (
   <button
     type="button"
@@ -24,10 +20,7 @@ export const MoreBelowButton: React.FC<MoreBelowButtonProps> = ({
     aria-label={`${count} more task${count === 1 ? '' : 's'} below`}
     onMouseDown={(event) => event.preventDefault()}
     onClick={onClick}
-    className={twMerge(
-      "absolute bottom-1 left-1/2 z-3 -translate-x-1/2 cursor-pointer rounded-full bg-gray-900 px-2.5 py-1 text-xs leading-4 font-semibold whitespace-nowrap text-white shadow after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-[''] dark:bg-gray-100 dark:text-gray-900",
-      className,
-    )}
+    className="absolute bottom-1 left-1/2 z-3 -translate-x-1/2 cursor-pointer rounded-full bg-gray-900 px-2.5 py-1 text-xs leading-4 font-semibold whitespace-nowrap text-white shadow after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-[''] dark:bg-gray-100 dark:text-gray-900"
   >
     +{count} below ↓
   </button>

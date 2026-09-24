@@ -10,16 +10,12 @@ import { InsertTaskZone } from '../components/InsertTaskZone';
 import { Quadrant } from '../components/quadrant';
 import { QuadrantTaskList } from '../components/quadrantTaskList';
 import { TaskItem } from '../components/taskItem';
-import { TASK_COUNT_STYLES } from '../consts';
 import { tabStopTaskId } from '../lib';
 
 interface MatrixLayoutProps {
   tasks: Record<MatrixKey, Task[]>;
   quadrantOrder: MatrixKey[];
   dragOverQuadrant: MatrixKey | null;
-  expandedQuadrant: MatrixKey | null;
-  isAnimateByExpandQuadrant: boolean;
-  handleToggleExpand: (quadrant: MatrixKey) => void;
   taskInputText: string;
 }
 
@@ -27,9 +23,6 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   tasks,
   quadrantOrder,
   dragOverQuadrant,
-  expandedQuadrant,
-  isAnimateByExpandQuadrant,
-  handleToggleExpand,
   taskInputText,
 }) => {
   const recentlyAddedQuadrant = useUIStore(
@@ -46,14 +39,10 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
       {MATRIX_KEYS.map((quadrantKey) => {
         const quadrantTasks = tasks[quadrantKey];
         const taskCount = quadrantTasks.length;
-        const taskCountText = `${taskCount} task${taskCount !== 1 ? 's' : ''}`;
         const titleId = `${titleIdPrefix}-${quadrantKey}`;
 
         return (
           <Quadrant
-            isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
-            handleToggleExpand={handleToggleExpand}
-            expandedQuadrant={expandedQuadrant}
             key={quadrantKey}
             quadrantKey={quadrantKey}
             titleId={titleId}
@@ -61,16 +50,13 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             orderIndex={quadrantOrder.indexOf(quadrantKey)}
             isTypingNewTask={taskInputText.trim() !== ''}
             recentlyAddedQuadrant={recentlyAddedQuadrant}
-            isNoTasks={taskCount === 0}
+            taskCount={taskCount}
           >
             <SortableContext
               items={quadrantTasks}
               strategy={verticalListSortingStrategy}
             >
-              <QuadrantTaskList
-                labelledBy={titleId}
-                isExpanded={expandedQuadrant === quadrantKey}
-              >
+              <QuadrantTaskList labelledBy={titleId}>
                 {/* Top Insert Zone */}
                 {taskCount > 0 && (
                   <InsertTaskZone quadrantKey={quadrantKey} index={0} />
@@ -92,16 +78,6 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                   </React.Fragment>
                 ))}
               </QuadrantTaskList>
-
-              <p
-                className={
-                  taskCount === 0
-                    ? TASK_COUNT_STYLES.EMPTY
-                    : TASK_COUNT_STYLES.DEFAULT
-                }
-              >
-                {expandedQuadrant !== quadrantKey && taskCountText}
-              </p>
             </SortableContext>
           </Quadrant>
         );
