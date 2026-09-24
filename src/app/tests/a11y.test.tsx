@@ -1,5 +1,4 @@
-import { axe as axeWithAllRules } from 'jest-axe';
-import { axe, KNOWN_VIOLATIONS } from './axe';
+import { axe, axeWithAllRules, KNOWN_VIOLATIONS } from './axe';
 import { renderHomePage } from './renderHomePage';
 
 const renderSeededHomePage = () =>
@@ -25,5 +24,14 @@ describe('Home page accessibility', () => {
     const violatedRules = violations.map(({ id }) => id);
 
     expect(violatedRules.sort()).toEqual(Object.keys(KNOWN_VIOLATIONS).sort());
+    violations.forEach(({ id, nodes }) => {
+      const allowedNodes = KNOWN_VIOLATIONS[id].nodes;
+      if (allowedNodes !== undefined) {
+        expect({ rule: id, nodes: nodes.length }).toEqual({
+          rule: id,
+          nodes: allowedNodes,
+        });
+      }
+    });
   });
 });
