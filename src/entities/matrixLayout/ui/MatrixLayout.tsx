@@ -8,8 +8,9 @@ import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { InsertTaskZone } from '../components/InsertTaskZone';
 import { Quadrant } from '../components/quadrant';
+import { QuadrantTaskList } from '../components/quadrantTaskList';
 import { TaskItem } from '../components/taskItem';
-import { LIST_STYLES, TASK_COUNT_STYLES } from '../consts';
+import { TASK_COUNT_STYLES } from '../consts';
 import { tabStopTaskId } from '../lib';
 
 interface MatrixLayoutProps {
@@ -66,14 +67,9 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
               items={quadrantTasks}
               strategy={verticalListSortingStrategy}
             >
-              <ul
-                role="listbox"
-                aria-labelledby={titleId}
-                className={
-                  expandedQuadrant === quadrantKey
-                    ? LIST_STYLES.EXPANDED
-                    : LIST_STYLES.COLLAPSED
-                }
+              <QuadrantTaskList
+                labelledBy={titleId}
+                isExpanded={expandedQuadrant === quadrantKey}
               >
                 {/* Top Insert Zone */}
                 {taskCount > 0 && (
@@ -95,7 +91,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                     />
                   </React.Fragment>
                 ))}
-              </ul>
+              </QuadrantTaskList>
 
               <p
                 className={

@@ -23,16 +23,6 @@ export const TASK_COUNT_STYLES = {
     'text-foreground absolute top-0 left-1 z-0 text-7xl opacity-15 select-none sm:top-1 sm:left-6 sm:text-sm sm:opacity-50 sm:!text-7xl sm:!opacity-25',
 } as const;
 
-// List styles
-export const LIST_STYLES = {
-  DEFAULT:
-    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto px-1 sm:flex',
-  EXPANDED:
-    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto flex pb-8 px-1 sm:flex',
-  COLLAPSED:
-    'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto hidden px-1 sm:flex',
-} as const;
-
 // Task card background per quadrant
 export const colors: Record<MatrixKey, string> = {
   ImportantUrgent: 'bg-red-300 dark:bg-red-900/40',
