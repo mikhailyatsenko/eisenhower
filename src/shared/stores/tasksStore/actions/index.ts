@@ -115,10 +115,12 @@ export const editTaskAction = async (
   }
 };
 
+/** Drag preview: moves the task on screen only, without sync or Undo */
 export const dragOverQuadrantAction = (
   taskId: string,
   fromQuadrant: MatrixKey,
   toQuadrant: MatrixKey,
+  index?: number,
 ) => {
   useTaskStore.setState((state) => {
     const tasks =
@@ -132,7 +134,11 @@ export const dragOverQuadrantAction = (
 
     if (activeIndex !== -1) {
       const [movedTask] = activeItems.splice(activeIndex, 1);
-      overItems.push(movedTask);
+      if (typeof index === 'number') {
+        overItems.splice(index, 0, movedTask);
+      } else {
+        overItems.push(movedTask);
+      }
     }
   });
 };
@@ -151,6 +157,55 @@ export const dragEndAction = async (newTasks: Tasks) => {
     const state = useTaskStore.getState();
     await syncTasksToFirebase(newTasks, state.firebaseCompletedTasks);
   }
+};
+
+/**
+ * Moves a task to another quadrant, at `index` or to the end.
+ * Resolves to the revert, or undefined if the task isn't there or already
+ * in that quadrant.
+ */
+export const moveTaskAction = async (
+  fromQuadrant: MatrixKey,
+  taskId: string,
+  toQuadrant: MatrixKey,
+  index?: number,
+): Promise<Revert | undefined> => {
+  if (fromQuadrant === toQuadrant) return;
+
+  const { activeState } = useTaskStore.getState();
+  let originalIndex: number | undefined;
+
+  useTaskStore.setState((state) => {
+    const tasks =
+      activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const taskIndex = tasks[fromQuadrant].findIndex(
+      (t: Task) => t.id === taskId,
+    );
+    if (taskIndex === -1) return;
+
+    originalIndex = taskIndex;
+    const [task] = tasks[fromQuadrant].splice(taskIndex, 1);
+    if (typeof index === 'number') {
+      tasks[toQuadrant].splice(index, 0, task);
+    } else {
+      tasks[toQuadrant].push(task);
+    }
+  });
+
+  if (originalIndex === undefined) return;
+
+  if (activeState === 'firebase') {
+    const state = useTaskStore.getState();
+    await syncTasksToFirebase(
+      state.firebaseTasks,
+      state.firebaseCompletedTasks,
+    );
+  }
+
+  const indexToRestore = originalIndex;
+  return async () => {
+    await moveTaskAction(toQuadrant, taskId, fromQuadrant, indexToRestore);
+  };
 };
 
 /** Resolves to the revert, or undefined if the task isn't there */

@@ -1,4 +1,6 @@
 import { act, fireEvent, screen, within } from '@testing-library/react';
+import { moveTask } from '@/features/undo';
+import { Task } from '@/shared/stores/tasksStore';
 import { axe } from './axe';
 import { renderHomePage } from './renderHomePage';
 
@@ -363,6 +365,98 @@ describe('Undo shortcut', () => {
 
     await user.keyboard('{Meta>}z{/Meta}');
     expect(taskTexts()).toEqual(TASKS);
+  });
+});
+
+const completed = (id: string, text: string): Task => ({
+  id,
+  text,
+  createdAt: new Date('2026-09-20T10:00:00.000Z'),
+  completedAt: new Date('2026-09-21T10:00:00.000Z'),
+  completed: true,
+  quadrantKey: 'ImportantNotUrgent',
+});
+
+/** Task texts in the quadrant with this title, top to bottom */
+const tasksIn = (title: string) => {
+  const quadrant = screen.getByRole('heading', { name: title }).parentElement!;
+  // Cards are sortable, so their role is "button", not "listitem"
+  return Array.from(quadrant.querySelectorAll('li')).map((card) =>
+    TASKS.find((task) => within(card).queryByText(task)),
+  );
+};
+
+describe('Undo for Move and Restore', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('moves a task to another quadrant and puts it back in place on Undo', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await act(() =>
+      moveTask('ImportantUrgent', 'ImportantUrgent-1', 'ImportantNotUrgent'),
+    );
+
+    expect(tasksIn('Do First')).toEqual(['Alpha', 'Charlie']);
+    expect(tasksIn('Schedule')).toEqual(['Bravo']);
+    expect(toast()).toHaveTextContent('Moved to Schedule');
+
+    await user.click(undoButton());
+
+    expect(tasksIn('Do First')).toEqual(TASKS);
+    expect(tasksIn('Schedule')).toEqual([]);
+    expect(toast()).toBeEmptyDOMElement();
+    expect(document.activeElement).toContainElement(screen.getByText('Bravo'));
+  });
+
+  it('shows no toast when the task is already in that quadrant', async () => {
+    await renderHomePage({ tasks: { ImportantUrgent: TASKS } });
+
+    await act(() =>
+      moveTask('ImportantUrgent', 'ImportantUrgent-1', 'ImportantUrgent'),
+    );
+
+    expect(tasksIn('Do First')).toEqual(TASKS);
+    expect(toast()).toBeEmptyDOMElement();
+  });
+
+  it('restores a completed task and returns it to Completed in place on Undo', async () => {
+    const { user } = await renderHomePage({
+      completedTasks: [
+        completed('done-1', 'Alpha'),
+        completed('done-2', 'Bravo'),
+        completed('done-3', 'Charlie'),
+      ],
+    });
+
+    await user.click(
+      screen.getByRole('button', { name: /completed tasks \(3\)/i }),
+    );
+    const bravo = screen.getByText('Bravo').closest('li')!;
+    await user.click(
+      within(bravo).getByRole('button', { name: 'Restore task' }),
+    );
+
+    expect(toast()).toHaveTextContent('Restored to Schedule');
+    expect(tasksIn('Schedule')).toEqual(['Bravo']);
+
+    await user.click(undoButton());
+
+    expect(tasksIn('Schedule')).toEqual([]);
+    const completedList = screen.getByText('Alpha').closest('ul')!;
+    expect(
+      within(completedList)
+        .getAllByText(/^(Alpha|Bravo|Charlie)$/)
+        .map((element) => element.textContent),
+    ).toEqual(TASKS);
+    expect(document.activeElement).toContainElement(screen.getByText('Bravo'));
   });
 });
 

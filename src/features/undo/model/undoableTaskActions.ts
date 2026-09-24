@@ -6,6 +6,7 @@ import {
   completeTaskAction,
   deleteCompletedTaskAction,
   deleteTaskAction,
+  moveTaskAction,
   restoreTaskAction,
 } from '@/shared/stores/tasksStore';
 import { performUndoable } from './performUndoable';
@@ -28,6 +29,18 @@ export const deleteCompletedTask = (taskId: string) =>
   performUndoable({
     message: 'Task deleted',
     perform: () => deleteCompletedTaskAction(taskId),
+    focusTaskId: taskId,
+  });
+
+export const moveTask = (
+  fromQuadrant: MatrixKey,
+  taskId: string,
+  toQuadrant: MatrixKey,
+  index?: number,
+) =>
+  performUndoable({
+    message: `Moved to ${QUADRANTS[toQuadrant].title}`,
+    perform: () => moveTaskAction(fromQuadrant, taskId, toQuadrant, index),
     focusTaskId: taskId,
   });
 

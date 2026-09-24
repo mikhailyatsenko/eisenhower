@@ -22,6 +22,7 @@ import { useDragEvents } from '../lib/hooks';
 import { useQuadrantExpansion } from '../lib/hooks';
 import { useQuadrantOrder } from '../lib/hooks';
 import { useScreenSize } from '../lib/hooks';
+import { MoveTask } from '../types';
 
 interface InteractWithMatrixProps {
   setExpandedQuadrant: React.Dispatch<React.SetStateAction<MatrixKey | null>>;
@@ -29,6 +30,7 @@ interface InteractWithMatrixProps {
   taskInputText: string;
   completeTask: (quadrantKey: MatrixKey, taskId: string) => void;
   deleteTask: (quadrantKey: MatrixKey, taskId: string) => void;
+  moveTask: MoveTask;
 }
 
 export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
@@ -37,6 +39,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   taskInputText,
   completeTask,
   deleteTask,
+  moveTask,
 }) => {
   const { activeState, localTasks, firebaseTasks } = useTaskStore();
   const tasks = activeState === 'local' ? localTasks : firebaseTasks;
@@ -48,7 +51,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     handleDragStart,
     handleDragOver,
     handleDragEnd,
-  } = useDragEvents(tasks);
+    handleDragCancel,
+  } = useDragEvents(moveTask);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -89,6 +93,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
     >
       <MatrixLayout
         tasks={tasks}
