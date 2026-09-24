@@ -55,6 +55,8 @@ export const openFormWithCategoryAction = (
 export const setViewModeAction = (viewMode: 'matrix' | 'list') => {
   useUIStore.setState((state) => {
     state.viewMode = viewMode;
+    // Selection lives in the matrix only, until List view gets it (slice N)
+    state.selectedTaskId = null;
   });
 };
 
@@ -73,5 +75,11 @@ export const setSortDirectionAction = (direction: 'asc' | 'desc') => {
 export const requestTaskFocusAction = (taskId: string | null) => {
   useUIStore.setState((state) => {
     state.taskToFocus = taskId;
+  });
+};
+
+export const selectTaskAction = (taskId: string | null) => {
+  useUIStore.setState((state) => {
+    state.selectedTaskId = taskId;
   });
 };

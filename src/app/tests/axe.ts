@@ -14,12 +14,6 @@ interface KnownViolation {
 export const KNOWN_VIOLATIONS: Record<string, KnownViolation> = {
   // X1: the theme toggle has no accessible name; slice L (R3) names it.
   'button-name': { finding: 'X1', nodes: 1 },
-  // X2: the task card is a dnd-kit role="button" with buttons and links inside
-  'nested-interactive': { finding: 'X2' },
-  // X2: role="button" isn't allowed on the card's <li>
-  'aria-allowed-role': { finding: 'X2' },
-  // X2: with role="button" the cards stop being list items of the quadrant <ul>
-  list: { finding: 'X2' },
 };
 
 const runAxe = configureAxe();

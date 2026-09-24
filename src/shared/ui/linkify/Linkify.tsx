@@ -21,7 +21,6 @@ export const Linkify: React.FC<LinkifyProps> = ({ text }) => {
               rel="noopener noreferrer"
               className="break-all text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={(e) => e.stopPropagation()}
-              data-no-dnd="true"
             >
               {part}
             </a>

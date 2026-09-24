@@ -1,3 +1,8 @@
-export { MatrixLayout } from './ui';
+export {
+  EditTaskDialog,
+  ListTaskItem,
+  MatrixLayout,
+  TaskDragPreview,
+} from './ui';
 export { EditTaskForm } from './components/editTaskForm';
-export { TaskItem, colors } from './components/taskItem';
+export { colors } from './consts';

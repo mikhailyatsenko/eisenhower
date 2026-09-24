@@ -309,7 +309,6 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
             type="button"
             onClick={handleCancel}
             className="cursor-pointer rounded-md px-4 py-2 text-xs font-bold text-gray-600 transition-colors hover:bg-black/5 active:scale-95 dark:text-gray-400 dark:hover:bg-white/5"
-            data-no-dnd="true"
           >
             {BUTTON_CANCEL_TEXT}
           </button>
@@ -318,7 +317,6 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
             className={`cursor-pointer rounded-md bg-indigo-600 px-6 py-2 text-xs font-bold text-white transition-all hover:bg-indigo-700 active:scale-95 dark:bg-indigo-500 dark:hover:bg-indigo-600 ${
               !isValid ? 'pointer-events-none opacity-30' : ''
             }`}
-            data-no-dnd="true"
             disabled={!isValid}
           >
             {BUTTON_SAVE_TEXT}
@@ -346,7 +344,6 @@ const PresetButton = ({
         ? 'bg-white/60 text-indigo-700 shadow-sm dark:bg-gray-600 dark:text-white'
         : 'bg-white/30 text-gray-600 hover:bg-white/50 dark:bg-gray-800/30 dark:text-gray-300 dark:hover:bg-gray-800/50'
     }`}
-    data-no-dnd="true"
   >
     {label}
   </button>

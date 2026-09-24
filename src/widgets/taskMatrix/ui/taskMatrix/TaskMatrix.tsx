@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
+import { TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { useAuth } from '@/shared/api/auth';
 import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
@@ -84,6 +85,11 @@ export const TaskMatrix: React.FC = () => {
               expandedQuadrant={expandedQuadrant}
               setExpandedQuadrant={setExpandedQuadrant}
               taskInputText={taskInputText}
+              moveTask={moveTask}
+            />
+
+            <TaskActionPanel
+              tasks={tasks}
               completeTask={completeTask}
               deleteTask={deleteTask}
               moveTask={moveTask}

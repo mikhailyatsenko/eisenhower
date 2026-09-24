@@ -23,13 +23,18 @@ const advance = (ms: number) =>
     jest.advanceTimersByTime(ms);
   });
 
-const deleteTask = async (
-  user: Awaited<ReturnType<typeof renderHomePage>>['user'],
-  text: string,
-) => {
-  const card = screen.getByText(text).closest('li')!;
-  await user.click(within(card).getByRole('button', { name: 'Delete task' }));
+type User = Awaited<ReturnType<typeof renderHomePage>>['user'];
+
+/** Selects the task and presses an action in its toolbar */
+const actOnTask = async (user: User, text: string, action: string) => {
+  await user.click(screen.getByRole('option', { name: text }));
+  await user.click(
+    within(screen.getByRole('toolbar')).getByRole('button', { name: action }),
+  );
 };
+
+const deleteTask = (user: User, text: string) =>
+  actOnTask(user, text, 'Delete');
 
 describe('Undo toast', () => {
   let confirm: jest.SpyInstance;
@@ -70,10 +75,7 @@ describe('Undo toast', () => {
       tasks: { ImportantUrgent: TASKS },
     });
 
-    const card = screen.getByText('Alpha').closest('li')!;
-    await user.click(
-      within(card).getByRole('button', { name: 'Mark as completed' }),
-    );
+    await actOnTask(user, 'Alpha', 'Complete');
 
     expect(toast()).toHaveTextContent('Task completed');
     expect(toast()).not.toHaveTextContent(/successfully/i);
@@ -214,9 +216,11 @@ describe('Undo toast', () => {
     const undo = undoButton();
     const completed = screen.getByRole('button', { name: /completed tasks/i });
 
+    // Bravo is selected now: start from its toolbar at the end of the matrix
     act(() => {
-      const card = screen.getByText('Bravo').closest('li')!;
-      within(card).getByRole('button', { name: 'Delete task' }).focus();
+      within(screen.getByRole('toolbar'))
+        .getByRole('button', { name: 'Delete' })
+        .focus();
     });
     // Past the rest of the matrix, Undo comes before the Completed section
     for (let i = 0; i < 10; i += 1) {
@@ -244,7 +248,7 @@ describe('Undo toast', () => {
       tasks: { ImportantUrgent: ['Alpha'] },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Edit task' }));
+    await actOnTask(user, 'Alpha', 'Edit');
     await user.type(screen.getByRole('textbox'), ' draft');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -380,7 +384,6 @@ const completed = (id: string, text: string): Task => ({
 /** Task texts in the quadrant with this title, top to bottom */
 const tasksIn = (title: string) => {
   const quadrant = screen.getByRole('heading', { name: title }).parentElement!;
-  // Cards are sortable, so their role is "button", not "listitem"
   return Array.from(quadrant.querySelectorAll('li')).map((card) =>
     TASKS.find((task) => within(card).queryByText(task)),
   );

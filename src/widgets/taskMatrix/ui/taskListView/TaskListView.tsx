@@ -1,7 +1,7 @@
 'use client';
 
 import { completeTask, deleteTask } from '@/features/undo';
-import { TaskItem } from '@/entities/matrixLayout';
+import { ListTaskItem } from '@/entities/matrixLayout';
 import { editTaskAction, MatrixKey, Task } from '@/shared/stores/tasksStore';
 import {
   setSortDirectionAction,
@@ -76,16 +76,14 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks }) => {
       </div>
 
       <ul className="w-full max-w-2xl">
-        {sortedTasks.map((task, index) => (
-          <TaskItem
+        {sortedTasks.map((task) => (
+          <ListTaskItem
             key={task.id}
             task={task}
             quadrantKey={task.quadrantKey}
-            index={index}
             editTaskAction={editTaskAction}
             deleteTaskAction={deleteTask}
             completeTaskAction={completeTask}
-            disableDnd={true}
           />
         ))}
         {sortedTasks.length === 0 && (
