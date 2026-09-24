@@ -1,7 +1,7 @@
-import { MatrixQuadrants } from '../consts';
+import type { MatrixKey } from '@/shared/consts';
 import { LOCAL_STATE_KEY, CLOUD_STATE_KEY } from '../consts';
 
-export type MatrixKey = keyof typeof MatrixQuadrants;
+export type { MatrixKey };
 
 export interface Task {
   id: string;

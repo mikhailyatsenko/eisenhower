@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MatrixKey } from '@/shared/stores/tasksStore';
+import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import {
   openFormWithCategoryAction,
   useUIStore,
@@ -20,21 +20,12 @@ export const useKeyboardShortcuts = () => {
       }
 
       // 1-4 keys to open add task modal in specific quadrant
-      if (
-        event.key === '1' ||
-        event.key === '2' ||
-        event.key === '3' ||
-        event.key === '4'
-      ) {
+      const quadrant = MATRIX_KEYS.find(
+        (key) => QUADRANTS[key].shortcut === event.key,
+      );
+      if (quadrant) {
         event.preventDefault(); // Fix Firefox search trigger
-        if (event.key === '1')
-          openFormWithCategoryAction('ImportantUrgent' as MatrixKey);
-        if (event.key === '2')
-          openFormWithCategoryAction('ImportantNotUrgent' as MatrixKey);
-        if (event.key === '3')
-          openFormWithCategoryAction('NotImportantUrgent' as MatrixKey);
-        if (event.key === '4')
-          openFormWithCategoryAction('NotImportantNotUrgent' as MatrixKey);
+        openFormWithCategoryAction(quadrant);
       }
 
       // Alt + S to toggle analytics

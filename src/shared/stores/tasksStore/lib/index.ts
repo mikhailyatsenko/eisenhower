@@ -10,12 +10,12 @@ import {
   DocumentData,
 } from 'firebase/firestore';
 import { db, auth } from '@/shared/config/firebaseConfig';
-import { MatrixQuadrantKeys } from '../consts';
+import { MATRIX_KEYS } from '@/shared/consts';
 import { Tasks, Task, FirestoreTaskData } from '../types';
 
 export const getEmptyTasksState = (): Tasks => {
-  return MatrixQuadrantKeys.reduce<Tasks>((acc, quadrant) => {
-    acc[quadrant as keyof Tasks] = [];
+  return MATRIX_KEYS.reduce<Tasks>((acc, quadrant) => {
+    acc[quadrant] = [];
     return acc;
   }, {} as Tasks);
 };
