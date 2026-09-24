@@ -1,8 +1,5 @@
-import {
-  useTaskStore,
-  MatrixKey,
-  MatrixQuadrantKeys,
-} from '@/shared/stores/tasksStore';
+import { MATRIX_KEYS } from '@/shared/consts';
+import { useTaskStore, MatrixKey } from '@/shared/stores/tasksStore';
 
 export const useAnalytics = () => {
   const {
@@ -22,7 +19,7 @@ export const useAnalytics = () => {
   const totalCompleted = completedTasks.length;
   const totalAll = totalActive + totalCompleted;
 
-  const rawStats = MatrixQuadrantKeys.map((key) => {
+  const rawStats = MATRIX_KEYS.map((key) => {
     const activeInQuadrant = activeTasks[key as MatrixKey].length;
     const completedInQuadrant = completedTasks.filter(
       (t) => t.quadrantKey === key,
