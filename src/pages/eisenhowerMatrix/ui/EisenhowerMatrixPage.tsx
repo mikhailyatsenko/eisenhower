@@ -145,6 +145,25 @@ export const EisenhowerMatrixPage = () => (
         </li>
       </ul>
       <h3 className="pt-2 font-semibold text-gray-900 dark:text-gray-100">
+        On a phone
+      </h3>
+      <ul className="list-disc space-y-2 pl-5">
+        <li>
+          All four quadrants fit on one screen. Tap a quadrant&apos;s title to
+          open it full screen, and Back to matrix to see all four again.
+        </li>
+        <li>
+          Tap a task to select it. The panel at the bottom of the screen has
+          Complete, Edit and Delete, and under them Move to, laid out as a small
+          matrix: tap the quadrant the task should go to. Tap the task again or
+          an empty spot in its quadrant to close the panel.
+        </li>
+        <li>
+          To drag a task, press and hold it until it lifts, then move it to
+          another place or quadrant.
+        </li>
+      </ul>
+      <h3 className="pt-2 font-semibold text-gray-900 dark:text-gray-100">
         Keyboard
       </h3>
       <p>

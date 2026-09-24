@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { MATRIX_KEYS } from '@/shared/consts';
-import { useMediaQuery } from '@/shared/hooks';
+import { useIsPhone } from '@/shared/hooks';
 import { Tasks } from '@/shared/stores/tasksStore';
 import {
   setFullScreenQuadrantAction,
@@ -13,7 +13,7 @@ import {
  * in sight: when they are in another quadrant, that quadrant opens instead.
  */
 export const useFullScreenQuadrant = (tasks: Tasks) => {
-  const isPhone = useMediaQuery('(max-width: 639px)');
+  const isPhone = useIsPhone();
   const openQuadrant = useUIStore((state) => state.fullScreenQuadrant);
   const selectedTaskId = useUIStore((state) => state.selectedTaskId);
   const recentlyAddedQuadrant = useUIStore(
