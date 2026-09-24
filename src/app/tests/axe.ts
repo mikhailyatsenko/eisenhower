@@ -13,8 +13,6 @@ interface KnownViolation {
  */
 export const KNOWN_VIOLATIONS: Record<string, KnownViolation> = {
   // X1: the theme toggle has no accessible name; slice L (R3) names it.
-  // The account part of X1 is a <div>, so axe doesn't see it at all:
-  // slice C covers it with a role query instead.
   'button-name': { finding: 'X1', nodes: 1 },
   // X2: the task card is a dnd-kit role="button" with buttons and links inside
   'nested-interactive': { finding: 'X2' },

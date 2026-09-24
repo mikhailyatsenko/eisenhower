@@ -39,26 +39,24 @@ describe('AuthIndicator', () => {
   it('bubble button opens and closes', () => {
     render(<AuthIndicator {...defaultProps} isSignedIn={false} />);
 
-    expect(screen.getByTestId('icon-when-closed')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByTestId('bubble-corner-button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(screen.getByText(/sign in with Google/i)).toBeInTheDocument();
 
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.getByTestId('icon-when-closed')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
   });
 
-  it('renders user information when signed in', () => {
+  it('names the avatar button after the signed-in account', () => {
     render(<AuthIndicator {...defaultProps} isSignedIn={true} />);
 
-    fireEvent.click(screen.getByTestId('bubble-corner-button'));
+    fireEvent.click(screen.getByRole('button', { name: 'John Doe' }));
     expect(screen.getByText(/Logged in as John Doe/i)).toBeInTheDocument();
   });
 
   it('calls handleGoogleSignIn when sign in button is clicked', () => {
     render(<AuthIndicator {...defaultProps} isSignedIn={false} />);
 
-    fireEvent.click(screen.getByTestId('bubble-corner-button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
     fireEvent.click(screen.getByText(/sign in with Google/i));
     expect(defaultProps.handleGoogleSignIn).toHaveBeenCalled();
   });
@@ -66,7 +64,7 @@ describe('AuthIndicator', () => {
   it('calls handleLogout when logout button is clicked', () => {
     render(<AuthIndicator {...defaultProps} isSignedIn={true} />);
 
-    fireEvent.click(screen.getByTestId('bubble-corner-button'));
+    fireEvent.click(screen.getByRole('button', { name: 'John Doe' }));
     fireEvent.click(screen.getByText(/Logout/i));
     expect(defaultProps.handleLogout).toHaveBeenCalled();
   });
@@ -100,7 +98,7 @@ describe('AuthIndicator', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('bubble-corner-button'));
+    fireEvent.click(screen.getByRole('button', { name: 'John Doe' }));
 
     expect(screen.getAllByText('0')).toHaveLength(2);
     expect(screen.getAllByText('2')).toHaveLength(2);
@@ -117,7 +115,7 @@ describe('AuthIndicator', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('bubble-corner-button'));
+    fireEvent.click(screen.getByRole('button', { name: 'John Doe' }));
     expect(screen.getByAltText('User profile')).toBeInTheDocument();
   });
 });

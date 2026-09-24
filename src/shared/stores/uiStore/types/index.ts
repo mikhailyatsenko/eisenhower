@@ -5,7 +5,6 @@ export interface UIState {
   taskInputText: string;
   recentlyAddedQuadrant: MatrixKey | null;
   isFormOpened: boolean;
-  isAnalyticsOpened: boolean;
   taskInsertIndex: number | null;
   viewMode: 'matrix' | 'list';
   sortField: 'createdAt' | 'importance';

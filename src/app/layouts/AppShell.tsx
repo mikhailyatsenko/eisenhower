@@ -1,7 +1,6 @@
 import { Auth } from '@/features/auth/ui/Auth';
 import { ViewToggle } from '@/features/switchViewMode';
 import { ThemeToggle } from '@/features/toggleTheme';
-import { ViewAnalytics } from '@/features/viewAnalytics';
 import { WelcomeModal } from '@/entities/welcomeModal';
 import { Footer } from '@/shared/ui/footer';
 import { ClientShortcuts } from './ClientShortcuts';
@@ -21,7 +20,6 @@ export const AppShell = ({ children, serverThemeCookie }: AppShellProps) => (
       <Auth />
       <ThemeToggle serverThemeCookie={serverThemeCookie} />
       <ViewToggle />
-      <ViewAnalytics />
       <WelcomeModal />
       {children}
     </main>

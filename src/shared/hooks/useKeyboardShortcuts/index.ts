@@ -1,10 +1,6 @@
 import { useEffect } from 'react';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
-import {
-  openFormWithCategoryAction,
-  useUIStore,
-  setIsAnalyticsOpenedAction,
-} from '@/shared/stores/uiStore';
+import { openFormWithCategoryAction } from '@/shared/stores/uiStore';
 
 export const useKeyboardShortcuts = () => {
   useEffect(() => {
@@ -26,13 +22,6 @@ export const useKeyboardShortcuts = () => {
       if (quadrant) {
         event.preventDefault(); // Fix Firefox search trigger
         openFormWithCategoryAction(quadrant);
-      }
-
-      // Alt + S to toggle analytics
-      if (event.altKey && event.key.toLowerCase() === 's') {
-        event.preventDefault();
-        const { isAnalyticsOpened } = useUIStore.getState();
-        setIsAnalyticsOpenedAction(!isAnalyticsOpened);
       }
     };
 
