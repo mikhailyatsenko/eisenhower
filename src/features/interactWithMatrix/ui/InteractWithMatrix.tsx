@@ -27,12 +27,16 @@ interface InteractWithMatrixProps {
   setExpandedQuadrant: React.Dispatch<React.SetStateAction<MatrixKey | null>>;
   expandedQuadrant: MatrixKey | null;
   taskInputText: string;
+  completeTask: (quadrantKey: MatrixKey, taskId: string) => void;
+  deleteTask: (quadrantKey: MatrixKey, taskId: string) => void;
 }
 
 export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   expandedQuadrant,
   setExpandedQuadrant,
   taskInputText,
+  completeTask,
+  deleteTask,
 }) => {
   const { activeState, localTasks, firebaseTasks } = useTaskStore();
   const tasks = activeState === 'local' ? localTasks : firebaseTasks;
@@ -94,6 +98,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
         isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
         handleToggleExpand={handleToggleExpand}
         taskInputText={taskInputText}
+        completeTask={completeTask}
+        deleteTask={deleteTask}
       />
 
       <DragOverlay dropAnimation={dropAnimation}>

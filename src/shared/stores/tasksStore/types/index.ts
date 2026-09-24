@@ -36,3 +36,6 @@ export interface FirestoreTaskData {
   completed?: boolean;
   completedAt?: string;
 }
+
+/** Puts things back as they were before an action */
+export type Revert = () => Promise<void>;

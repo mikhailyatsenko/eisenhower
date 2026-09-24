@@ -1,8 +1,7 @@
-import { ToastContainer } from 'react-toastify';
-
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
 import { SwitchTaskSource } from '@/features/switchTaskSource';
+import { ToastRegion } from '@/shared/ui/toast';
 import { CompletedTasks } from './CompletedTasks';
 import { SyncGlow } from './SyncGlow';
 
@@ -19,10 +18,10 @@ export const HomePage = () => (
       </h1>
       <AddTask />
       <TaskMatrix />
+      {/* Right after the matrix: Undo is the next Tab stop */}
+      <ToastRegion />
 
       <CompletedTasks />
-
-      <ToastContainer />
     </div>
   </>
 );

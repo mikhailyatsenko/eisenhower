@@ -1,9 +1,9 @@
 import { addHours, addDays, addWeeks, isValid as isValidDate } from 'date-fns';
 import { useEffect, useId, useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
-import { toast } from 'react-toastify';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { Task, MatrixKey } from '@/shared/stores/tasksStore';
+import { showToast } from '@/shared/ui/toast';
 import { BUTTON_CANCEL_TEXT, BUTTON_SAVE_TEXT } from '../../consts';
 
 interface EditFormProps {
@@ -119,7 +119,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
 
     if (hasDeadline) {
       if (!dueDate || !isValidDate(dueDate)) {
-        toast.error('Please select a valid deadline date and time');
+        showToast({ message: 'Please select a valid deadline date and time' });
         return;
       }
       handleSave(editText, dueDate, selectedQuadrant);

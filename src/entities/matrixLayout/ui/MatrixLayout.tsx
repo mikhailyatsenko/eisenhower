@@ -5,11 +5,7 @@ import {
 import React from 'react';
 import { MATRIX_KEYS } from '@/shared/consts';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
-import {
-  editTaskAction,
-  deleteTaskAction,
-  completeTaskAction,
-} from '@/shared/stores/tasksStore';
+import { editTaskAction } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { InsertTaskZone } from '../components/InsertTaskZone';
 import { Quadrant } from '../components/quadrant';
@@ -24,6 +20,8 @@ interface MatrixLayoutProps {
   isAnimateByExpandQuadrant: boolean;
   handleToggleExpand: (quadrant: MatrixKey) => void;
   taskInputText: string;
+  completeTask: (quadrantKey: MatrixKey, taskId: string) => void;
+  deleteTask: (quadrantKey: MatrixKey, taskId: string) => void;
 }
 
 export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
@@ -34,6 +32,8 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   isAnimateByExpandQuadrant,
   handleToggleExpand,
   taskInputText,
+  completeTask,
+  deleteTask,
 }) => {
   const { recentlyAddedQuadrant } = useUIStore();
 
@@ -76,9 +76,9 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                 {quadrantTasks.map((task, index) => (
                   <React.Fragment key={task.id}>
                     <TaskItem
-                      deleteTaskAction={deleteTaskAction}
+                      deleteTaskAction={deleteTask}
                       editTaskAction={editTaskAction}
-                      completeTaskAction={completeTaskAction}
+                      completeTaskAction={completeTask}
                       task={task}
                       quadrantKey={quadrantKey}
                       index={index}

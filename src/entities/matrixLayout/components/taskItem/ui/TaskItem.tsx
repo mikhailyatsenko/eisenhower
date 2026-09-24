@@ -1,14 +1,14 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import CheckIcon from '@/shared/icons/check-icon.svg';
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { Task } from '@/shared/stores/tasksStore';
-import { useUIStore } from '@/shared/stores/uiStore';
+import { useTaskFocusRequest, useUIStore } from '@/shared/stores/uiStore';
 import { Linkify } from '@/shared/ui/linkify';
 import { Modal } from '@/shared/ui/modal';
 import { isTouchDevice } from '@/shared/utils/isTouchDevice';
@@ -71,6 +71,13 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     disabled: isEditing,
   });
 
+  const itemRef = useRef<HTMLLIElement | null>(null);
+  useTaskFocusRequest(task.id, itemRef);
+  const setItemRef = (node: HTMLLIElement | null) => {
+    itemRef.current = node;
+    setNodeRef(node);
+  };
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -79,10 +86,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      if (deleteTaskAction && quadrantKey) {
-        deleteTaskAction(quadrantKey, task.id);
-      }
+    if (deleteTaskAction && quadrantKey) {
+      deleteTaskAction(quadrantKey, task.id);
     }
   };
 
@@ -119,7 +124,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   return (
     <>
       <li
-        ref={setNodeRef}
+        ref={setItemRef}
         {...listeners}
         {...attributes}
         style={style}

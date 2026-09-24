@@ -11,3 +11,7 @@
 - [ ] `window.confirm` у «Delete all» остаётся до среза O, где появится свой диалог. Это единственный оставшийся `window.confirm`.
 - [ ] Toast «All local tasks copied to cloud» идёт через тот же слот без Undo, пока в срезе K не уберут «Copy to Cloud».
 - [ ] Тест на главном seam: при отказе очистки облака сообщение видно в блоке Completed, toast нет.
+
+## Comments
+
+Из тикета 07: после удаления `react-toastify` сообщения об ошибках идут через единственный слот `showToast` из `@/shared/ui/toast` без Undo. Это `clearAllCompletedTasksAction` («Failed to clear completed tasks…») и валидация дедлайна в `EditTaskForm` («Please select a valid deadline date and time»). Второе тоже error-toast, его нужно куда-то перенести (например, в текст ошибки у поля формы).

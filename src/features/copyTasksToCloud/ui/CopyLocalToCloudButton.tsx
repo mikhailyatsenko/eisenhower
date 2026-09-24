@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/shared/api/auth';
-import { showToastNotificationByCopyTasks } from '@/shared/lib/toastNotifications';
 import {
   useTaskStore,
   switchToFirebaseTasks,
   copyLocalTasksToFirebaseAction,
 } from '@/shared/stores/tasksStore';
+import { showToast } from '@/shared/ui/toast';
 
 interface CopyLocalToCloudButtonProps {
   isExpanded: boolean;
@@ -48,7 +48,7 @@ export const CopyLocalToCloudButton: React.FC<CopyLocalToCloudButtonProps> = ({
     setIsCopying(true);
     try {
       await copyLocalTasksToFirebaseAction();
-      showToastNotificationByCopyTasks();
+      showToast({ message: 'All local tasks copied to cloud' });
       switchToFirebaseTasks();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {

@@ -1,13 +1,8 @@
 'use client';
 
+import { completeTask, deleteTask } from '@/features/undo';
 import { TaskItem } from '@/entities/matrixLayout';
-import {
-  completeTaskAction,
-  deleteTaskAction,
-  editTaskAction,
-  MatrixKey,
-  Task,
-} from '@/shared/stores/tasksStore';
+import { editTaskAction, MatrixKey, Task } from '@/shared/stores/tasksStore';
 import {
   setSortDirectionAction,
   setSortFieldAction,
@@ -88,8 +83,8 @@ export const TaskListView: React.FC<TaskListViewProps> = ({ tasks }) => {
             quadrantKey={task.quadrantKey}
             index={index}
             editTaskAction={editTaskAction}
-            deleteTaskAction={deleteTaskAction}
-            completeTaskAction={completeTaskAction}
+            deleteTaskAction={deleteTask}
+            completeTaskAction={completeTask}
             disableDnd={true}
           />
         ))}

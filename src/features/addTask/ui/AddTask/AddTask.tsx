@@ -7,7 +7,7 @@ import { MATRIX_KEYS } from '@/shared/consts';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { addTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
+import { addTaskAction } from '@/shared/stores/tasksStore';
 import {
   setRecentlyAddedQuadrantAction,
   setIsFormOpenedAction,
@@ -15,7 +15,6 @@ import {
 } from '@/shared/stores/uiStore';
 
 import { Modal } from '@/shared/ui/modal';
-import { showToastNotificationByAddTask } from '../../lib/toastNotifications';
 
 export const AddTask = () => {
   const { selectedCategory, isFormOpened } = useUIStore();
@@ -42,9 +41,6 @@ export const AddTask = () => {
 
     if (taskId) {
       setRecentlyAddedQuadrantAction(finalQuadrant);
-      showToastNotificationByAddTask(finalQuadrant, false, () =>
-        deleteTaskAction(finalQuadrant, taskId, true),
-      );
     }
     setIsFormOpenedAction(false);
   };

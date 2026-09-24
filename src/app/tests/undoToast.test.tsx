@@ -1,0 +1,263 @@
+import { act, fireEvent, screen, within } from '@testing-library/react';
+import { axe } from './axe';
+import { renderHomePage } from './renderHomePage';
+
+// Whole-page flows with axe run past the default 5 s on a cold pre-commit run
+jest.setTimeout(20_000);
+
+const TASKS = ['Alpha', 'Bravo', 'Charlie'];
+
+const taskTexts = () =>
+  screen
+    .getAllByText(/^(Alpha|Bravo|Charlie)$/)
+    .map((element) => element.textContent);
+
+const toast = () => screen.getByRole('status', { name: 'Notifications' });
+
+const advance = (ms: number) =>
+  act(async () => {
+    jest.advanceTimersByTime(ms);
+  });
+
+const deleteTask = async (
+  user: Awaited<ReturnType<typeof renderHomePage>>['user'],
+  text: string,
+) => {
+  const card = screen.getByText(text).closest('li')!;
+  await user.click(within(card).getByRole('button', { name: 'Delete task' }));
+};
+
+describe('Undo toast', () => {
+  let confirm: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    confirm = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    // Nothing asks for confirmation up front: Undo replaces it
+    expect(confirm).not.toHaveBeenCalled();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('deletes at once and restores the task to its position on Undo', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Bravo');
+
+    expect(taskTexts()).toEqual(['Alpha', 'Charlie']);
+    expect(toast()).toHaveTextContent('Task deleted');
+
+    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+
+    expect(taskTexts()).toEqual(TASKS);
+    // No toast after Undo itself
+    expect(toast()).toBeEmptyDOMElement();
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toContainElement(screen.getByText('Bravo'));
+  });
+
+  it('completes a task with an Undo that brings it back in place', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    const card = screen.getByText('Alpha').closest('li')!;
+    await user.click(
+      within(card).getByRole('button', { name: 'Mark as completed' }),
+    );
+
+    expect(toast()).toHaveTextContent('Task completed');
+    expect(toast()).not.toHaveTextContent(/successfully/i);
+
+    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+
+    expect(taskTexts()).toEqual(TASKS);
+    expect(document.activeElement).toContainElement(screen.getByText('Alpha'));
+  });
+
+  it('deletes a completed task without confirm and restores it on Undo', async () => {
+    const { user } = await renderHomePage({
+      completedTasks: [
+        {
+          id: 'done-1',
+          text: 'Old report',
+          createdAt: new Date('2026-09-20T10:00:00.000Z'),
+          completedAt: new Date('2026-09-21T10:00:00.000Z'),
+          completed: true,
+          quadrantKey: 'ImportantUrgent',
+        },
+      ],
+    });
+
+    await user.click(
+      screen.getByRole('button', { name: /completed tasks \(1\)/i }),
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Delete permanently' }),
+    );
+
+    expect(screen.queryByText('Old report')).not.toBeInTheDocument();
+    expect(toast()).toHaveTextContent('Task deleted');
+
+    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+
+    expect(screen.getByText('Old report')).toBeInTheDocument();
+    expect(document.activeElement).toContainElement(
+      screen.getByText('Old report'),
+    );
+  });
+
+  it('replaces the previous toast, and Undo reverts only the last action', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+    await deleteTask(user, 'Charlie');
+
+    expect(screen.getAllByText('Task deleted')).toHaveLength(1);
+
+    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+
+    expect(taskTexts()).toEqual(['Bravo', 'Charlie']);
+  });
+
+  it('hides the toast after 6 seconds', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+    await advance(5900);
+    expect(toast()).toHaveTextContent('Task deleted');
+
+    await advance(200);
+    expect(toast()).toBeEmptyDOMElement();
+  });
+
+  it('holds the toast while hovered', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+    await user.hover(screen.getByText('Task deleted'));
+    await advance(10_000);
+    expect(toast()).toHaveTextContent('Task deleted');
+
+    await user.unhover(screen.getByText('Task deleted'));
+    await advance(6100);
+    expect(toast()).toBeEmptyDOMElement();
+  });
+
+  it('holds the toast while Undo has focus', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+    act(() => within(toast()).getByRole('button', { name: 'Undo' }).focus());
+    await advance(10_000);
+
+    expect(toast()).toHaveTextContent('Task deleted');
+  });
+
+  it('holds the toast while the user is on another tab', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+    fireEvent.blur(window);
+    await advance(10_000);
+    expect(toast()).toHaveTextContent('Task deleted');
+
+    fireEvent.focus(window);
+    await advance(6100);
+    expect(toast()).toBeEmptyDOMElement();
+  });
+
+  it('is not closed by Escape', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+    await user.keyboard('{Escape}');
+
+    expect(toast()).toHaveTextContent('Task deleted');
+  });
+
+  it('reaches Undo by Tab right after the matrix', async () => {
+    const { user } = await renderHomePage({
+      tasks: { NotImportantNotUrgent: ['Alpha', 'Bravo'] },
+      completedTasks: [
+        {
+          id: 'done-1',
+          text: 'Old report',
+          createdAt: new Date('2026-09-20T10:00:00.000Z'),
+          completed: true,
+        },
+      ],
+    });
+
+    await deleteTask(user, 'Alpha');
+    const undo = within(toast()).getByRole('button', { name: 'Undo' });
+    const completed = screen.getByRole('button', { name: /completed tasks/i });
+
+    act(() => {
+      const card = screen.getByText('Bravo').closest('li')!;
+      within(card).getByRole('button', { name: 'Delete task' }).focus();
+    });
+    // Past the rest of the matrix, Undo comes before the Completed section
+    for (let i = 0; i < 10; i += 1) {
+      if (undo === document.activeElement) break;
+      expect(completed).not.toHaveFocus();
+      await user.tab();
+    }
+
+    expect(undo).toHaveFocus();
+  });
+
+  it('adds a task silently', async () => {
+    const { user } = await renderHomePage();
+
+    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.type(screen.getByRole('textbox'), 'Book the venue');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(screen.getByText('Book the venue')).toBeInTheDocument();
+    expect(toast()).toBeEmptyDOMElement();
+  });
+
+  it('edits a task silently', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: ['Alpha'] },
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Edit task' }));
+    await user.type(screen.getByRole('textbox'), ' draft');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(screen.getByText('Alpha draft')).toBeInTheDocument();
+    expect(toast()).toBeEmptyDOMElement();
+  });
+});
+
+describe('Undo toast accessibility', () => {
+  it('has no axe violations while a toast is shown', async () => {
+    const { user, container } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+
+    expect(toast()).toHaveTextContent('Task deleted');
+    expect(await axe(container)).toHaveNoViolations();
+  });
+});
