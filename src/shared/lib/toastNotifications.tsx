@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { QUADRANT_TITLES } from '@/shared/consts';
+import { QUADRANTS } from '@/shared/consts';
 import CloseIcon from '@/shared/icons/close-icon.svg';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 
@@ -51,7 +51,7 @@ export const showToastNotificationByAddTask = (
   isRestored: boolean = false,
   onUndo?: () => void | Promise<void>,
 ) => {
-  const message = `Task successfully ${isRestored ? 'restored' : `added to "${QUADRANT_TITLES[quadrant]}"`}`;
+  const message = `Task successfully ${isRestored ? 'restored' : `added to "${QUADRANTS[quadrant].title}"`}`;
   toast(
     ({ closeToast }) => (
       <ToastContent message={message} onUndo={onUndo} closeToast={closeToast} />

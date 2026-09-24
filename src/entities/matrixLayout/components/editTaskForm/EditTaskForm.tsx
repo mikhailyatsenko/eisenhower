@@ -1,8 +1,9 @@
 import { addHours, addDays, addWeeks, isValid as isValidDate } from 'date-fns';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useId, useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import { toast } from 'react-toastify';
-import { Task, MatrixKey, MatrixQuadrants } from '@/shared/stores/tasksStore';
+import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
+import { Task, MatrixKey } from '@/shared/stores/tasksStore';
 import { BUTTON_CANCEL_TEXT, BUTTON_SAVE_TEXT } from '../../consts';
 
 interface EditFormProps {
@@ -60,6 +61,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   const [isValid, setIsValid] = useState(true);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const quadrantIdPrefix = useId();
 
   const autoResizeTextarea = () => {
     const textarea = textareaRef.current;
@@ -156,10 +158,12 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
             Quadrant
           </label>
           <div className="grid grid-cols-2 gap-2">
-            {(Object.keys(MatrixQuadrants) as MatrixKey[]).map((key) => (
+            {MATRIX_KEYS.map((key) => (
               <button
                 key={key}
                 type="button"
+                aria-labelledby={`${quadrantIdPrefix}-${key}-title`}
+                aria-describedby={`${quadrantIdPrefix}-${key}-criteria`}
                 onClick={() => handleQuadrantClick(key)}
                 className={`rounded-md border p-2 text-left text-[10px] font-bold transition-all ${
                   selectedQuadrant === key
@@ -167,7 +171,15 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                     : quadrantButtonStyles[key].inactive
                 }`}
               >
-                {MatrixQuadrants[key]}
+                <span id={`${quadrantIdPrefix}-${key}-title`} className="block">
+                  {QUADRANTS[key].title}
+                </span>
+                <span
+                  id={`${quadrantIdPrefix}-${key}-criteria`}
+                  className="block font-normal opacity-80"
+                >
+                  {QUADRANTS[key].criteria}
+                </span>
               </button>
             ))}
           </div>

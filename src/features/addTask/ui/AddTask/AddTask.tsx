@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { FloatButton } from '@/entities/addTaskForm';
 import { EditTaskForm } from '@/entities/matrixLayout/components/editTaskForm';
 import { colors } from '@/entities/matrixLayout/components/taskItem/ui/TaskItem';
+import { MATRIX_KEYS } from '@/shared/consts';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 
-import { MatrixKey, MatrixQuadrants } from '@/shared/stores/tasksStore';
+import { MatrixKey } from '@/shared/stores/tasksStore';
 import { addTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
 import {
   setRecentlyAddedQuadrantAction,
@@ -53,17 +54,12 @@ export const AddTask = () => {
   const { firebaseTasks, localTasks } = useTaskStore();
 
   useEffect(() => {
-    let empty = true;
-    for (const key in MatrixQuadrants) {
-      if (
-        localTasks[key as MatrixKey].length !== 0 ||
-        firebaseTasks[key as MatrixKey].length !== 0
-      ) {
-        empty = false;
-        break;
-      }
-    }
-    setInNoTasks(empty);
+    setInNoTasks(
+      MATRIX_KEYS.every(
+        (key) =>
+          localTasks[key].length === 0 && firebaseTasks[key].length === 0,
+      ),
+    );
   }, [localTasks, firebaseTasks]);
 
   return (
