@@ -19,6 +19,8 @@ export interface QuadrantVocabulary {
   criteria: string;
   /** Keyboard shortcut that opens the add form in this quadrant */
   shortcut: '1' | '2' | '3' | '4';
+  /** Typical tasks that belong here, starting with "e.g." */
+  examples: string;
 }
 
 export const QUADRANTS: Record<MatrixKey, QuadrantVocabulary> = {
@@ -26,20 +28,24 @@ export const QUADRANTS: Record<MatrixKey, QuadrantVocabulary> = {
     title: 'Do First',
     criteria: 'Important & urgent',
     shortcut: '1',
+    examples: 'e.g. Server is down, tax return due tomorrow',
   },
   ImportantNotUrgent: {
     title: 'Schedule',
     criteria: 'Important, not urgent',
     shortcut: '2',
+    examples: 'e.g. Exercise, learn a new skill, plan next quarter',
   },
   NotImportantUrgent: {
     title: 'Delegate',
     criteria: 'Not important, urgent',
     shortcut: '3',
+    examples: 'e.g. Book the flights, answer routine emails, most meetings',
   },
   NotImportantNotUrgent: {
     title: 'Eliminate',
     criteria: 'Not important, not urgent',
     shortcut: '4',
+    examples: 'e.g. Endless scrolling, reorganizing files nobody opens',
   },
 };

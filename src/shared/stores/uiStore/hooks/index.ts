@@ -13,6 +13,7 @@ const initialState: UIState = {
   viewMode: 'matrix',
   sortField: 'importance',
   sortDirection: 'desc',
+  taskToFocus: null,
 };
 
 export const useUIStore = create<UIState>()(

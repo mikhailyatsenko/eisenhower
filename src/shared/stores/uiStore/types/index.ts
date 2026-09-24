@@ -9,4 +9,6 @@ export interface UIState {
   viewMode: 'matrix' | 'list';
   sortField: 'createdAt' | 'importance';
   sortDirection: 'asc' | 'desc';
+  /** Task whose card takes focus once it's rendered, e.g. after Undo */
+  taskToFocus: string | null;
 }

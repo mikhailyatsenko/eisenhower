@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { FloatButton } from '@/entities/addTaskForm';
-import { EditTaskForm } from '@/entities/matrixLayout/components/editTaskForm';
-import { colors } from '@/entities/matrixLayout/components/taskItem/ui/TaskItem';
+import { colors, EditTaskForm } from '@/entities/matrixLayout';
 import { MATRIX_KEYS } from '@/shared/consts';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { addTaskAction, deleteTaskAction } from '@/shared/stores/tasksStore';
+import { addTaskAction } from '@/shared/stores/tasksStore';
 import {
   setRecentlyAddedQuadrantAction,
   setIsFormOpenedAction,
@@ -16,7 +15,6 @@ import {
 } from '@/shared/stores/uiStore';
 
 import { Modal } from '@/shared/ui/modal';
-import { showToastNotificationByAddTask } from '../../lib/toastNotifications';
 
 export const AddTask = () => {
   const { selectedCategory, isFormOpened } = useUIStore();
@@ -43,9 +41,6 @@ export const AddTask = () => {
 
     if (taskId) {
       setRecentlyAddedQuadrantAction(finalQuadrant);
-      showToastNotificationByAddTask(finalQuadrant, false, () =>
-        deleteTaskAction(finalQuadrant, taskId, true),
-      );
     }
     setIsFormOpenedAction(false);
   };
@@ -71,6 +66,7 @@ export const AddTask = () => {
       />
       {isFormOpened && (
         <Modal
+          label="New task"
           onClose={() => setIsFormOpenedAction(false)}
           width="lg"
           className={`${colors[currentQuadrant]} border-none p-6 shadow-2xl transition-colors duration-300`}

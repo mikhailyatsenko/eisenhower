@@ -6,6 +6,8 @@ import { useScrollLock } from '@/shared/hooks/useScrollLock';
 
 interface ModalProps {
   children: ReactNode;
+  /** Accessible name of the dialog */
+  label: string;
   onClose: () => void;
   className?: string;
   width?: 'lg' | 'xl' | '2xl';
@@ -19,6 +21,7 @@ const widthClasses = {
 
 export const Modal = ({
   children,
+  label,
   onClose,
   className,
   width = 'lg',
@@ -57,6 +60,9 @@ export const Modal = ({
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div
         ref={contentRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
         className={`animate-from-bottom-appear text-foreground relative mx-auto flex h-fit max-h-[calc(100dvh-40px)] w-full ${widthClasses[width]} flex-col items-center rounded-xl opacity-0 shadow-2xl [animation-duration:_0.2s] ${className || 'bg-gray-50 dark:bg-gray-900'}`}
         onClick={(e) => e.stopPropagation()}
       >

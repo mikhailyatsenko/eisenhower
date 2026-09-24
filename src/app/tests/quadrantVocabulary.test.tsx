@@ -50,16 +50,24 @@ describe('Quadrant vocabulary', () => {
     expect(document.body).not.toHaveTextContent(OLD_NAMES);
   });
 
-  it('names only the quadrant in the toast after adding a task', async () => {
-    const { user } = await renderHomePage();
+  it('names only the quadrant in the toast after restoring a task', async () => {
+    const { user } = await renderHomePage({
+      completedTasks: [
+        {
+          id: 'done-1',
+          text: 'Book the venue',
+          createdAt: new Date('2026-09-20T10:00:00.000Z'),
+          completed: true,
+          quadrantKey: 'NotImportantUrgent',
+        },
+      ],
+    });
 
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-    await user.click(screen.getByRole('button', { name: 'Delegate' }));
-    await user.type(screen.getByRole('textbox'), 'Book the venue');
-    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await user.click(screen.getByRole('button', { name: /completed tasks/i }));
+    await user.click(screen.getByRole('button', { name: 'Restore task' }));
 
     expect(
-      await screen.findByText('Task successfully added to "Delegate"'),
-    ).toBeInTheDocument();
+      screen.getByRole('status', { name: 'Notifications' }),
+    ).toHaveTextContent('Restored to Delegate');
   });
 });

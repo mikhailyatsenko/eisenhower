@@ -9,6 +9,7 @@ import {
 } from '@/shared/stores/tasksStore';
 import { getEmptyTasksState } from '@/shared/stores/tasksStore/lib';
 import { useUIStore } from '@/shared/stores/uiStore';
+import { dismissToast } from '@/shared/ui/toast';
 import { AppShell } from '../layouts/AppShell';
 
 // These mocks apply to modules loaded after this file: a test imports
@@ -151,8 +152,6 @@ export interface RenderHomePageOptions {
   tasks?: Partial<Record<MatrixKey, SeedTask[]>>;
   completedTasks?: Task[];
   viewport?: Partial<Viewport>;
-  /** The welcome modal is suppressed unless a test is about it */
-  showWelcome?: boolean;
 }
 
 const SEED_DATE = new Date('2026-09-20T10:00:00.000Z');
@@ -170,12 +169,12 @@ export const renderHomePage = async ({
   tasks = {},
   completedTasks = [],
   viewport: viewportOverrides,
-  showWelcome = false,
 }: RenderHomePageOptions = {}) => {
   // Stores are module singletons: drop what a previous test left behind.
   // Resetting persists the empty state, so it goes before seeding.
   useTaskStore.setState(useTaskStore.getInitialState(), true);
   useUIStore.setState(useUIStore.getInitialState(), true);
+  dismissToast();
   localStorage.clear();
   mediaQueryLists.clear();
   viewport = { ...DESKTOP, ...viewportOverrides };
@@ -183,6 +182,7 @@ export const renderHomePage = async ({
   window.matchMedia = matchMedia;
   // jsdom doesn't implement scrolling
   window.scrollTo = () => {};
+  Element.prototype.scrollIntoView = () => {};
 
   const localTasks = getEmptyTasksState();
   (Object.keys(tasks) as MatrixKey[]).forEach((key) => {
@@ -198,14 +198,18 @@ export const renderHomePage = async ({
       version: 0,
     }),
   );
-  if (!showWelcome) {
-    localStorage.setItem('dontShowPopup', 'true');
-  }
 
   await useTaskStore.persist.rehydrate();
   await useUIStore.persist.rehydrate();
 
-  const user = userEvent.setup();
+  // With jest.useFakeTimers() user-event waits on the fake clock, so it has to move it
+  const user = userEvent.setup({
+    advanceTimers: (ms) => {
+      if (jest.isMockFunction(setTimeout) || 'clock' in setTimeout) {
+        jest.advanceTimersByTime(ms);
+      }
+    },
+  });
   const result = render(
     <AppShell serverThemeCookie="light">
       <HomePage />

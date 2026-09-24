@@ -1,1 +1,1 @@
-export { TaskItem } from './ui/TaskItem';
+export { TaskItem, colors } from './ui/TaskItem';

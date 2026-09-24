@@ -13,7 +13,7 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect } from 'react';
 import { MatrixLayout } from '@/entities/matrixLayout';
-import { TaskItem } from '@/entities/matrixLayout/components/taskItem';
+import { TaskItem } from '@/entities/matrixLayout';
 import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
@@ -22,17 +22,24 @@ import { useDragEvents } from '../lib/hooks';
 import { useQuadrantExpansion } from '../lib/hooks';
 import { useQuadrantOrder } from '../lib/hooks';
 import { useScreenSize } from '../lib/hooks';
+import { MoveTask } from '../types';
 
 interface InteractWithMatrixProps {
   setExpandedQuadrant: React.Dispatch<React.SetStateAction<MatrixKey | null>>;
   expandedQuadrant: MatrixKey | null;
   taskInputText: string;
+  completeTask: (quadrantKey: MatrixKey, taskId: string) => void;
+  deleteTask: (quadrantKey: MatrixKey, taskId: string) => void;
+  moveTask: MoveTask;
 }
 
 export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   expandedQuadrant,
   setExpandedQuadrant,
   taskInputText,
+  completeTask,
+  deleteTask,
+  moveTask,
 }) => {
   const { activeState, localTasks, firebaseTasks } = useTaskStore();
   const tasks = activeState === 'local' ? localTasks : firebaseTasks;
@@ -44,7 +51,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     handleDragStart,
     handleDragOver,
     handleDragEnd,
-  } = useDragEvents(tasks);
+    handleDragCancel,
+  } = useDragEvents(moveTask);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -85,6 +93,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
     >
       <MatrixLayout
         tasks={tasks}
@@ -94,6 +103,8 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
         isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
         handleToggleExpand={handleToggleExpand}
         taskInputText={taskInputText}
+        completeTask={completeTask}
+        deleteTask={deleteTask}
       />
 
       <DragOverlay dropAnimation={dropAnimation}>

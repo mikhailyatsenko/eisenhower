@@ -69,3 +69,9 @@ export const setSortDirectionAction = (direction: 'asc' | 'desc') => {
     state.sortDirection = direction;
   });
 };
+
+export const requestTaskFocusAction = (taskId: string | null) => {
+  useUIStore.setState((state) => {
+    state.taskToFocus = taskId;
+  });
+};
