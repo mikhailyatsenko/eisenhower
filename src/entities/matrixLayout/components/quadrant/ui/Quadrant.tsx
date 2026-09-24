@@ -1,6 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
 
-import { QUADRANT_TITLES } from '@/shared/consts';
+import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { openFormWithCategoryAction } from '@/shared/stores/uiStore';
 import { Buttons } from '../../quadrantButtons/ui/QuadrantButtons';
@@ -71,7 +71,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
       className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${animateByExpandQuadrant} ${isDragOver ? QUADRANT_STYLES.DRAG_OVER : ''} ${QUADRANT_STYLES.CONTAINER} ${isNoTasks ? 'cursor-pointer' : ''}`}
       onClick={handleQuadrantClick}
     >
-      <h2 className={QUADRANT_STYLES.TITLE}>{QUADRANT_TITLES[quadrantKey]}</h2>
+      <h2 className={QUADRANT_STYLES.TITLE}>{QUADRANTS[quadrantKey].title}</h2>
       {children}
       {!isTypingNewTask && !isNoTasks && (
         <Buttons

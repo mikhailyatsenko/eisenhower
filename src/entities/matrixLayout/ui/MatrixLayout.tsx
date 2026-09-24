@@ -3,7 +3,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import React from 'react';
-import { MatrixKey, MatrixQuadrants, Task } from '@/shared/stores/tasksStore';
+import { MATRIX_KEYS } from '@/shared/consts';
+import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 import {
   editTaskAction,
   deleteTaskAction,
@@ -38,8 +39,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
 
   return (
     <>
-      {Object.entries(MatrixQuadrants).map(([key]) => {
-        const quadrantKey = key as MatrixKey;
+      {MATRIX_KEYS.map((quadrantKey) => {
         const quadrantTasks = tasks[quadrantKey];
         const taskCount = quadrantTasks.length;
         const taskCountText = `${taskCount} task${taskCount !== 1 ? 's' : ''}`;
@@ -49,9 +49,9 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
             handleToggleExpand={handleToggleExpand}
             expandedQuadrant={expandedQuadrant}
-            key={key}
+            key={quadrantKey}
             quadrantKey={quadrantKey}
-            isDragOver={dragOverQuadrant === key}
+            isDragOver={dragOverQuadrant === quadrantKey}
             orderIndex={quadrantOrder.indexOf(quadrantKey)}
             isTypingNewTask={taskInputText.trim() !== ''}
             recentlyAddedQuadrant={recentlyAddedQuadrant}
@@ -63,7 +63,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             >
               <ul
                 className={
-                  expandedQuadrant === key
+                  expandedQuadrant === quadrantKey
                     ? LIST_STYLES.EXPANDED
                     : LIST_STYLES.COLLAPSED
                 }
@@ -99,7 +99,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                     : TASK_COUNT_STYLES.DEFAULT
                 }
               >
-                {expandedQuadrant !== key && taskCountText}
+                {expandedQuadrant !== quadrantKey && taskCountText}
               </p>
             </SortableContext>
           </Quadrant>

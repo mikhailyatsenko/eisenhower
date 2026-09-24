@@ -1,5 +1,6 @@
 import React from 'react';
-import { MatrixQuadrants, MatrixKey } from '@/shared/stores/tasksStore';
+import { QUADRANTS } from '@/shared/consts';
+import { MatrixKey } from '@/shared/stores/tasksStore';
 import { Modal } from '@/shared/ui/modal';
 import { useAnalytics } from '../lib/useAnalytics';
 
@@ -82,22 +83,22 @@ export const AnalyticsModal: React.FC<AnalyticsModalProps> = ({ onClose }) => {
             </h3>
             <div className="mx-auto grid aspect-square w-full max-w-md grid-cols-2 gap-2 sm:aspect-video sm:max-w-none">
               <QuadrantMini
-                label={MatrixQuadrants.ImportantUrgent}
+                label={QUADRANTS.ImportantUrgent.title}
                 stats={quadrantStats['ImportantUrgent' as MatrixKey]}
                 color="bg-red-400/20 border-red-400"
               />
               <QuadrantMini
-                label={MatrixQuadrants.ImportantNotUrgent}
+                label={QUADRANTS.ImportantNotUrgent.title}
                 stats={quadrantStats['ImportantNotUrgent' as MatrixKey]}
                 color="bg-orange-400/20 border-orange-400"
               />
               <QuadrantMini
-                label={MatrixQuadrants.NotImportantUrgent}
+                label={QUADRANTS.NotImportantUrgent.title}
                 stats={quadrantStats['NotImportantUrgent' as MatrixKey]}
                 color="bg-blue-400/20 border-blue-400"
               />
               <QuadrantMini
-                label={MatrixQuadrants.NotImportantNotUrgent}
+                label={QUADRANTS.NotImportantNotUrgent.title}
                 stats={quadrantStats['NotImportantNotUrgent' as MatrixKey]}
                 color="bg-green-400/20 border-green-400"
               />
