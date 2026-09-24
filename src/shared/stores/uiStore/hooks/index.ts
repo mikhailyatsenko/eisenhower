@@ -14,6 +14,8 @@ const initialState: UIState = {
   sortField: 'importance',
   sortDirection: 'desc',
   taskToFocus: null,
+  selectedTaskId: null,
+  lastSelectedTaskId: null,
 };
 
 export const useUIStore = create<UIState>()(

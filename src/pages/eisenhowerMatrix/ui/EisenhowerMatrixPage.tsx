@@ -1,6 +1,8 @@
 import Link from 'next/link';
 
+import { DRAG_HINT, MATRIX_SHORTCUTS } from '@/shared/consts/matrixShortcuts';
 import { MATRIX_KEYS, MatrixKey, QUADRANTS } from '@/shared/consts/quadrants';
+import { ShortcutsTable } from '@/shared/ui/shortcutsTable';
 
 // What to do with a task in each quadrant
 const QUADRANT_DESCRIPTIONS: Record<MatrixKey, string> = {
@@ -111,17 +113,28 @@ export const EisenhowerMatrixPage = () => (
     <Section id="how-to-use" title="How to use the app">
       <ul className="list-disc space-y-2 pl-5">
         <li>
-          Add a task with the New Task button. On a keyboard, press{' '}
+          Add a task with the New Task button. On a keyboard, with no task
+          selected, press{' '}
           {MATRIX_KEYS.map(
             (key) => `${QUADRANTS[key].shortcut} for ${QUADRANTS[key].title}`,
           ).join(', ')}{' '}
           to open the form with that quadrant already chosen.
         </li>
         <li>
-          Hover over a task to edit it, mark it as completed or delete it. On a
-          touch screen these buttons are always shown.
+          Click or tap a task to select it. Click it again, click an empty spot
+          in its quadrant or press Esc to clear the selection.
         </li>
-        <li>Drag a task to reorder it or move it to another quadrant.</li>
+        <li>
+          While a task is selected, the action panel at the bottom of the window
+          shows what you can do with it: Complete, Edit, Move to one of the
+          other quadrants, and Delete. After Complete, Delete or Move, the next
+          task in the quadrant is selected, so you can keep going.
+        </li>
+        <li>
+          Changed your mind? Press Undo in the message that follows an action,
+          or Ctrl+Z (Cmd+Z on a Mac).
+        </li>
+        <li>{DRAG_HINT}.</li>
         <li>
           Completed tasks are listed below the matrix, where you can restore
           them or delete them permanently.
@@ -131,6 +144,15 @@ export const EisenhowerMatrixPage = () => (
           of the page.
         </li>
       </ul>
+      <h3 className="pt-2 font-semibold text-gray-900 dark:text-gray-100">
+        Keyboard
+      </h3>
+      <p>
+        The whole matrix is one Tab stop: Tab takes you to the task you last
+        selected, or to the first one. From there the keys below work. In the
+        app, press ? to see them.
+      </p>
+      <ShortcutsTable shortcuts={MATRIX_SHORTCUTS} />
     </Section>
 
     <Section id="no-sign-up" title="No sign-up needed">

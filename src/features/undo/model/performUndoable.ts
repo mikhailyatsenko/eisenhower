@@ -1,5 +1,8 @@
 import { Revert } from '@/shared/stores/tasksStore';
-import { requestTaskFocusAction } from '@/shared/stores/uiStore';
+import {
+  requestTaskFocusAction,
+  selectTaskAction,
+} from '@/shared/stores/uiStore';
 import { dismissToast, showToast } from '@/shared/ui/toast';
 
 interface UndoableAction {
@@ -7,7 +10,7 @@ interface UndoableAction {
   message: string;
   /** Does the action; resolves to its revert, or undefined if nothing happened */
   perform: () => Promise<Revert | undefined>;
-  /** Task whose card gets focus after Undo */
+  /** Task whose card gets focus and selection after Undo */
   focusTaskId: string;
 }
 
@@ -34,6 +37,8 @@ export const performUndoable = async ({
         // No toast for the Undo itself
         dismissToast(toastId);
         await revert();
+        // A task that isn't in the matrix drops the selection on its own
+        selectTaskAction(focusTaskId);
         requestTaskFocusAction(focusTaskId);
       },
     },

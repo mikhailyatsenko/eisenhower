@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { renderHomePage } from './renderHomePage';
 
 const VOCABULARY = [
@@ -12,8 +12,10 @@ const OLD_NAMES =
   /urgent & important|important & not urgent|urgent & not important|not urgent & not important/i;
 
 const expectQuadrantPicker = () => {
+  // The dialog: the action toolbar has quadrant buttons of its own
+  const dialog = screen.getByRole('dialog');
   VOCABULARY.forEach(({ title, criteria }) => {
-    const button = screen.getByRole('button', { name: title });
+    const button = within(dialog).getByRole('button', { name: title });
     expect(button).toHaveAccessibleDescription(criteria);
   });
 };
@@ -44,7 +46,10 @@ describe('Quadrant vocabulary', () => {
       tasks: { ImportantNotUrgent: ['Plan the quarter'] },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Edit task' }));
+    await user.click(screen.getByRole('option'));
+    await user.click(
+      within(screen.getByRole('toolbar')).getByRole('button', { name: 'Edit' }),
+    );
 
     expectQuadrantPicker();
     expect(document.body).not.toHaveTextContent(OLD_NAMES);

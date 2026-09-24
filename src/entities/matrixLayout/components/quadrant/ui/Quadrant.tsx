@@ -2,13 +2,19 @@ import { useDroppable } from '@dnd-kit/core';
 
 import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { openFormWithCategoryAction } from '@/shared/stores/uiStore';
+import {
+  openFormWithCategoryAction,
+  selectTaskAction,
+  useUIStore,
+} from '@/shared/stores/uiStore';
 import { Buttons } from '../../quadrantButtons/ui/QuadrantButtons';
 import { QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
 
 export interface QuadrantProps {
   quadrantKey: MatrixKey;
+  /** Id of the title, which names the quadrant's task list */
+  titleId: string;
   isDragOver: boolean;
   isAnimateByExpandQuadrant: boolean;
   expandedQuadrant: MatrixKey | null;
@@ -22,6 +28,7 @@ export interface QuadrantProps {
 
 export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
+  titleId,
   isDragOver,
   expandedQuadrant,
   isAnimateByExpandQuadrant,
@@ -58,10 +65,14 @@ export const Quadrant: React.FC<QuadrantProps> = ({
       ? 'animate-recently-added-quadrant'
       : '';
 
-  const handleQuadrantClick = () => {
-    if (isNoTasks) {
-      openFormWithCategoryAction(quadrantKey);
-    }
+  const hasSelection = useUIStore((state) => state.selectedTaskId !== null);
+
+  // A click on empty space clears the selection. Until slice G a click in an
+  // empty quadrant also opens the add form there.
+  const handleQuadrantClick = (event: React.MouseEvent) => {
+    if ((event.target as HTMLElement).closest('button')) return;
+    if (hasSelection) selectTaskAction(null);
+    if (isNoTasks) openFormWithCategoryAction(quadrantKey);
   };
 
   return (
@@ -71,7 +82,9 @@ export const Quadrant: React.FC<QuadrantProps> = ({
       className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${animateByExpandQuadrant} ${isDragOver ? QUADRANT_STYLES.DRAG_OVER : ''} ${QUADRANT_STYLES.CONTAINER} ${isNoTasks ? 'cursor-pointer' : ''}`}
       onClick={handleQuadrantClick}
     >
-      <h2 className={QUADRANT_STYLES.TITLE}>{QUADRANTS[quadrantKey].title}</h2>
+      <h2 id={titleId} className={QUADRANT_STYLES.TITLE}>
+        {QUADRANTS[quadrantKey].title}
+      </h2>
       {children}
       {!isTypingNewTask && !isNoTasks && (
         <Buttons

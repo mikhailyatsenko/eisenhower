@@ -14,7 +14,8 @@ export const ToastRegion = () => {
   const toast = useToastStore((state) => state.toast);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
+    // --toast-bottom (TOAST_BOTTOM_VAR) comes from useToastClearance
+    <div className="pointer-events-none fixed inset-x-0 bottom-[var(--toast-bottom,1rem)] z-50 flex justify-center px-4">
       <div role="status" aria-label="Notifications" className="sr-only">
         {/* key: a replacing toast with the same text is announced again */}
         {toast && <span key={toast.id}>{toAnnouncement(toast)}</span>}

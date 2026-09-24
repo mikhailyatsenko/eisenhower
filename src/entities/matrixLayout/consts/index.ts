@@ -1,3 +1,5 @@
+import { MatrixKey } from '@/shared/stores/tasksStore';
+
 export const BUTTON_CANCEL_TEXT = 'Cancel';
 export const BUTTON_SAVE_TEXT = 'Save';
 
@@ -30,3 +32,15 @@ export const LIST_STYLES = {
   COLLAPSED:
     'scrollbar-hidden relative z-2 list-none flex-col h-full overflow-x-hidden overflow-y-auto hidden px-1 sm:flex',
 } as const;
+
+// Task card background per quadrant
+export const colors: Record<MatrixKey, string> = {
+  ImportantUrgent: 'bg-red-300 dark:bg-red-900/40',
+  ImportantNotUrgent: 'bg-yellow-300/75 dark:bg-yellow-800/40',
+  NotImportantUrgent: 'bg-blue-300 dark:bg-blue-900/40',
+  NotImportantNotUrgent: 'bg-green-300/95 dark:bg-green-900/40',
+};
+
+// Box of a task card in the matrix and of its drag preview
+export const TASK_CARD_CLASS =
+  'relative min-h-10 shrink-0 list-none rounded-md px-2.5 py-2 text-center';

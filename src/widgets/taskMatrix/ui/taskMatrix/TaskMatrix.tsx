@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
+import { TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { useAuth } from '@/shared/api/auth';
 import { MatrixKey, syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
@@ -17,6 +18,7 @@ export const TaskMatrix: React.FC = () => {
     state.activeState === 'local' ? state.localTasks : state.firebaseTasks,
   );
   const viewMode = useUIStore((state) => state.viewMode);
+  const matrixRef = useRef<HTMLDivElement>(null);
 
   // Use specific selector to prevent unnecessary re-renders
   const taskInputText = useUIStore((state) => state.taskInputText);
@@ -75,7 +77,14 @@ export const TaskMatrix: React.FC = () => {
 
   return (
     <>
-      <div className="relative mt-14 flex w-full flex-wrap justify-center">
+      {/* Focus lands here, not on <body>, when the matrix has no task left */}
+      <div
+        ref={matrixRef}
+        role="group"
+        aria-label="Task matrix"
+        tabIndex={-1}
+        className="relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300"
+      >
         {viewMode === 'matrix' ? (
           <>
             {!expandedQuadrant && !taskInputText && <TaskMatrixHeaders />}
@@ -84,14 +93,21 @@ export const TaskMatrix: React.FC = () => {
               expandedQuadrant={expandedQuadrant}
               setExpandedQuadrant={setExpandedQuadrant}
               taskInputText={taskInputText}
-              completeTask={completeTask}
-              deleteTask={deleteTask}
               moveTask={moveTask}
             />
           </>
         ) : (
           <TaskListView tasks={tasks} />
         )}
+
+        {/* In List view too: it keeps the keys that open the add form */}
+        <TaskActionPanel
+          tasks={tasks}
+          matrixRef={matrixRef}
+          completeTask={completeTask}
+          deleteTask={deleteTask}
+          moveTask={moveTask}
+        />
       </div>
 
       <CopyLocalToCloudButton isExpanded={!!expandedQuadrant} />

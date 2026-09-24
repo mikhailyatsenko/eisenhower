@@ -11,4 +11,8 @@ export interface UIState {
   sortDirection: 'asc' | 'desc';
   /** Task whose card takes focus once it's rendered, e.g. after Undo */
   taskToFocus: string | null;
+  /** The Selected Task in the matrix: at most one, none when null */
+  selectedTaskId: string | null;
+  /** The latest task to be selected; Tab into the matrix comes back to it */
+  lastSelectedTaskId: string | null;
 }

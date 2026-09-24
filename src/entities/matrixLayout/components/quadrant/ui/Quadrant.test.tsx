@@ -9,6 +9,7 @@ jest.mock('@dnd-kit/core', () => ({
 describe('Quadrant Component', () => {
   const defaultProps: QuadrantProps = {
     quadrantKey: 'ImportantUrgent' as MatrixKey,
+    titleId: 'do-first-title',
     isDragOver: false,
     expandedQuadrant: null,
     isAnimateByExpandQuadrant: false,

@@ -71,7 +71,10 @@ describe('Invalid deadline', () => {
       },
     });
 
-    await user.click(screen.getByRole('button', { name: 'Edit task' }));
+    await user.click(screen.getByRole('option'));
+    await user.click(
+      within(screen.getByRole('toolbar')).getByRole('button', { name: 'Edit' }),
+    );
     await user.clear(screen.getByPlaceholderText('Select date'));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 

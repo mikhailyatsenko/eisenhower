@@ -6,15 +6,13 @@ import {
   closestCenter,
   defaultDropAnimation,
   DropAnimation,
-  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect } from 'react';
-import { MatrixLayout } from '@/entities/matrixLayout';
-import { TaskItem } from '@/entities/matrixLayout';
-import { MouseSensor, TouchSensor } from '@/shared/lib/CustomSensors';
+import { MatrixLayout, TaskDragPreview } from '@/entities/matrixLayout';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 
@@ -28,8 +26,6 @@ interface InteractWithMatrixProps {
   setExpandedQuadrant: React.Dispatch<React.SetStateAction<MatrixKey | null>>;
   expandedQuadrant: MatrixKey | null;
   taskInputText: string;
-  completeTask: (quadrantKey: MatrixKey, taskId: string) => void;
-  deleteTask: (quadrantKey: MatrixKey, taskId: string) => void;
   moveTask: MoveTask;
 }
 
@@ -37,8 +33,6 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   expandedQuadrant,
   setExpandedQuadrant,
   taskInputText,
-  completeTask,
-  deleteTask,
   moveTask,
 }) => {
   const { activeState, localTasks, firebaseTasks } = useTaskStore();
@@ -54,13 +48,14 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     handleDragCancel,
   } = useDragEvents(moveTask);
 
+  // A click selects, a drag starts after the pointer moves a few pixels.
+  // No keyboard drag: the keyboard moves tasks between quadrants with 1–4.
   const sensors = useSensors(
-    useSensor(MouseSensor, {}),
+    useSensor(MouseSensor, {
+      activationConstraint: { distance: 5 },
+    }),
     useSensor(TouchSensor, {
       activationConstraint: { delay: 300, tolerance: 10 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
 
@@ -103,20 +98,17 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
         isAnimateByExpandQuadrant={isAnimateByExpandQuadrant}
         handleToggleExpand={handleToggleExpand}
         taskInputText={taskInputText}
-        completeTask={completeTask}
-        deleteTask={deleteTask}
       />
 
       <DragOverlay dropAnimation={dropAnimation}>
         {activeTaskId ? (
-          <TaskItem
+          <TaskDragPreview
             task={
               tasks[dragOverQuadrant as MatrixKey].find(
                 (t) => t.id === activeTaskId,
               ) as Task
             }
             quadrantKey={dragOverQuadrant as MatrixKey}
-            index={0}
           />
         ) : null}
       </DragOverlay>
