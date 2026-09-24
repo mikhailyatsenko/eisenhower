@@ -16,6 +16,8 @@ interface TaskItemProps {
   task: Task;
   quadrantKey: MatrixKey;
   index: number;
+  /** The matrix's one Tab stop */
+  isTabStop: boolean;
 }
 
 /** A task in the matrix: click or tap selects it, a drag moves it */
@@ -23,6 +25,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   quadrantKey,
   index,
+  isTabStop,
 }) => {
   const isSelected = useUIStore((state) => state.selectedTaskId === task.id);
 
@@ -46,19 +49,45 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     zIndex: isDragging ? 50 : 'auto',
   };
 
+  // A press focuses the card before its click: the click decides then
+  const isPointerFocus = useRef(false);
+
   const handleClick = (event: React.MouseEvent) => {
     // A click on the quadrant's empty space clears the selection
     event.stopPropagation();
+    isPointerFocus.current = false;
     selectTaskAction(isSelected ? null : task.id);
+  };
+
+  const handlePointerDown = () => {
+    isPointerFocus.current = true;
+  };
+
+  // A press that became a drag never clicks
+  const handleBlur = () => {
+    isPointerFocus.current = false;
+  };
+
+  // Focus and selection coincide: Tab or the keys select the focused task
+  const handleFocus = () => {
+    if (isPointerFocus.current) {
+      isPointerFocus.current = false;
+      return;
+    }
+    if (!isSelected) selectTaskAction(task.id);
   };
 
   return (
     <li
       ref={setItemRef}
       role="option"
+      data-task-id={task.id}
       aria-selected={isSelected}
-      tabIndex={-1}
+      tabIndex={isTabStop ? 0 : -1}
       {...listeners}
+      onPointerDown={handlePointerDown}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       onClick={handleClick}
       style={style}
       className={twMerge(

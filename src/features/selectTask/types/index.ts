@@ -18,3 +18,13 @@ export interface TaskActions {
     toQuadrant: MatrixKey,
   ) => Promise<void>;
 }
+
+export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
+
+/** What the toolbar buttons and the matrix keys do to the Selected Task */
+export interface TaskActionHandlers {
+  onComplete: () => void;
+  onEdit: () => void;
+  onMove: (toQuadrant: MatrixKey) => void;
+  onDelete: () => void;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { EditTaskDialog } from '@/entities/matrixLayout';
 import {
   MatrixKey,
@@ -8,9 +8,13 @@ import {
   editTaskAction,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
-import { selectTaskAction, useUIStore } from '@/shared/stores/uiStore';
+import {
+  requestTaskFocusAction,
+  selectTaskAction,
+  useUIStore,
+} from '@/shared/stores/uiStore';
 import { ActionToolbar } from '../components/ActionToolbar';
-import { useClearSelectionOnEscape } from '../hooks';
+import { useFocusAfterAction, useMatrixKeys } from '../hooks';
 import { locateTask, neighbourTaskId } from '../lib';
 import { TaskActions, TaskLocation } from '../types';
 
@@ -21,16 +25,24 @@ const getActiveTasks = () => {
 
 interface TaskActionPanelProps extends TaskActions {
   tasks: Tasks;
+  /** Takes the focus when the matrix has no task left to focus */
+  matrixRef: RefObject<HTMLElement | null>;
 }
 
-/** The action panel of the Selected Task and the edit form it opens */
+/**
+ * The action panel of the Selected Task, the edit form it opens and the
+ * matrix keyboard, which does the same actions
+ */
 export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   tasks,
+  matrixRef,
   completeTask,
   deleteTask,
   moveTask,
 }) => {
   const selectedTaskId = useUIStore((state) => state.selectedTaskId);
+  const isMatrixView = useUIStore((state) => state.viewMode === 'matrix');
+  const toolbarRef = useRef<HTMLDivElement>(null);
   // By id: a dialog left open for another task must not pop up on a later selection
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const lastLocation = useRef<TaskLocation | null>(null);
@@ -56,12 +68,11 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     if (isSelectionStale) selectTaskAction(locatedTaskId);
   }, [isSelectionStale, locatedTaskId]);
 
-  useClearSelectionOnEscape(location !== null);
-
-  if (!location) return null;
-  const { task, quadrantKey } = location;
+  useFocusAfterAction(matrixRef, locatedTaskId);
 
   const handleMove = async (toQuadrant: MatrixKey) => {
+    if (!location) return;
+    const { task, quadrantKey } = location;
     // Selecting the neighbour first keeps the pressed button enabled and focused
     const withoutTask = {
       ...tasks,
@@ -75,13 +86,39 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     // The move failed or did nothing: the selection goes back to the task,
     // unless the user has picked another one meanwhile
     const tasksNow = getActiveTasks();
-    if (
-      locateTask(tasksNow, task.id)?.quadrantKey === quadrantKey &&
-      useUIStore.getState().selectedTaskId === neighbourId
-    ) {
+    const isUntouched = useUIStore.getState().selectedTaskId === neighbourId;
+    const movedTo = locateTask(tasksNow, task.id)?.quadrantKey;
+    if (movedTo === quadrantKey && isUntouched) {
       selectTaskAction(task.id);
+    } else if (movedTo === toQuadrant && isUntouched && !neighbourId) {
+      // Nothing else in the matrix: the task stays selected where it went
+      selectTaskAction(task.id);
+      const active = document.activeElement;
+      if (!active || active === document.body || active === matrixRef.current) {
+        requestTaskFocusAction(task.id);
+      }
     }
   };
+
+  const handleComplete = () =>
+    location && completeTask(location.quadrantKey, location.task.id);
+  const handleDelete = () =>
+    location && deleteTask(location.quadrantKey, location.task.id);
+  const handleEdit = () => location && setEditingTaskId(location.task.id);
+
+  useMatrixKeys({
+    tasks,
+    location,
+    isMatrixView,
+    toolbarRef,
+    onComplete: handleComplete,
+    onEdit: handleEdit,
+    onMove: handleMove,
+    onDelete: handleDelete,
+  });
+
+  if (!location) return null;
+  const { task, quadrantKey } = location;
 
   const handleSave = (
     editText: string,
@@ -95,11 +132,12 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   return (
     <>
       <ActionToolbar
+        toolbarRef={toolbarRef}
         location={location}
-        onComplete={() => completeTask(quadrantKey, task.id)}
-        onEdit={() => setEditingTaskId(task.id)}
+        onComplete={handleComplete}
+        onEdit={handleEdit}
         onMove={handleMove}
-        onDelete={() => deleteTask(quadrantKey, task.id)}
+        onDelete={handleDelete}
       />
 
       {editingTaskId === task.id && (

@@ -10,6 +10,7 @@ import { InsertTaskZone } from '../components/InsertTaskZone';
 import { Quadrant } from '../components/quadrant';
 import { TaskItem } from '../components/taskItem';
 import { LIST_STYLES, TASK_COUNT_STYLES } from '../consts';
+import { tabStopTaskId } from '../lib';
 
 interface MatrixLayoutProps {
   tasks: Record<MatrixKey, Task[]>;
@@ -30,8 +31,14 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   handleToggleExpand,
   taskInputText,
 }) => {
-  const { recentlyAddedQuadrant } = useUIStore();
+  const recentlyAddedQuadrant = useUIStore(
+    (state) => state.recentlyAddedQuadrant,
+  );
+  const selectedTaskId = useUIStore((state) => state.selectedTaskId);
+  const lastSelectedTaskId = useUIStore((state) => state.lastSelectedTaskId);
   const titleIdPrefix = useId();
+  // The whole matrix is one Tab stop; the keys move on from there
+  const tabStopId = tabStopTaskId(tasks, selectedTaskId, lastSelectedTaskId);
 
   return (
     <>
@@ -79,6 +86,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                       task={task}
                       quadrantKey={quadrantKey}
                       index={index}
+                      isTabStop={task.id === tabStopId}
                     />
                     {/* Intermediate and Bottom Insert Zone */}
                     <InsertTaskZone

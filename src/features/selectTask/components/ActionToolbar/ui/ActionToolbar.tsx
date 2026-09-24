@@ -1,21 +1,28 @@
-import { useId, useRef } from 'react';
+import { RefObject, useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
-import { MatrixKey } from '@/shared/stores/tasksStore';
+import { useMediaQuery } from '@/shared/hooks';
 import { useToastClearance } from '@/shared/ui/toast';
-import { TaskLocation } from '../../../types';
+import { TaskActionHandlers, TaskLocation } from '../../../types';
 import { QUADRANT_DOT } from '../consts';
 
-interface ActionToolbarProps {
+interface ActionToolbarProps extends TaskActionHandlers {
+  toolbarRef: RefObject<HTMLDivElement | null>;
   location: TaskLocation;
-  onComplete: () => void;
-  onEdit: () => void;
-  onMove: (toQuadrant: MatrixKey) => void;
-  onDelete: () => void;
 }
 
 const BUTTON_CLASS =
   'cursor-pointer rounded-lg px-3 py-2 hover:bg-white/10 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent';
+
+/** The key that does the button's action right now, on desktop only */
+const KeyHint = ({ label }: { label: string }) => (
+  <kbd
+    aria-hidden="true"
+    className="ml-1.5 rounded border border-white/30 px-1 font-sans text-xs text-gray-300"
+  >
+    {label}
+  </kbd>
+);
 
 const Divider = () => (
   <span aria-hidden="true" className="mx-1 h-6 w-px bg-white/20" />
@@ -26,15 +33,18 @@ const Divider = () => (
  * Its appearance isn't announced: aria-selected on the task already is.
  */
 export const ActionToolbar: React.FC<ActionToolbarProps> = ({
+  toolbarRef,
   location: { task, quadrantKey },
   onComplete,
   onEdit,
   onMove,
   onDelete,
 }) => {
-  const toolbarRef = useRef<HTMLDivElement>(null);
   useToastClearance(toolbarRef);
   const moveToLabelId = useId();
+  // Judged by the primary pointer, like the toast: no key hints on touch
+  const isTouchScreen = useMediaQuery('(hover: none) and (pointer: coarse)');
+  const hint = (label: string) => !isTouchScreen && <KeyHint label={label} />;
 
   return (
     <div
@@ -45,6 +55,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
     >
       <button
         type="button"
+        aria-keyshortcuts="C"
         onClick={onComplete}
         className={twMerge(
           BUTTON_CLASS,
@@ -52,9 +63,16 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
         )}
       >
         Complete
+        {hint('C')}
       </button>
-      <button type="button" onClick={onEdit} className={BUTTON_CLASS}>
+      <button
+        type="button"
+        aria-keyshortcuts="E"
+        onClick={onEdit}
+        className={BUTTON_CLASS}
+      >
         Edit
+        {hint('E')}
       </button>
 
       <Divider />
@@ -71,6 +89,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
             key={key}
             type="button"
             disabled={key === quadrantKey}
+            aria-keyshortcuts={QUADRANTS[key].shortcut}
             onClick={() => onMove(key)}
             className={twMerge(BUTTON_CLASS, 'px-2')}
           >
@@ -82,6 +101,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
               )}
             />
             {QUADRANTS[key].title}
+            {key !== quadrantKey && hint(QUADRANTS[key].shortcut)}
           </button>
         ))}
       </div>
@@ -89,10 +109,12 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
 
       <button
         type="button"
+        aria-keyshortcuts="Delete"
         onClick={onDelete}
         className={twMerge(BUTTON_CLASS, 'text-red-300')}
       >
         Delete
+        {hint('Del')}
       </button>
     </div>
   );

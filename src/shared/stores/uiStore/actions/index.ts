@@ -81,5 +81,6 @@ export const requestTaskFocusAction = (taskId: string | null) => {
 export const selectTaskAction = (taskId: string | null) => {
   useUIStore.setState((state) => {
     state.selectedTaskId = taskId;
+    if (taskId) state.lastSelectedTaskId = taskId;
   });
 };
