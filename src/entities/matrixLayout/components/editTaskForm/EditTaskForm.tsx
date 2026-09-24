@@ -24,6 +24,10 @@ interface EditFormProps {
   onQuadrantChange?: (quadrant: MatrixKey) => void;
 }
 
+// Controls that hand the focus back to the text field keep it on press, so
+// picking them isn't a blur that shows the length error
+const keepTextFocus = (e: React.MouseEvent) => e.preventDefault();
+
 const quadrantButtonStyles: Record<
   MatrixKey,
   { active: string; inactive: string }
@@ -66,10 +70,15 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   );
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(true);
+  // The length error waits for the first blur or save attempt
+  const [isTextTouched, setIsTextTouched] = useState(false);
+  const showTextError = isTextTouched && !isValid;
   const [deadlineInvalid, setDeadlineInvalid] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const quadrantIdPrefix = useId();
+  const textId = useId();
+  const textErrorId = useId();
   const deadlineErrorId = useId();
   const deadlineDateId = useId();
   const deadlineTimeId = useId();
@@ -124,12 +133,14 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && isValid) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault();
       onSave();
     }
   };
 
   const onSave = () => {
+    setIsTextTouched(true);
     if (!isValid) return;
 
     if (hasDeadline) {
@@ -168,15 +179,22 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
     >
       <div className="scrollbar-hidden flex-1 overflow-y-auto px-1">
         <div className="mb-4 flex flex-col">
-          <label className="mb-1 text-[10px] font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">
+          <label
+            htmlFor={textId}
+            className="mb-1 text-[10px] font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400"
+          >
             Task Description
           </label>
           <textarea
+            id={textId}
             ref={textareaRef}
             autoFocus
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
+            onBlur={() => setIsTextTouched(true)}
             onKeyDown={handleKeyDown}
+            aria-invalid={showTextError ? 'true' : undefined}
+            aria-describedby={showTextError ? textErrorId : undefined}
             className="min-h-[100px] w-full resize-none overflow-hidden rounded-md border border-gray-300 bg-white/50 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
             placeholder="What needs to be done?"
           />
@@ -193,6 +211,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
                 type="button"
                 aria-labelledby={`${quadrantIdPrefix}-${key}-title`}
                 aria-describedby={`${quadrantIdPrefix}-${key}-criteria`}
+                onMouseDown={keepTextFocus}
                 onClick={() => handleQuadrantClick(key)}
                 className={`rounded-md border p-2 text-left text-[10px] font-bold transition-all ${
                   selectedQuadrant === key
@@ -215,7 +234,10 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
         </div>
 
         <div className="mb-6 flex flex-col">
-          <label className="mb-2 flex items-center justify-between border-b border-gray-500/10 pb-1">
+          <label
+            onMouseDown={keepTextFocus}
+            className="mb-2 flex items-center justify-between border-b border-gray-500/10 pb-1"
+          >
             <div className="text-[10px] font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">
               Deadline (Optional)
             </div>
@@ -318,14 +340,19 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
       </div>
 
       <div className="shrink-0 border-t border-gray-300/30 pt-4">
-        {!isValid && (
-          <p className="mb-2 text-[10px] font-medium text-red-600 dark:text-red-400">
+        {showTextError && (
+          <p
+            id={textErrorId}
+            role="alert"
+            className="mb-2 text-[10px] font-medium text-red-600 dark:text-red-400"
+          >
             Task Description must be between 1 and 200 characters.
           </p>
         )}
         <div className="flex justify-end gap-3 px-1 pb-1">
           <button
             type="button"
+            onMouseDown={keepTextFocus}
             onClick={handleCancel}
             className="cursor-pointer rounded-md px-4 py-2 text-xs font-bold text-gray-600 transition-colors hover:bg-black/5 active:scale-95 dark:text-gray-400 dark:hover:bg-white/5"
           >
@@ -333,10 +360,7 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
           </button>
           <button
             type="submit"
-            className={`cursor-pointer rounded-md bg-indigo-600 px-6 py-2 text-xs font-bold text-white transition-all hover:bg-indigo-700 active:scale-95 dark:bg-indigo-500 dark:hover:bg-indigo-600 ${
-              !isValid ? 'pointer-events-none opacity-30' : ''
-            }`}
-            disabled={!isValid}
+            className="cursor-pointer rounded-md bg-indigo-600 px-6 py-2 text-xs font-bold text-white transition-all hover:bg-indigo-700 active:scale-95 dark:bg-indigo-500 dark:hover:bg-indigo-600"
           >
             {BUTTON_SAVE_TEXT}
           </button>
@@ -357,6 +381,7 @@ const PresetButton = ({
 }) => (
   <button
     type="button"
+    onMouseDown={keepTextFocus}
     onClick={onClick}
     className={`cursor-pointer rounded-md px-2 py-1 text-[10px] font-bold transition-all ${
       isActive
