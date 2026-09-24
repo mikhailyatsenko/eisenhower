@@ -20,7 +20,7 @@ export const useAnalytics = () => {
   const totalAll = totalActive + totalCompleted;
 
   const rawStats = MATRIX_KEYS.map((key) => {
-    const activeInQuadrant = activeTasks[key as MatrixKey].length;
+    const activeInQuadrant = activeTasks[key].length;
     const completedInQuadrant = completedTasks.filter(
       (t) => t.quadrantKey === key,
     ).length;
@@ -28,7 +28,7 @@ export const useAnalytics = () => {
     const percentage = totalAll > 0 ? (totalInQuadrant / totalAll) * 100 : 0;
 
     return {
-      key: key as MatrixKey,
+      key,
       active: activeInQuadrant,
       completed: completedInQuadrant,
       total: totalInQuadrant,
