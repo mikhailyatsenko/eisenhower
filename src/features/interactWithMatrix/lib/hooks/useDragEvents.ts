@@ -23,7 +23,6 @@ const currentTasks = () => {
 };
 
 export const useDragEvents = (moveTask: MoveTask) => {
-  const [isDragging, setIsDragging] = useState(false);
   const [dragOverQuadrant, setDragOverQuadrant] = useState<MatrixKey | null>(
     null,
   );
@@ -33,7 +32,6 @@ export const useDragEvents = (moveTask: MoveTask) => {
 
   const reset = () => {
     origin.current = null;
-    setIsDragging(false);
     setDragOverQuadrant(null);
     setActiveTaskId(null);
   };
@@ -47,7 +45,6 @@ export const useDragEvents = (moveTask: MoveTask) => {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    setIsDragging(true);
     const taskId = event.active.id as string;
     const activeArea = event.active.data.current?.quadrantKey as
       | MatrixKey
@@ -130,7 +127,6 @@ export const useDragEvents = (moveTask: MoveTask) => {
   };
 
   return {
-    isDragging,
     dragOverQuadrant,
     activeTaskId,
     handleDragStart,

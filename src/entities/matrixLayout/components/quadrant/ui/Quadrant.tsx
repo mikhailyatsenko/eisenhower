@@ -1,13 +1,13 @@
 import { useDroppable } from '@dnd-kit/core';
+import { twMerge } from 'tailwind-merge';
 
-import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import {
   openFormWithCategoryAction,
   selectTaskAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
-import { Buttons } from '../../quadrantButtons/ui/QuadrantButtons';
+import { FullScreenMode, QuadrantHeader } from '../../quadrantHeader';
 import { QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
 
@@ -16,27 +16,25 @@ export interface QuadrantProps {
   /** Id of the title, which names the quadrant's task list */
   titleId: string;
   isDragOver: boolean;
-  isAnimateByExpandQuadrant: boolean;
-  expandedQuadrant: MatrixKey | null;
-  handleToggleExpand: (quadrant: MatrixKey) => void;
   orderIndex: number;
   isTypingNewTask: boolean;
   children: React.ReactNode;
   recentlyAddedQuadrant: MatrixKey | null;
-  isNoTasks: boolean;
+  taskCount: number;
+  fullScreen: FullScreenMode;
+  onFullScreenChange: (isOpen: boolean) => void;
 }
 
 export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
   titleId,
   isDragOver,
-  expandedQuadrant,
-  isAnimateByExpandQuadrant,
-  handleToggleExpand,
   orderIndex,
   isTypingNewTask,
   recentlyAddedQuadrant,
-  isNoTasks,
+  taskCount,
+  fullScreen,
+  onFullScreenChange,
   children,
 }) => {
   const { setNodeRef } = useDroppable({
@@ -44,21 +42,16 @@ export const Quadrant: React.FC<QuadrantProps> = ({
     data: { quadrantKey },
   });
 
-  const isExpandedCurrentQuadrant = expandedQuadrant === quadrantKey;
+  const isNoTasks = taskCount === 0;
 
-  const actionStyles = isTypingNewTask
-    ? orderIndex === 0
-      ? QUADRANT_STYLES.TYPING_NEW_TASK_ACTIVE
-      : QUADRANT_STYLES.TYPING_NEW_TASK_INACTIVE
-    : expandedQuadrant === null
-      ? QUADRANT_STYLES.DEFAULT
-      : isExpandedCurrentQuadrant
-        ? QUADRANT_STYLES.EXPANDED
-        : QUADRANT_STYLES.COLLAPSED;
+  const isFullScreen = fullScreen === 'open';
 
-  const animateByExpandQuadrant = isAnimateByExpandQuadrant
-    ? 'animate-from-hide-to-show'
-    : '';
+  const actionStyles =
+    isTypingNewTask && !isFullScreen
+      ? orderIndex === 0
+        ? QUADRANT_STYLES.TYPING_NEW_TASK_ACTIVE
+        : QUADRANT_STYLES.TYPING_NEW_TASK_INACTIVE
+      : QUADRANT_STYLES.DEFAULT;
 
   const animateByRecentlyAddedQuadrant =
     recentlyAddedQuadrant === quadrantKey
@@ -79,20 +72,25 @@ export const Quadrant: React.FC<QuadrantProps> = ({
     <div
       ref={setNodeRef}
       style={{ order: orderIndex }}
-      className={`${quadrantStyles[quadrantKey]} ${actionStyles} ${animateByRecentlyAddedQuadrant} ${animateByExpandQuadrant} ${isDragOver ? QUADRANT_STYLES.DRAG_OVER : ''} ${QUADRANT_STYLES.CONTAINER} ${isNoTasks ? 'cursor-pointer' : ''}`}
+      className={twMerge(
+        quadrantStyles[quadrantKey],
+        actionStyles,
+        animateByRecentlyAddedQuadrant,
+        isDragOver && QUADRANT_STYLES.DRAG_OVER,
+        QUADRANT_STYLES.CONTAINER,
+        isNoTasks && 'cursor-pointer',
+        isFullScreen && QUADRANT_STYLES.FULL_SCREEN,
+      )}
       onClick={handleQuadrantClick}
     >
-      <h2 id={titleId} className={QUADRANT_STYLES.TITLE}>
-        {QUADRANTS[quadrantKey].title}
-      </h2>
+      <QuadrantHeader
+        quadrantKey={quadrantKey}
+        titleId={titleId}
+        taskCount={taskCount}
+        fullScreen={fullScreen}
+        onFullScreenChange={onFullScreenChange}
+      />
       {children}
-      {!isTypingNewTask && !isNoTasks && (
-        <Buttons
-          handleToggleExpand={handleToggleExpand}
-          quadrantKey={quadrantKey}
-          isExpandedCurrentQuadrant={isExpandedCurrentQuadrant}
-        />
-      )}
     </div>
   );
 };

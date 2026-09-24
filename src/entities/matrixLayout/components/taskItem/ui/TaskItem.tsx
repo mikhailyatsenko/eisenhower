@@ -18,6 +18,8 @@ interface TaskItemProps {
   index: number;
   /** The matrix's one Tab stop */
   isTabStop: boolean;
+  /** In a quadrant open full screen the text isn't cut */
+  isFullText: boolean;
 }
 
 /** A task in the matrix: click or tap selects it, a drag moves it */
@@ -26,6 +28,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   quadrantKey,
   index,
   isTabStop,
+  isFullText,
 }) => {
   const isSelected = useUIStore((state) => state.selectedTaskId === task.id);
 
@@ -100,7 +103,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           : 'hover:ring-1 hover:ring-gray-500',
       )}
     >
-      <TaskCardContent task={task} />
+      <TaskCardContent task={task} isFullText={isFullText} />
     </li>
   );
 };

@@ -1,18 +1,15 @@
 import { RefObject, useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
-import { useMediaQuery } from '@/shared/hooks';
+import { useIsPhone, useMediaQuery } from '@/shared/hooks';
 import { useToastClearance } from '@/shared/ui/toast';
 import { TaskActionHandlers, TaskLocation } from '../../../types';
-import { QUADRANT_DOT } from '../consts';
+import { PANEL_STYLES, QUADRANT_DOT } from '../consts';
 
 interface ActionToolbarProps extends TaskActionHandlers {
   toolbarRef: RefObject<HTMLDivElement | null>;
   location: TaskLocation;
 }
-
-const BUTTON_CLASS =
-  'cursor-pointer rounded-lg px-3 py-2 hover:bg-white/10 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent';
 
 /** The key that does the button's action right now, on desktop only */
 const KeyHint = ({ label }: { label: string }) => (
@@ -30,6 +27,8 @@ const Divider = () => (
 
 /**
  * Labelled actions for the Selected Task, pinned to the bottom of the window.
+ * On a phone it is a full-width panel: Complete, Edit, Delete in a row and
+ * Move to as a 2×2 mini-matrix under them.
  * Its appearance isn't announced: aria-selected on the task already is.
  */
 export const ActionToolbar: React.FC<ActionToolbarProps> = ({
@@ -44,46 +43,57 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
   const moveToLabelId = useId();
   // Judged by the primary pointer, like the toast: no key hints on touch
   const isTouchScreen = useMediaQuery('(hover: none) and (pointer: coarse)');
+  const isPhone = useIsPhone();
   const hint = (label: string) => !isTouchScreen && <KeyHint label={label} />;
+  const styles = isPhone ? PANEL_STYLES.phone : PANEL_STYLES.desktop;
 
-  return (
-    <div
-      ref={toolbarRef}
-      role="toolbar"
-      aria-label={`Actions for “${task.text}”`}
-      className="fixed bottom-4 left-1/2 z-40 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-1 rounded-xl bg-gray-900 p-1.5 text-sm text-white shadow-2xl dark:bg-gray-800"
+  const completeButton = (
+    <button
+      type="button"
+      aria-keyshortcuts="C"
+      onClick={onComplete}
+      className={twMerge(
+        styles.BUTTON,
+        'bg-green-700 font-bold hover:bg-green-800',
+      )}
     >
-      <button
-        type="button"
-        aria-keyshortcuts="C"
-        onClick={onComplete}
-        className={twMerge(
-          BUTTON_CLASS,
-          'bg-green-700 font-bold hover:bg-green-800',
-        )}
-      >
-        Complete
-        {hint('C')}
-      </button>
-      <button
-        type="button"
-        aria-keyshortcuts="E"
-        onClick={onEdit}
-        className={BUTTON_CLASS}
-      >
-        Edit
-        {hint('E')}
-      </button>
-
-      <Divider />
-      <div
-        role="group"
-        aria-labelledby={moveToLabelId}
-        className="flex flex-wrap items-center justify-center gap-1"
-      >
-        <span id={moveToLabelId} className="px-1 text-gray-300">
-          Move to
-        </span>
+      Complete
+      {hint('C')}
+    </button>
+  );
+  const editButton = (
+    <button
+      type="button"
+      aria-keyshortcuts="E"
+      onClick={onEdit}
+      className={styles.BUTTON}
+    >
+      Edit
+      {hint('E')}
+    </button>
+  );
+  const deleteButton = (
+    <button
+      type="button"
+      aria-keyshortcuts="Delete"
+      onClick={onDelete}
+      className={twMerge(styles.BUTTON, 'text-red-300')}
+    >
+      Delete
+      {hint('Del')}
+    </button>
+  );
+  const moveToGroup = (
+    <div
+      role="group"
+      aria-labelledby={moveToLabelId}
+      className={styles.MOVE_TO}
+    >
+      <span id={moveToLabelId} className={styles.MOVE_TO_LABEL}>
+        Move to
+      </span>
+      {/* On a phone the buttons sit as the quadrants do in the matrix */}
+      <div className={styles.MOVE_TO_GRID}>
         {MATRIX_KEYS.map((key) => (
           <button
             key={key}
@@ -91,12 +101,12 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
             disabled={key === quadrantKey}
             aria-keyshortcuts={QUADRANTS[key].shortcut}
             onClick={() => onMove(key)}
-            className={twMerge(BUTTON_CLASS, 'px-2')}
+            className={twMerge(styles.BUTTON, styles.MOVE_TO_BUTTON)}
           >
             <span
               aria-hidden="true"
               className={twMerge(
-                'mr-1.5 inline-block h-2 w-2 rounded-full',
+                'mr-1.5 inline-block h-2 w-2 shrink-0 rounded-full',
                 QUADRANT_DOT[key],
               )}
             />
@@ -105,17 +115,39 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
           </button>
         ))}
       </div>
-      <Divider />
+    </div>
+  );
 
-      <button
-        type="button"
-        aria-keyshortcuts="Delete"
-        onClick={onDelete}
-        className={twMerge(BUTTON_CLASS, 'text-red-300')}
-      >
-        Delete
-        {hint('Del')}
-      </button>
+  return (
+    <div
+      ref={toolbarRef}
+      role="toolbar"
+      aria-label={`Actions for “${task.text}”`}
+      className={styles.TOOLBAR}
+    >
+      {isPhone ? (
+        <>
+          {/* The task may sit under the panel; the toolbar name already says it */}
+          <p aria-hidden="true" className={PANEL_STYLES.phone.TASK_TEXT}>
+            {task.text}
+          </p>
+          <div className={PANEL_STYLES.phone.ACTIONS_ROW}>
+            {completeButton}
+            {editButton}
+            {deleteButton}
+          </div>
+          {moveToGroup}
+        </>
+      ) : (
+        <>
+          {completeButton}
+          {editButton}
+          <Divider />
+          {moveToGroup}
+          <Divider />
+          {deleteButton}
+        </>
+      )}
     </div>
   );
 };

@@ -1,10 +1,23 @@
+import { twMerge } from 'tailwind-merge';
 import { Task } from '@/shared/stores/tasksStore';
 import { DeadlineBadge } from '../../deadlineBadge';
 
+interface TaskCardContentProps {
+  task: Task;
+  /** In a quadrant open full screen the text isn't cut */
+  isFullText?: boolean;
+}
+
 /** Text and deadline only: nothing on a matrix card is interactive */
-export const TaskCardContent = ({ task }: { task: Task }) => (
+export const TaskCardContent = ({ task, isFullText }: TaskCardContentProps) => (
   <>
-    <div className="leading-5 break-words text-black dark:text-gray-200">
+    {/* On a phone 12px and two lines at most; the full text is its name */}
+    <div
+      className={twMerge(
+        'line-clamp-2 text-xs leading-tight break-words text-black sm:line-clamp-none sm:text-base sm:leading-5 dark:text-gray-200',
+        isFullText && 'line-clamp-none text-sm leading-snug',
+      )}
+    >
       {task.text}
     </div>
     {task.dueDate && (

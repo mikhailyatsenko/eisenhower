@@ -110,6 +110,22 @@ describe('Server pages', () => {
       expect(howTo).not.toHaveTextContent('Hover over a task');
     });
 
+    it('explains the phone: full screen, tap, the bottom panel, long-press drag', () => {
+      const page = renderServerHtml(<EisenhowerMatrixPage />);
+      const howTo = within(page).getByRole('region', {
+        name: 'How to use the app',
+      });
+      const phone = within(howTo).getByRole('heading', { name: 'On a phone' })
+        .nextElementSibling as HTMLElement;
+
+      expect(phone).toHaveTextContent('full screen');
+      expect(phone).toHaveTextContent('Back to matrix');
+      expect(phone).toHaveTextContent('Tap a task');
+      expect(phone).toHaveTextContent('panel at the bottom of the screen');
+      expect(phone).toHaveTextContent('Move to');
+      expect(phone).toHaveTextContent('press and hold');
+    });
+
     it('ends with a link that opens the matrix', () => {
       const page = renderServerHtml(<EisenhowerMatrixPage />);
 

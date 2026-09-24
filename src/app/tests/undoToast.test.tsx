@@ -382,12 +382,10 @@ const completed = (id: string, text: string): Task => ({
 });
 
 /** Task texts in the quadrant with this title, top to bottom */
-const tasksIn = (title: string) => {
-  const quadrant = screen.getByRole('heading', { name: title }).parentElement!;
-  return Array.from(quadrant.querySelectorAll('li')).map((card) =>
-    TASKS.find((task) => within(card).queryByText(task)),
-  );
-};
+const tasksIn = (title: string) =>
+  within(screen.getByRole('listbox', { name: title }))
+    .queryAllByRole('option')
+    .map((card) => TASKS.find((task) => within(card).queryByText(task)));
 
 describe('Undo for Move and Restore', () => {
   beforeEach(() => {

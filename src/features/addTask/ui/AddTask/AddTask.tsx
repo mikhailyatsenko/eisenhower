@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { FloatButton } from '@/entities/addTaskForm';
 import { colors, EditTaskForm } from '@/entities/matrixLayout';
 import { MATRIX_KEYS } from '@/shared/consts';
+import { useIsPhone } from '@/shared/hooks';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 
 import { MatrixKey } from '@/shared/stores/tasksStore';
@@ -17,7 +18,10 @@ import {
 import { Modal } from '@/shared/ui/modal';
 
 export const AddTask = () => {
-  const { selectedCategory, isFormOpened } = useUIStore();
+  const { selectedCategory, isFormOpened, selectedTaskId } = useUIStore();
+  // The phone action panel spans the bottom edge, where the button sits
+  const isPhone = useIsPhone();
+  const isHiddenByPanel = isPhone && selectedTaskId !== null;
   const [currentQuadrant, setCurrentQuadrant] =
     useState<MatrixKey>(selectedCategory);
 
@@ -59,11 +63,13 @@ export const AddTask = () => {
 
   return (
     <>
-      <FloatButton
-        isNoTasks={inNoTasks}
-        active={isFormOpened}
-        toggleActive={() => setIsFormOpenedAction(!isFormOpened)}
-      />
+      {!isHiddenByPanel && (
+        <FloatButton
+          isNoTasks={inNoTasks}
+          active={isFormOpened}
+          toggleActive={() => setIsFormOpenedAction(!isFormOpened)}
+        />
+      )}
       {isFormOpened && (
         <Modal
           label="New task"

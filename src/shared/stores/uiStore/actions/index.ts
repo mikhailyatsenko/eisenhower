@@ -84,3 +84,9 @@ export const selectTaskAction = (taskId: string | null) => {
     if (taskId) state.lastSelectedTaskId = taskId;
   });
 };
+
+export const setFullScreenQuadrantAction = (quadrant: MatrixKey | null) => {
+  useUIStore.setState((state) => {
+    state.fullScreenQuadrant = quadrant;
+  });
+};
