@@ -9,7 +9,6 @@ const initialState: UIState = {
   taskInputText: '',
   recentlyAddedQuadrant: null,
   isFormOpened: false,
-  isAnalyticsOpened: false,
   taskInsertIndex: null,
   viewMode: 'matrix',
   sortField: 'importance',

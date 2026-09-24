@@ -41,12 +41,6 @@ export const setIsFormOpenedAction = (isOpened: boolean) => {
   });
 };
 
-export const setIsAnalyticsOpenedAction = (isOpened: boolean) => {
-  useUIStore.setState((state) => {
-    state.isAnalyticsOpened = isOpened;
-  });
-};
-
 export const openFormWithCategoryAction = (
   category: MatrixKey,
   index: number | null = null,
