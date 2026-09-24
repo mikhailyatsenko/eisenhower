@@ -1,19 +1,12 @@
 import { useEffect } from 'react';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
+import { isTextField } from '@/shared/lib/isTextField';
 import { openFormWithCategoryAction } from '@/shared/stores/uiStore';
 
 export const useKeyboardShortcuts = () => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Ignore shortcuts if the user is typing in an input, textarea or contenteditable element
-      const target = event.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return;
-      }
+      if (isTextField(event.target)) return;
 
       // 1-4 keys to open add task modal in specific quadrant
       const quadrant = MATRIX_KEYS.find(

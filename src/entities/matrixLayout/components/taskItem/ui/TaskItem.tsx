@@ -213,6 +213,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
       {isEditing && (
         <Modal
+          label="Edit task"
           onClose={() => setIsEditing(false)}
           width="lg"
           className={`${currentEditingQuadrant ? colors[currentEditingQuadrant] : ''} border-none p-6 shadow-2xl transition-colors duration-300`}

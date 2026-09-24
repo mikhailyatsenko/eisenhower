@@ -14,6 +14,8 @@ const taskTexts = () =>
 
 const toast = () => screen.getByRole('status', { name: 'Notifications' });
 
+const undoButton = () => screen.getByRole('button', { name: 'Undo' });
+
 const advance = (ms: number) =>
   act(async () => {
     jest.advanceTimersByTime(ms);
@@ -52,7 +54,7 @@ describe('Undo toast', () => {
     expect(taskTexts()).toEqual(['Alpha', 'Charlie']);
     expect(toast()).toHaveTextContent('Task deleted');
 
-    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+    await user.click(undoButton());
 
     expect(taskTexts()).toEqual(TASKS);
     // No toast after Undo itself
@@ -74,7 +76,7 @@ describe('Undo toast', () => {
     expect(toast()).toHaveTextContent('Task completed');
     expect(toast()).not.toHaveTextContent(/successfully/i);
 
-    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+    await user.click(undoButton());
 
     expect(taskTexts()).toEqual(TASKS);
     expect(document.activeElement).toContainElement(screen.getByText('Alpha'));
@@ -104,7 +106,7 @@ describe('Undo toast', () => {
     expect(screen.queryByText('Old report')).not.toBeInTheDocument();
     expect(toast()).toHaveTextContent('Task deleted');
 
-    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+    await user.click(undoButton());
 
     expect(screen.getByText('Old report')).toBeInTheDocument();
     expect(document.activeElement).toContainElement(
@@ -122,7 +124,7 @@ describe('Undo toast', () => {
 
     expect(screen.getAllByText('Task deleted')).toHaveLength(1);
 
-    await user.click(within(toast()).getByRole('button', { name: 'Undo' }));
+    await user.click(undoButton());
 
     expect(taskTexts()).toEqual(['Bravo', 'Charlie']);
   });
@@ -161,7 +163,7 @@ describe('Undo toast', () => {
     });
 
     await deleteTask(user, 'Alpha');
-    act(() => within(toast()).getByRole('button', { name: 'Undo' }).focus());
+    act(() => undoButton().focus());
     await advance(10_000);
 
     expect(toast()).toHaveTextContent('Task deleted');
@@ -207,7 +209,7 @@ describe('Undo toast', () => {
     });
 
     await deleteTask(user, 'Alpha');
-    const undo = within(toast()).getByRole('button', { name: 'Undo' });
+    const undo = undoButton();
     const completed = screen.getByRole('button', { name: /completed tasks/i });
 
     act(() => {
@@ -249,6 +251,121 @@ describe('Undo toast', () => {
   });
 });
 
+describe('Undo shortcut', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('undoes the last action on Ctrl+Z while the toast is shown', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Bravo');
+    await user.keyboard('{Control>}z{/Control}');
+
+    expect(taskTexts()).toEqual(TASKS);
+    expect(toast()).toBeEmptyDOMElement();
+    expect(document.activeElement).toContainElement(screen.getByText('Bravo'));
+  });
+
+  it('does nothing on Ctrl+Z once the toast is gone', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Bravo');
+    await advance(6100);
+    await user.keyboard('{Control>}z{/Control}');
+
+    expect(taskTexts()).toEqual(['Alpha', 'Charlie']);
+  });
+
+  it('leaves Ctrl+Z to the text field being typed in', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Bravo');
+    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.type(screen.getByRole('textbox'), 'Book');
+    await user.keyboard('{Control>}z{/Control}');
+
+    expect(screen.queryByText('Bravo')).not.toBeInTheDocument();
+    expect(toast()).toHaveTextContent('Task deleted');
+  });
+
+  it('leaves the task deleted while a dialog is open', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Bravo');
+    await user.click(screen.getByRole('button', { name: /new task/i }));
+    act(() => screen.getByRole('button', { name: 'Save' }).focus());
+    await user.keyboard('{Control>}z{/Control}');
+
+    expect(screen.getByRole('dialog', { name: 'New task' })).toBeVisible();
+    expect(screen.queryByText('Bravo')).not.toBeInTheDocument();
+  });
+
+  it('announces the toast with its shortcut', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Bravo');
+
+    expect(toast()).toHaveTextContent(/^Task deleted\. Undo with Ctrl\+Z$/);
+  });
+
+  it('shows the key next to Undo for a mouse', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+      viewport: { pointer: 'fine' },
+    });
+
+    await deleteTask(user, 'Bravo');
+
+    expect(screen.getByText('Ctrl+Z')).toBeVisible();
+  });
+
+  it('hides the key hint on a touch screen', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+      viewport: { pointer: 'coarse' },
+    });
+
+    await deleteTask(user, 'Bravo');
+
+    expect(undoButton()).toBeVisible();
+    expect(screen.queryByText('Ctrl+Z')).not.toBeInTheDocument();
+  });
+
+  it('uses Cmd+Z and shows ⌘Z on macOS', async () => {
+    jest.spyOn(navigator, 'platform', 'get').mockReturnValue('MacIntel');
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Bravo');
+
+    expect(toast()).toHaveTextContent(/^Task deleted\. Undo with ⌘Z$/);
+    expect(screen.getByText('⌘Z')).toBeVisible();
+
+    await user.keyboard('{Control>}z{/Control}');
+    expect(taskTexts()).toEqual(['Alpha', 'Charlie']);
+
+    await user.keyboard('{Meta>}z{/Meta}');
+    expect(taskTexts()).toEqual(TASKS);
+  });
+});
+
 describe('Undo toast accessibility', () => {
   it('has no axe violations while a toast is shown', async () => {
     const { user, container } = await renderHomePage({
@@ -259,5 +376,17 @@ describe('Undo toast accessibility', () => {
 
     expect(toast()).toHaveTextContent('Task deleted');
     expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('has no axe violations with a dialog over the toast', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await deleteTask(user, 'Alpha');
+    await user.click(screen.getByRole('button', { name: /new task/i }));
+
+    // The dialog is portalled to body, outside the render container
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

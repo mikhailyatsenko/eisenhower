@@ -3,6 +3,8 @@ import { create } from 'zustand';
 export interface ToastAction {
   label: string;
   onClick: () => void;
+  /** Letter that runs the action with Cmd (Apple) or Ctrl, e.g. "z" */
+  shortcutKey?: string;
 }
 
 export interface ToastContent {

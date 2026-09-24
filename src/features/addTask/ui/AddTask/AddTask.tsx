@@ -66,6 +66,7 @@ export const AddTask = () => {
       />
       {isFormOpened && (
         <Modal
+          label="New task"
           onClose={() => setIsFormOpenedAction(false)}
           width="lg"
           className={`${colors[currentQuadrant]} border-none p-6 shadow-2xl transition-colors duration-300`}

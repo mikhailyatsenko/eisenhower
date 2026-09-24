@@ -29,6 +29,7 @@ export const performUndoable = async ({
     message,
     action: {
       label: 'Undo',
+      shortcutKey: 'z',
       onClick: async () => {
         // No toast for the Undo itself
         dismissToast(toastId);

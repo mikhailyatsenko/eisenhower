@@ -1,8 +1,15 @@
 'use client';
 
 import { FocusEvent, PointerEvent, useState } from 'react';
+import { useMediaQuery } from '@/shared/hooks';
 import { TOAST_DURATION_MS } from '../consts';
-import { useCountdown, useIsPageActive, useSwipeToDismiss } from '../hooks';
+import {
+  useActionShortcut,
+  useCountdown,
+  useIsPageActive,
+  useSwipeToDismiss,
+} from '../hooks';
+import { formatShortcut } from '../lib';
 import { dismissToast, type Toast } from '../model';
 
 interface ToastCardProps {
@@ -17,6 +24,9 @@ export const ToastCard = ({ toast }: ToastCardProps) => {
   const [hasFocus, setHasFocus] = useState(false);
   const isPageActive = useIsPageActive();
   const { offset, isTouching, handlers } = useSwipeToDismiss(dismiss);
+  // Judged by the primary pointer, not the width: no key hint on touch
+  const isTouchScreen = useMediaQuery('(hover: none) and (pointer: coarse)');
+  useActionShortcut(action);
 
   useCountdown(
     TOAST_DURATION_MS,
@@ -48,15 +58,26 @@ export const ToastCard = ({ toast }: ToastCardProps) => {
       onBlur={handleBlur}
       {...handlers}
     >
-      <span>{message}</span>
+      {/* The status region next to the card already announces it */}
+      <span aria-hidden="true">{message}</span>
       {action && (
-        <button
-          type="button"
-          onClick={action.onClick}
-          className="min-h-11 min-w-11 shrink-0 cursor-pointer rounded-md px-3 font-bold text-[#ffa894] hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#ffa894] focus-visible:outline-none"
-        >
-          {action.label}
-        </button>
+        <span className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={action.onClick}
+            className="min-h-11 min-w-11 cursor-pointer rounded-md px-3 font-bold text-[#ffa894] hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#ffa894] focus-visible:outline-none"
+          >
+            {action.label}
+          </button>
+          {action.shortcutKey && !isTouchScreen && (
+            <kbd
+              aria-hidden="true"
+              className="mr-2 rounded border border-white/30 px-1.5 py-0.5 font-sans text-xs text-gray-300"
+            >
+              {formatShortcut(action.shortcutKey)}
+            </kbd>
+          )}
+        </span>
       )}
     </div>
   );
