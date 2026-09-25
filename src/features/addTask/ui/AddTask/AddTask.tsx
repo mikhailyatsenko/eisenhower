@@ -18,10 +18,13 @@ import {
 import { Modal } from '@/shared/ui/modal';
 
 export const AddTask = () => {
-  const { selectedCategory, isFormOpened, selectedTaskId } = useUIStore();
-  // The phone action panel spans the bottom edge, where the button sits
+  const { selectedCategory, isFormOpened, selectedTaskId, inlineAdd } =
+    useUIStore();
+  // The phone action panel spans the bottom edge, where the button sits; the
+  // add field's quadrant is full screen, the button would cover its tasks
   const isPhone = useIsPhone();
-  const isHiddenByPanel = isPhone && selectedTaskId !== null;
+  const isHiddenOnPhone =
+    isPhone && (selectedTaskId !== null || inlineAdd !== null);
   const [currentQuadrant, setCurrentQuadrant] =
     useState<MatrixKey>(selectedCategory);
 
@@ -57,7 +60,7 @@ export const AddTask = () => {
 
   return (
     <>
-      {!isHiddenByPanel && (
+      {!isHiddenOnPhone && (
         <FloatButton
           isNoTasks={inNoTasks}
           active={isFormOpened}

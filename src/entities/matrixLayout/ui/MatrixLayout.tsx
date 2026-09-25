@@ -6,6 +6,7 @@ import { useId } from 'react';
 import { MATRIX_KEYS } from '@/shared/consts';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 import {
+  closeInlineAddAction,
   setFullScreenQuadrantAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
@@ -70,9 +71,12 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             recentlyAddedQuadrant={recentlyAddedQuadrant}
             taskCount={taskCount}
             fullScreen={isFullScreen ? 'open' : isPhone ? 'closed' : 'off'}
-            onFullScreenChange={(isOpen) =>
-              setFullScreenQuadrantAction(isOpen ? quadrantKey : null)
-            }
+            onFullScreenChange={(isOpen) => {
+              // Back to matrix closes the add field, which only lives full
+              // screen on a phone
+              if (!isOpen) closeInlineAddAction();
+              setFullScreenQuadrantAction(isOpen ? quadrantKey : null);
+            }}
             headerAction={slots.headerAction(quadrantKey)}
             onEmptySpaceClick={() => slots.openAddField(quadrantKey)}
           >
