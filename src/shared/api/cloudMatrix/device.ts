@@ -12,7 +12,8 @@ const CLEAR_REQUEST_KEY = 'eisenhower-clear-cloud-device';
 let isRequestedInThisTab = false;
 let clearing: Promise<void> | null = null;
 
-const isClearRequested = () => {
+/** Sign out asked for the device to be cleared, and it isn't yet */
+export const isDeviceClearRequested = () => {
   if (isRequestedInThisTab) return true;
   try {
     return localStorage.getItem(CLEAR_REQUEST_KEY) !== null;
@@ -42,7 +43,7 @@ export const cancelDeviceClear = () => setClearRequested(false);
 
 /** Call when no one is signed in and nothing is subscribed any more */
 export const clearDeviceIfRequested = () => {
-  if (!clearing && isClearRequested()) {
+  if (!clearing && isDeviceClearRequested()) {
     clearing = clearDevice()
       .then(() => setClearRequested(false))
       // E.g. another tab still holds IndexedDB: the next visit tries again

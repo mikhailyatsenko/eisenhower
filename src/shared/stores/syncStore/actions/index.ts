@@ -1,3 +1,4 @@
+import type { SyncFailure } from '@/shared/api/cloudMatrix';
 import { useSyncStore } from '../hooks/useSyncStore';
 import { applySyncSignals, stopSyncTimers } from './applySyncSignals';
 
@@ -10,15 +11,33 @@ const countUnconfirmed = (delta: number) =>
     unconfirmedWrites: useSyncStore.getState().unconfirmedWrites + delta,
   });
 
+/** The cloud refused changes or dropped the subscription: the bar offers a reload */
+export const failSyncAction = () => applySyncSignals({ syncError: 'refused' });
+
+/**
+ * The session expired without Sign out while changes waited for the cloud:
+ * the bar offers to sign in again, and the queue waits on the device
+ */
+export const failExpiredSessionAction = () =>
+  applySyncSignals({ syncError: 'sessionExpired' });
+
+/** The Matrix came from the server again after a Sync error */
+export const clearSyncErrorAction = () => applySyncSignals({ syncError: null });
+
 /**
  * Counts the write as unconfirmed until the server confirms or refuses it.
- * A refusal is only logged for now.
+ * A refusal is a Sync error; the snapshot has taken the change back already.
  */
 export const trackCloudWriteAction = (write: Promise<void>) => {
   const resetsAtWrite = resets;
   countUnconfirmed(1);
   write
-    .catch((error) => console.error('Cloud write failed:', error))
+    .catch((failure: SyncFailure) => {
+      if (resetsAtWrite !== resets) return;
+      // Not a refusal: the change may still get through
+      if (failure.isRejected) failSyncAction();
+      else console.error('Cloud write failed:', failure);
+    })
     .finally(() => {
       if (resetsAtWrite === resets) countUnconfirmed(-1);
     });
@@ -31,7 +50,11 @@ export const setCloudPendingWritesAction = (hasPendingWrites: boolean) =>
 export const setAwaitingServerAction = (isAwaitingServer: boolean) =>
   applySyncSignals({ isAwaitingServer });
 
-/** A user is signed in to the cloud Matrix: the bar follows the network */
+/**
+ * A user is signed in to the cloud Matrix: the bar follows the network. The
+ * subscription starts with no Sync error, so signing in again sets an
+ * expired session right.
+ */
 export const startSyncAction = () => {
   stopWatchingNetwork?.();
   const onNetworkChange = () =>
@@ -42,7 +65,11 @@ export const startSyncAction = () => {
     window.removeEventListener('online', onNetworkChange);
     window.removeEventListener('offline', onNetworkChange);
   };
-  applySyncSignals({ isSignedIn: true, isOnline: navigator.onLine });
+  applySyncSignals({
+    isSignedIn: true,
+    isOnline: navigator.onLine,
+    syncError: null,
+  });
 };
 
 /** Forgets the cloud Matrix: on sign-out or when the page closes */

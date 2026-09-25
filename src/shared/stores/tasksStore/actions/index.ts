@@ -9,6 +9,7 @@ import { isSignedInToCloud, writeToCloud } from './cloudSync';
 
 export {
   subscribeToCloudMatrix,
+  reloadCloudMatrixAction,
   holdCloudSnapshotsAction,
   releaseCloudSnapshotsAction,
 } from './cloudSync';

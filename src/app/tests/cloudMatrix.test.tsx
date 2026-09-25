@@ -127,9 +127,6 @@ describe('Cloud Matrix of a signed-in user', () => {
   });
 
   it('keeps the Matrix on screen when the subscription fails', async () => {
-    const consoleError = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
     const { cloud } = await renderHomePage({
       signedIn: ADA,
       cloud: { tasks: SERVER_TASKS },
@@ -139,8 +136,6 @@ describe('Cloud Matrix of a signed-in user', () => {
 
     expect(tasksIn('Do First')).toEqual(['Pay rent', 'Call the bank']);
     expect(screen.queryByText(/permission|failed/i)).not.toBeInTheDocument();
-    expect(consoleError).toHaveBeenCalled();
-    consoleError.mockRestore();
   });
 
   it('writes a change to the server', async () => {

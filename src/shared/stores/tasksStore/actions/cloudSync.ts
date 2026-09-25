@@ -1,6 +1,12 @@
 import * as cloudMatrix from '@/shared/api/cloudMatrix';
-import type { CloudSnapshot, TaskChange } from '@/shared/api/cloudMatrix';
+import type {
+  CloudSnapshot,
+  TaskChange,
+  Unsubscribe,
+} from '@/shared/api/cloudMatrix';
 import {
+  clearSyncErrorAction,
+  failSyncAction,
   resetSyncAction,
   selectIsServerOutOfReach,
   setAwaitingServerAction,
@@ -18,6 +24,7 @@ import { Tasks } from '../types';
 // replaces the cloud tasks and Completed in the store
 
 let uid: string | null = null;
+let stopListening: Unsubscribe | null = null;
 let isHolding = false;
 let heldSnapshot: CloudSnapshot | null = null;
 /** The device cache answered with no cloud Matrix: the server has it */
@@ -88,6 +95,29 @@ const resetCloudMatrix = () =>
     state.isCloudLoaded = false;
   });
 
+/** Starts a live subscription; a reload's first server snapshot ends the Sync error */
+const listen = (userId: string, isReload: boolean) => {
+  let clearsErrorOnServerAnswer = isReload;
+  stopListening = cloudMatrix.subscribe(
+    userId,
+    (snapshot) => {
+      setCloudPendingWritesAction(snapshot.hasPendingWrites);
+      if (clearsErrorOnServerAnswer && !snapshot.fromCache) {
+        clearsErrorOnServerAnswer = false;
+        clearSyncErrorAction();
+      }
+      if (isHolding) heldSnapshot = snapshot;
+      else applySnapshot(snapshot);
+    },
+    () => {
+      // Show what there is rather than a loader forever
+      setCloudLoaded();
+      setAwaitingServerAction(false);
+      failSyncAction();
+    },
+  );
+};
+
 /** Keeps the store in step with the user's cloud Matrix; returns the unsubscribe */
 export const subscribeToCloudMatrix = (userId: string) => {
   uid = userId;
@@ -96,24 +126,11 @@ export const subscribeToCloudMatrix = (userId: string) => {
   startSyncAction();
   setAwaitingServerAction(true);
   stopWatchingSync = useSyncStore.subscribe(showWithoutServer);
-
-  const unsubscribe = cloudMatrix.subscribe(
-    userId,
-    (snapshot) => {
-      setCloudPendingWritesAction(snapshot.hasPendingWrites);
-      if (isHolding) heldSnapshot = snapshot;
-      else applySnapshot(snapshot);
-    },
-    (failure) => {
-      console.error('Cloud matrix subscription failed:', failure);
-      // Show what there is rather than a loader forever
-      setCloudLoaded();
-      setAwaitingServerAction(false);
-    },
-  );
+  listen(userId, false);
 
   return () => {
-    unsubscribe();
+    stopListening?.();
+    stopListening = null;
     uid = null;
     isHolding = false;
     heldSnapshot = null;
@@ -123,6 +140,16 @@ export const subscribeToCloudMatrix = (userId: string) => {
     resetCloudMatrix();
     resetSyncAction();
   };
+};
+
+/**
+ * After a Sync error: subscribes anew, keeping the Matrix on screen. The
+ * error goes with the first snapshot from the server.
+ */
+export const reloadCloudMatrixAction = () => {
+  if (!uid) return;
+  stopListening?.();
+  listen(uid, true);
 };
 
 /** While a drag is on, snapshots wait: they would undo its preview */

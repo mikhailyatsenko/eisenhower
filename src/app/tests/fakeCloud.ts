@@ -12,6 +12,7 @@ import type { MatrixKey, Task, Tasks } from '@/shared/stores/tasksStore';
 // the Firestore semantics the app relies on, and no more: a write shows up
 // at once with pending writes, the server confirms it on the next tick when
 // online, and offline or stalled it waits in a queue that survives reload.
+// A refused write leaves the local view and rejects its promise.
 
 export type Network = 'online' | 'offline' | 'stalled';
 
@@ -34,6 +35,9 @@ interface Listener {
 interface QueuedWrite {
   changes: TaskChange[];
   resolve: () => void;
+  reject: (failure: SyncFailure) => void;
+  /** The server will refuse it with this code */
+  rejectCode?: string;
 }
 
 /** What a remote change can do to the server, by task text */
@@ -52,6 +56,7 @@ let isCacheWarm = false;
 let isDeviceHeld = false;
 let queue: QueuedWrite[] = [];
 let network: Network = 'online';
+let nextRejectCode: string | undefined;
 let listeners = new Set<Listener>();
 let user: CloudUser | null = null;
 let lastUser: CloudUser | null = null;
@@ -112,18 +117,26 @@ const emit = (listener: Listener) =>
 
 const emitAll = () => listeners.forEach(emit);
 
-/** The server answers: the queue goes through and the cache catches up */
+/**
+ * The server answers: the queue goes through, but for the writes it refuses,
+ * and the cache catches up
+ */
 const syncWithServer = () => {
-  const confirmed = queue;
+  const answered = queue;
   queue = [];
-  confirmed.forEach(({ changes }) => applyChanges(server, changes));
+  answered.forEach(({ changes, rejectCode }) => {
+    if (rejectCode === undefined) applyChanges(server, changes);
+  });
   cache = copyDocs(server);
   isCacheWarm = true;
   listeners.forEach((listener) => {
     listener.fromCache = false;
   });
   emitAll();
-  confirmed.forEach(({ resolve }) => resolve());
+  answered.forEach(({ resolve, reject, rejectCode }) => {
+    if (rejectCode === undefined) resolve();
+    else reject({ code: rejectCode, isRejected: true });
+  });
 };
 
 /** Like Firestore, listeners hear that their data is now from the cache */
@@ -212,8 +225,9 @@ export const fakeCloudMatrixClient = {
   },
 
   write: (_uid: string, changes: TaskChange[]) =>
-    new Promise<void>((resolve) => {
-      queue.push({ changes, resolve });
+    new Promise<void>((resolve, reject) => {
+      queue.push({ changes, resolve, reject, rejectCode: nextRejectCode });
+      nextRejectCode = undefined;
       emitAll();
       if (network === 'online') {
         Promise.resolve().then(() => {
@@ -228,10 +242,15 @@ export const fakeCloudMatrixClient = {
         resolve();
         return;
       }
+      // Like Firestore, a refused write counts as answered
       const last = queue[queue.length - 1];
-      const { resolve: resolveLast } = last;
+      const { resolve: resolveLast, reject: rejectLast } = last;
       last.resolve = () => {
         resolveLast();
+        resolve();
+      };
+      last.reject = (failure) => {
+        rejectLast(failure);
         resolve();
       };
     }),
@@ -328,6 +347,7 @@ export const resetFakeCloud = (
   isDeviceHeld = false;
   cache = isCacheWarm ? copyDocs(server) : new Map();
   queue = [];
+  nextRejectCode = undefined;
   listeners = new Set();
   userListeners = new Set();
   nextRemoteId = 0;
@@ -369,6 +389,10 @@ export const cloud = {
       change(remoteServer);
       if (network === 'online') syncWithServer();
     }),
+  /** The server refuses the next write with this Firestore code */
+  rejectNextWrite: (code = 'permission-denied') => {
+    nextRejectCode = code;
+  },
   /** Fails the live subscription, as Firestore does on a lost permission */
   failSubscription: (code = 'permission-denied') =>
     act(() => {
