@@ -15,6 +15,9 @@ export interface Task {
 }
 export type Tasks = Record<MatrixKey, Task[]>;
 
+/** A quadrant of the Matrix, or Completed */
+export type TaskArea = MatrixKey | 'completed';
+
 export type StateKey = typeof LOCAL_STATE_KEY | typeof CLOUD_STATE_KEY;
 
 export interface TaskState {
@@ -23,18 +26,8 @@ export interface TaskState {
   localCompletedTasks: Task[];
   firebaseCompletedTasks: Task[];
   activeState: StateKey;
-}
-
-export interface FirestoreTaskData {
-  id: string;
-  text: string;
-  createdAt: string;
-  dueDate?: string;
-  quadrantKey?: MatrixKey;
-  userId: string;
-  order: number;
-  completed?: boolean;
-  completedAt?: string;
+  /** The signed-in user's cloud Matrix has arrived, from the server or the device cache */
+  isCloudLoaded: boolean;
 }
 
 /** Puts things back as they were before an action */

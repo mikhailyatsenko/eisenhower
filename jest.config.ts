@@ -10,6 +10,10 @@ export const createJestConfig = nextJest({
 export const customJestConfig: Config = {
   testEnvironment: 'jest-environment-jsdom',
   verbose: true,
+  // 8 GB RAM: seven jsdom workers push the machine into swap
+  maxWorkers: '50%',
+  // Workers grow file after file; restart one that holds too much
+  workerIdleMemoryLimit: '512MB',
 };
 
 const jestConfig = async () => {

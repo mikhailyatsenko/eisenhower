@@ -1,13 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { useAuth } from '@/shared/api/auth';
-import { syncTasks, useTaskStore } from '@/shared/stores/tasksStore';
+import { useTaskStore } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { TaskListView } from '../taskListView/TaskListView';
@@ -25,53 +25,13 @@ export const TaskMatrix: React.FC = () => {
   // Use specific selector to prevent unnecessary re-renders
   const taskInputText = useUIStore((state) => state.taskInputText);
 
-  const [syncState, setSyncState] = useState<{
-    isSyncing: boolean;
-    error: string | null;
-  }>({
-    isSyncing: false,
-    error: null,
-  });
+  // Until the cloud Matrix arrives; an error doesn't hide the Matrix
+  const isWaitingForCloud = useTaskStore(
+    (state) => state.activeState === 'firebase' && !state.isCloudLoaded,
+  );
 
-  const fetchTasks = useCallback(async () => {
-    setSyncState((prev) => ({ ...prev, isSyncing: true, error: null }));
-    try {
-      if (user) {
-        await syncTasks();
-      } else {
-        useTaskStore.setState((state) => {
-          state.firebaseTasks = {
-            ImportantUrgent: [],
-            ImportantNotUrgent: [],
-            NotImportantUrgent: [],
-            NotImportantNotUrgent: [],
-          };
-        });
-      }
-    } catch (error) {
-      setSyncState((prev) => ({
-        ...prev,
-        error: error instanceof Error ? error.message : 'Failed to sync tasks',
-      }));
-    } finally {
-      setSyncState((prev) => ({ ...prev, isSyncing: false }));
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
-
-  if (isLoading || syncState.isSyncing) {
+  if (isLoading || (user && isWaitingForCloud)) {
     return <LoaderFullScreen />;
-  }
-
-  if (syncState.error) {
-    return (
-      <div className="flex h-full w-full items-center justify-center text-red-500">
-        {syncState.error}
-      </div>
-    );
   }
 
   return (

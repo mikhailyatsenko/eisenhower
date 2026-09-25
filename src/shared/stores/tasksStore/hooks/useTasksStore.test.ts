@@ -1,7 +1,7 @@
 import { STORAGE_KEY } from '../consts';
 import { useTaskStore } from './useTasksStore';
 
-jest.mock('@/shared/config/firebaseConfig', () => ({ db: {}, auth: {} }));
+jest.mock('@/shared/config/firebaseConfig', () => ({ app: {} }));
 
 describe('useTaskStore persistence', () => {
   it('restores task dates as Date objects after rehydration', async () => {

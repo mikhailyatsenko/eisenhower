@@ -1,5 +1,3 @@
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 
 const firebaseConfig = {
@@ -11,6 +9,5 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+// Firestore and Auth are created by their clients in shared/api
+export const app = initializeApp(firebaseConfig);
