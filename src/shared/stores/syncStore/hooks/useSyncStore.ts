@@ -8,6 +8,7 @@ export const useSyncStore = create<SyncState>()(() => ({
   isOnline: true,
   isStalled: false,
   isAwaitingServer: false,
+  syncError: null,
   hasChangesToSave: false,
   bar: { kind: 'hidden' },
 }));

@@ -1,3 +1,4 @@
+import type { SyncFailure } from '@/shared/api/cloudMatrix';
 import { useSyncStore } from '../hooks/useSyncStore';
 import { applySyncSignals, stopSyncTimers } from './applySyncSignals';
 
@@ -10,15 +11,26 @@ const countUnconfirmed = (delta: number) =>
     unconfirmedWrites: useSyncStore.getState().unconfirmedWrites + delta,
   });
 
+/** The cloud refused changes or dropped the subscription: the bar offers a reload */
+export const failSyncAction = () => applySyncSignals({ syncError: 'refused' });
+
+/** The Matrix came from the server again after a Sync error */
+export const clearSyncErrorAction = () => applySyncSignals({ syncError: null });
+
 /**
  * Counts the write as unconfirmed until the server confirms or refuses it.
- * A refusal is only logged for now.
+ * A refusal is a Sync error; the snapshot has taken the change back already.
  */
 export const trackCloudWriteAction = (write: Promise<void>) => {
   const resetsAtWrite = resets;
   countUnconfirmed(1);
   write
-    .catch((error) => console.error('Cloud write failed:', error))
+    .catch((failure: SyncFailure) => {
+      if (resetsAtWrite !== resets) return;
+      // Not a refusal: the change may still get through
+      if (failure.isRejected) failSyncAction();
+      else console.error('Cloud write failed:', failure);
+    })
     .finally(() => {
       if (resetsAtWrite === resets) countUnconfirmed(-1);
     });
