@@ -17,8 +17,10 @@ export interface SyncState {
   isSignedIn: boolean;
   /** `navigator.onLine` */
   isOnline: boolean;
-  /** Pending changes have waited for the server too long with the network up */
+  /** Pending changes, or an empty device cache, have waited for the server too long with the network up */
   isStalled: boolean;
+  /** The device cache had no cloud Matrix, and the server hasn't answered yet */
+  isAwaitingServer: boolean;
   /** There were Pending changes while the bar said offline or "Syncing…" */
   hasChangesToSave: boolean;
   bar: SyncBarState;

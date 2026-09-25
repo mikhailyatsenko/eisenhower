@@ -1,5 +1,6 @@
 import { SyncBarState, SyncState } from '../types';
 import { selectHasPendingChanges } from './selectHasPendingChanges';
+import { selectIsServerOutOfReach } from './selectIsServerOutOfReach';
 
 /**
  * The bar for the new signals. "Syncing…" and "All changes saved" only ever
@@ -7,9 +8,9 @@ import { selectHasPendingChanges } from './selectHasPendingChanges';
  * network a change shows no bar at all.
  */
 export const nextSyncBar = (state: SyncState): SyncBarState => {
-  const { bar, isSignedIn, isOnline, isStalled, hasChangesToSave } = state;
+  const { bar, isSignedIn, hasChangesToSave } = state;
   if (!isSignedIn) return { kind: 'hidden' };
-  if (!isOnline || isStalled) return { kind: 'offline' };
+  if (selectIsServerOutOfReach(state)) return { kind: 'offline' };
   if (bar.kind === 'offline' || bar.kind === 'syncing') {
     if (selectHasPendingChanges(state)) return { kind: 'syncing' };
     return hasChangesToSave ? { kind: 'saved' } : { kind: 'hidden' };

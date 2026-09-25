@@ -99,21 +99,19 @@ describe('Cloud Matrix of a signed-in user', () => {
     expect(tasksIn('Do First')).toEqual(['Pay rent', 'Call the bank']);
   });
 
-  it.each(['offline', 'stalled'] as const)(
-    'waits for the server while the device has nothing cached (%s)',
-    async (network) => {
-      const { cloud } = await renderHomePage({
-        signedIn: ADA,
-        cloud: { tasks: SERVER_TASKS, deviceCache: 'empty', network },
-      });
+  // Without a network it shows the Matrix at once: coldStart.test.tsx
+  it('waits for the server while the device has nothing cached', async () => {
+    const { cloud } = await renderHomePage({
+      signedIn: ADA,
+      cloud: { tasks: SERVER_TASKS, deviceCache: 'empty', network: 'stalled' },
+    });
 
-      expect(matrix()).not.toBeInTheDocument();
+    expect(matrix()).not.toBeInTheDocument();
 
-      cloud.goOnline();
+    cloud.goOnline();
 
-      expect(tasksIn('Do First')).toEqual(['Pay rent', 'Call the bank']);
-    },
-  );
+    expect(tasksIn('Do First')).toEqual(['Pay rent', 'Call the bank']);
+  });
 
   it('shows the Local matrix while the cloud one is still loading', async () => {
     const { user } = await renderHomePage({

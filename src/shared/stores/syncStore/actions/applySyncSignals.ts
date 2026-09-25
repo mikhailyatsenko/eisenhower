@@ -2,7 +2,7 @@ import { useSyncStore } from '../hooks/useSyncStore';
 import { nextSyncBar, selectHasPendingChanges } from '../lib';
 import { SyncState } from '../types';
 
-/** Unconfirmed this long with the network up, Pending changes mean "lie-fi" */
+/** Unanswered this long with the network up, the server counts as out of reach ("lie-fi") */
 const STALL_MS = 10_000;
 /** How long "All changes saved" stays before the bar hides */
 const SAVED_MS = 2_000;
@@ -27,14 +27,15 @@ export const stopSyncTimers = () => {
 
 /**
  * Takes new signals and works out the bar from them. The lie-fi clock runs
- * while Pending changes wait with the network up, and starts over each time
- * the network comes back.
+ * while Pending changes or an empty device cache wait for the server with
+ * the network up, and starts over each time the network comes back.
  */
 export const applySyncSignals = (signals: Partial<SyncState>) => {
   const state = { ...useSyncStore.getState(), ...signals };
   const hasPendingChanges = selectHasPendingChanges(state);
+  const isWaitingForServer = hasPendingChanges || state.isAwaitingServer;
 
-  if (!hasPendingChanges || !state.isOnline) {
+  if (!isWaitingForServer || !state.isOnline) {
     stopStallTimer();
     state.isStalled = false;
   } else if (!state.isStalled && stallTimer === undefined) {

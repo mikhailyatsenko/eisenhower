@@ -27,6 +27,10 @@ export const trackCloudWriteAction = (write: Promise<void>) => {
 export const setCloudPendingWritesAction = (hasPendingWrites: boolean) =>
   applySyncSignals({ hasPendingWrites });
 
+/** Whether the Matrix waits for the server with nothing from the device cache */
+export const setAwaitingServerAction = (isAwaitingServer: boolean) =>
+  applySyncSignals({ isAwaitingServer });
+
 /** A user is signed in to the cloud Matrix: the bar follows the network */
 export const startSyncAction = () => {
   stopWatchingNetwork?.();
