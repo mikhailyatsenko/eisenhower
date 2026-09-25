@@ -1,4 +1,8 @@
-import { DRAG_HINT, MATRIX_SHORTCUTS } from '@/shared/consts/matrixShortcuts';
+import {
+  ADD_HINT,
+  DRAG_HINT,
+  MATRIX_SHORTCUTS,
+} from '@/shared/consts/matrixShortcuts';
 import { Modal } from '@/shared/ui/modal';
 import { ShortcutsTable } from '@/shared/ui/shortcutsTable';
 
@@ -6,7 +10,7 @@ interface ShortcutsDialogProps {
   onClose: () => void;
 }
 
-/** The cheatsheet that ? opens: every matrix key, Undo and drag */
+/** The cheatsheet that ? opens: adding, every matrix key, Undo and drag */
 export const ShortcutsDialog: React.FC<ShortcutsDialogProps> = ({
   onClose,
 }) => (
@@ -22,6 +26,9 @@ export const ShortcutsDialog: React.FC<ShortcutsDialogProps> = ({
           Close
         </button>
       </div>
+      <p className="mb-4 text-sm text-gray-700 dark:text-gray-300">
+        {ADD_HINT}
+      </p>
       <ShortcutsTable shortcuts={MATRIX_SHORTCUTS} />
       <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
         {DRAG_HINT}

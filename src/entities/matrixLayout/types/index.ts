@@ -9,6 +9,9 @@ export interface QuadrantSlots {
   headerAction: (quadrant: MatrixKey) => React.ReactNode;
   /** After the last task, in the scrolling area: the inline add field */
   listEnd: (quadrant: MatrixKey) => React.ReactNode;
-  /** A click on empty space with no task selected */
-  onEmptySpaceClick: (quadrant: MatrixKey) => void;
+  /**
+   * Opens the add field in the quadrant: on a click on empty space with no
+   * task selected, and from "Add a task", which Esc then comes back to
+   */
+  openAddField: (quadrant: MatrixKey, returnFocus?: HTMLElement) => void;
 }

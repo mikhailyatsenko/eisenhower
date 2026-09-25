@@ -19,6 +19,9 @@ export interface TaskActions {
   ) => Promise<void>;
 }
 
+/** Where the keyboard goes in the matrix: a task or an empty quadrant's "Add a task" */
+export type MatrixTarget = { taskId: string } | { emptyQuadrant: MatrixKey };
+
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
 /** What the toolbar buttons and the matrix keys do to the Selected Task */

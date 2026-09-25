@@ -1,16 +1,26 @@
 import { RefObject, useEffect, useRef } from 'react';
-import { firstTaskId } from '@/entities/matrixLayout';
+import { addTaskButtonQuadrant, firstTaskId } from '@/entities/matrixLayout';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { isDialogOpen } from '@/shared/lib/isDialogOpen';
 import { isTextField } from '@/shared/lib/isTextField';
 import { Tasks } from '@/shared/stores/tasksStore';
 import {
   openFormWithCategoryAction,
+  openInlineAddAction,
+  requestAddTaskButtonFocusAction,
   requestTaskFocusAction,
   selectTaskAction,
+  useUIStore,
 } from '@/shared/stores/uiStore';
-import { arrowTargetId, isArrowKey, isControl, keyLetter } from '../lib';
-import { TaskActionHandlers, TaskLocation } from '../types';
+import {
+  arrowTarget,
+  isArrowKey,
+  isControl,
+  keyLetter,
+  locateTask,
+  taskCard,
+} from '../lib';
+import { MatrixTarget, TaskActionHandlers, TaskLocation } from '../types';
 
 interface MatrixKeysOptions extends TaskActionHandlers {
   tasks: Tasks;
@@ -27,11 +37,21 @@ const selectAndFocus = (taskId: string) => {
   requestTaskFocusAction(taskId);
 };
 
+/** A task gets selected and focused; "Add a task" gets focused, with no selection */
+const goTo = (target: MatrixTarget) => {
+  if ('taskId' in target) {
+    selectAndFocus(target.taskId);
+  } else {
+    selectTaskAction(null);
+    requestAddTaskButtonFocusAction(target.emptyQuadrant);
+  }
+};
+
 /**
  * The matrix keyboard, one handler for the page: arrows, 1–4, C/Space,
  * E/Enter, Del/Backspace, N, Esc and ? for the cheatsheet. Keys in a text
- * field or an open dialog are left alone. Until slice G "add" opens the add
- * form.
+ * field or an open dialog are left alone. In the matrix "add" opens the
+ * inline field, and Esc from it comes back to where the key was pressed.
  */
 export const useMatrixKeys = (options: MatrixKeysOptions) => {
   const optionsRef = useRef(options);
@@ -82,9 +102,32 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       }
 
       if (!location) {
-        if (quadrant) handle(() => openFormWithCategoryAction(quadrant));
-        else if (letter === 'n') {
-          handle(() => openFormWithCategoryAction('ImportantUrgent'));
+        // Focus leaves for the field and comes back here on Esc
+        const returnFocus =
+          target instanceof HTMLElement && target !== document.body
+            ? target
+            : null;
+        // An empty quadrant's "Add a task" stands for its quadrant
+        const buttonQuadrant = addTaskButtonQuadrant(target);
+
+        if (quadrant) {
+          handle(() => openInlineAddAction(quadrant, returnFocus));
+        } else if (letter === 'n') {
+          const { lastSelectedTaskId } = useUIStore.getState();
+          const addTo =
+            buttonQuadrant ??
+            locateTask(tasks, lastSelectedTaskId)?.quadrantKey ??
+            MATRIX_KEYS[0];
+          handle(() => openInlineAddAction(addTo, returnFocus));
+        } else if (buttonQuadrant && isArrowKey(key)) {
+          handle(() => {
+            const to = arrowTarget(
+              tasks,
+              { quadrantKey: buttonQuadrant, index: 0 },
+              key,
+            );
+            if (to) goTo(to);
+          });
         } else if (key === 'ArrowDown') {
           // A task left focused by Esc is where the selection comes back
           const focusedTaskId =
@@ -106,8 +149,8 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
         });
       } else if (isArrowKey(key)) {
         handle(() => {
-          const taskId = arrowTargetId(tasks, location, key);
-          if (taskId) selectAndFocus(taskId);
+          const to = arrowTarget(tasks, location, key);
+          if (to) goTo(to);
         });
       } else if (letter === 'c' || (key === ' ' && !isControl(target))) {
         handle(onComplete);
@@ -116,7 +159,10 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       } else if (key === 'Delete' || key === 'Backspace') {
         handle(onDelete);
       } else if (letter === 'n') {
-        handle(() => openFormWithCategoryAction(location.quadrantKey));
+        // Esc from the field comes back to the task, from the toolbar too
+        handle(() =>
+          openInlineAddAction(location.quadrantKey, taskCard(location.task.id)),
+        );
       } else if (key === 'Escape') {
         // From the toolbar back to the task, from the task out of the selection
         handle(() =>

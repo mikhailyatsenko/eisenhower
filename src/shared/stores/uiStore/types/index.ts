@@ -27,4 +27,11 @@ export interface UIState {
   fullScreenQuadrant: MatrixKey | null;
   /** Closed when null */
   inlineAdd: InlineAdd | null;
+  /**
+   * The empty quadrant whose "Add a task" had the focus last, after any task
+   * was selected: the matrix's Tab stop while the quadrant stays empty
+   */
+  addTaskTabStop: MatrixKey | null;
+  /** Empty quadrant whose "Add a task" takes focus once it's rendered */
+  addTaskButtonToFocus: MatrixKey | null;
 }

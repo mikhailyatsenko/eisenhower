@@ -1,6 +1,10 @@
 import Link from 'next/link';
 
-import { DRAG_HINT, MATRIX_SHORTCUTS } from '@/shared/consts/matrixShortcuts';
+import {
+  ADD_HINT,
+  DRAG_HINT,
+  MATRIX_SHORTCUTS,
+} from '@/shared/consts/matrixShortcuts';
 import { MATRIX_KEYS, MatrixKey, QUADRANTS } from '@/shared/consts/quadrants';
 import { ShortcutsTable } from '@/shared/ui/shortcutsTable';
 
@@ -113,12 +117,11 @@ export const EisenhowerMatrixPage = () => (
     <Section id="how-to-use" title="How to use the app">
       <ul className="list-disc space-y-2 pl-5">
         <li>
-          Add a task with the New Task button. On a keyboard, with no task
-          selected, press{' '}
+          {ADD_HINT} The digits stand for the quadrants:{' '}
           {MATRIX_KEYS.map(
             (key) => `${QUADRANTS[key].shortcut} for ${QUADRANTS[key].title}`,
-          ).join(', ')}{' '}
-          to open the form with that quadrant already chosen.
+          ).join(', ')}
+          .
         </li>
         <li>
           Click or tap a task to select it. Click it again, click an empty spot
@@ -168,8 +171,8 @@ export const EisenhowerMatrixPage = () => (
       </h3>
       <p>
         The whole matrix is one Tab stop: Tab takes you to the task you last
-        selected, or to the first one. From there the keys below work. In the
-        app, press ? to see them.
+        selected, or to the first one; in an empty matrix, to Add a task in Do
+        First. From there the keys below work. In the app, press ? to see them.
       </p>
       <ShortcutsTable shortcuts={MATRIX_SHORTCUTS} />
     </Section>

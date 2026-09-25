@@ -1,6 +1,6 @@
 // Keyboard focus ring of the header's buttons
 const FOCUS_RING =
-  'outline-none focus-visible:outline-2 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300';
+  'outline-hidden focus-visible:outline-2 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300';
 
 export const HEADER_STYLES = {
   // In the flow on a phone, in the top padding on wider screens

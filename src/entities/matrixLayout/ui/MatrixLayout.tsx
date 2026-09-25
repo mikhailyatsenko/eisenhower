@@ -9,11 +9,12 @@ import {
   setFullScreenQuadrantAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
+import { AddTaskButton } from '../components/addTaskButton';
 import { Quadrant } from '../components/quadrant';
 import { QuadrantTaskList } from '../components/quadrantTaskList';
 import { TaskItem } from '../components/taskItem';
 import { useFullScreenQuadrant } from '../hooks';
-import { tabStopTaskId } from '../lib';
+import { matrixTabStop } from '../lib';
 import { QuadrantSlots } from '../types';
 
 interface MatrixLayoutProps {
@@ -36,9 +37,15 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   );
   const selectedTaskId = useUIStore((state) => state.selectedTaskId);
   const lastSelectedTaskId = useUIStore((state) => state.lastSelectedTaskId);
+  const addTaskTabStop = useUIStore((state) => state.addTaskTabStop);
   const titleIdPrefix = useId();
   // The whole matrix is one Tab stop; the keys move on from there
-  const tabStopId = tabStopTaskId(tasks, selectedTaskId, lastSelectedTaskId);
+  const tabStop = matrixTabStop(
+    tasks,
+    selectedTaskId,
+    lastSelectedTaskId,
+    addTaskTabStop,
+  );
   const { fullScreenQuadrant, isPhone } = useFullScreenQuadrant(tasks);
   const shownQuadrants = fullScreenQuadrant
     ? [fullScreenQuadrant]
@@ -67,7 +74,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
               setFullScreenQuadrantAction(isOpen ? quadrantKey : null)
             }
             headerAction={slots.headerAction(quadrantKey)}
-            onEmptySpaceClick={() => slots.onEmptySpaceClick(quadrantKey)}
+            onEmptySpaceClick={() => slots.openAddField(quadrantKey)}
           >
             <SortableContext
               items={quadrantTasks}
@@ -75,7 +82,24 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             >
               <QuadrantTaskList
                 labelledBy={titleId}
-                listEnd={slots.listEnd(quadrantKey)}
+                listEnd={
+                  <>
+                    {taskCount === 0 && (
+                      <AddTaskButton
+                        quadrant={quadrantKey}
+                        titleId={titleId}
+                        isTabStop={
+                          'quadrant' in tabStop &&
+                          tabStop.quadrant === quadrantKey
+                        }
+                        onClick={(button) =>
+                          slots.openAddField(quadrantKey, button)
+                        }
+                      />
+                    )}
+                    {slots.listEnd(quadrantKey)}
+                  </>
+                }
               >
                 {quadrantTasks.map((task, index) => (
                   <TaskItem
@@ -83,7 +107,9 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                     task={task}
                     quadrantKey={quadrantKey}
                     index={index}
-                    isTabStop={task.id === tabStopId}
+                    isTabStop={
+                      'taskId' in tabStop && tabStop.taskId === task.id
+                    }
                     isFullText={isFullScreen}
                   />
                 ))}

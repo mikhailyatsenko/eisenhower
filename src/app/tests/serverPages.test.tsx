@@ -1,6 +1,6 @@
 import { within } from '@testing-library/react';
 import { renderToString } from 'react-dom/server.node';
-import { MATRIX_SHORTCUTS, SITE_URL } from '@/shared/consts';
+import { ADD_HINT, MATRIX_SHORTCUTS, SITE_URL } from '@/shared/consts';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts/quadrants';
 import EisenhowerMatrixPage, {
   metadata,
@@ -86,11 +86,15 @@ describe('Server pages', () => {
       );
     });
 
-    it('explains selection, the action panel, the keys and drag', () => {
+    it('explains adding in the quadrant, selection, the action panel, the keys and drag', () => {
       const page = renderServerHtml(<EisenhowerMatrixPage />);
       const howTo = within(page).getByRole('region', {
         name: 'How to use the app',
       });
+
+      expect(howTo).toHaveTextContent(ADD_HINT);
+      expect(howTo).toHaveTextContent('1 for Do First, 2 for Schedule');
+      expect(howTo).not.toHaveTextContent('open the form');
 
       expect(howTo).toHaveTextContent('Click or tap a task to select it');
       expect(howTo).toHaveTextContent('action panel');

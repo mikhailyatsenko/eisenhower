@@ -94,17 +94,19 @@ describe('Full-screen quadrant on a phone', () => {
     expect(openButton('Schedule')).toHaveFocus();
   });
 
-  it('opens the quadrant a new task lands in', async () => {
+  it('opens the quadrant the keyboard opens the add field in', async () => {
     const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
 
     await user.click(openButton('Do First'));
-    // 2 opens the add form for Schedule
+    // 2 opens the add field in Schedule
     await user.keyboard('2');
-    const dialog = screen.getByRole('dialog', { name: 'New task' });
-    await user.type(within(dialog).getByRole('textbox'), 'Hotel');
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
 
     expect(listTitles()).toEqual(['Schedule']);
+    const field = screen.getByRole('textbox', { name: 'Add task to Schedule' });
+    expect(field).toHaveFocus();
+
+    await user.keyboard('Hotel{Enter}');
+
     expect(task('Hotel')).toBeInTheDocument();
   });
 

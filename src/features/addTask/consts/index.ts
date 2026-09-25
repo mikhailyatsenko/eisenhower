@@ -19,4 +19,4 @@ export const FIELD_STYLES =
 // Out of the Tab order, so only a pointer target: 44px on a phone, 24px on
 // wider screens, where it sits in the header line without making it taller
 export const ADD_BUTTON_STYLES =
-  'flex size-11 shrink-0 cursor-pointer items-center justify-center self-center rounded-full text-gray-900 outline-none hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-indigo-700 sm:-my-1 sm:size-6 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:outline-indigo-300';
+  'flex size-11 shrink-0 cursor-pointer items-center justify-center self-center rounded-full text-gray-900 outline-hidden hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-indigo-700 sm:-my-1 sm:size-6 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:outline-indigo-300';

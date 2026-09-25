@@ -17,6 +17,8 @@ const initialState: UIState = {
   lastSelectedTaskId: null,
   fullScreenQuadrant: null,
   inlineAdd: null,
+  addTaskTabStop: null,
+  addTaskButtonToFocus: null,
 };
 
 export const useUIStore = create<UIState>()(

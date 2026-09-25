@@ -4,14 +4,25 @@ import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { QUADRANTS } from '@/shared/consts';
-import { MatrixKey, addTaskAction } from '@/shared/stores/tasksStore';
+import {
+  MatrixKey,
+  addTaskAction,
+  useTaskStore,
+} from '@/shared/stores/tasksStore';
 import {
   closeInlineAddAction,
+  getInlineAddReturnFocus,
+  requestTaskFocusAction,
   setInlineAddTextAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { FIELD_BORDER, FIELD_STYLES, MAX_TASK_LENGTH } from '../../consts';
 import { addButtonId, scrollIntoArea } from '../../lib';
+
+const getActiveTasks = () => {
+  const state = useTaskStore.getState();
+  return state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
+};
 
 interface InlineAddFieldProps {
   quadrant: MatrixKey;
@@ -20,7 +31,8 @@ interface InlineAddFieldProps {
 /**
  * The inline add field at the end of the quadrant's list, while it's open
  * there. Enter adds the task last and keeps the field for the next one, Esc
- * closes it. Focus leaving closes an empty field; one with text stays open.
+ * closes it and puts the focus back where the field was opened from. Focus
+ * leaving closes an empty field; one with text stays open.
  */
 export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
   const inlineAdd = useUIStore((state) =>
@@ -59,8 +71,18 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
       setAddedCount((count) => count + 1);
     } else if (event.key === 'Escape') {
       event.preventDefault();
+      const returnFocus = getInlineAddReturnFocus();
+      const lastTaskId = getActiveTasks()[quadrant].at(-1)?.id;
       closeInlineAddAction();
-      document.getElementById(addButtonId(quadrant))?.focus();
+      if (returnFocus?.isConnected) {
+        // Back where the keyboard or "Add a task" opened the field from
+        returnFocus.focus();
+      } else if (returnFocus && lastTaskId) {
+        // "Add a task" has given way to the tasks just added: the last one
+        requestTaskFocusAction(lastTaskId);
+      } else {
+        document.getElementById(addButtonId(quadrant))?.focus();
+      }
     }
   };
 

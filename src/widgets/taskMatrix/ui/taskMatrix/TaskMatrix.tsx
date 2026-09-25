@@ -16,11 +16,12 @@ import { LoaderFullScreen } from '@/shared/ui/loader';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
-// Adding in the quadrant: its "+", the inline field and a click on empty space
+// Adding in the quadrant: its "+", the inline field, a click on empty space
+// and "Add a task"
 const QUADRANT_SLOTS: QuadrantSlots = {
   headerAction: (quadrant) => <QuadrantAddButton quadrant={quadrant} />,
   listEnd: (quadrant) => <InlineAddField quadrant={quadrant} />,
-  onEmptySpaceClick: openInlineAddAction,
+  openAddField: openInlineAddAction,
 };
 
 export const TaskMatrix: React.FC = () => {
@@ -67,7 +68,7 @@ export const TaskMatrix: React.FC = () => {
         tabIndex={-1}
         // The phone grid's axis labels are small: less room above it
         className={twMerge(
-          'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
+          'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
           viewMode === 'matrix' && 'mt-5 sm:mt-14',
         )}
       >
