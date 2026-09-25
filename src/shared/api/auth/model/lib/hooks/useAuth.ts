@@ -1,66 +1,45 @@
 'use client';
 
-import {
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut,
-  User,
-} from 'firebase/auth';
 import { useEffect, useState } from 'react';
-
-import { auth } from '@/shared/config/firebaseConfig';
+import {
+  onUserChanged,
+  signInWithGithub,
+  signInWithGoogle,
+  signOut,
+} from '../../../client';
+import { CloudUser } from '../../../types';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<CloudUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setIsLoading(true);
-      setUser(currentUser);
+  useEffect(
+    () =>
+      onUserChanged((currentUser) => {
+        setUser(currentUser);
+        setIsLoading(false);
+      }),
+    [],
+  );
 
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        setUser(result.user);
-      })
+  const signInWith = (signIn: () => Promise<CloudUser>) =>
+    signIn()
+      .then(setUser)
       .catch((error) => {
         console.log('Authentication error:', error);
       })
       .finally(() => {
         setIsLoading(false);
       });
-  };
 
-  const handleGithubSignIn = async () => {
-    const provider = new GithubAuthProvider();
-
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        setUser(result.user);
-      })
-      .catch((error) => {
-        console.log('Authentication error:', error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
+  const handleGoogleSignIn = () => signInWith(signInWithGoogle);
+  const handleGithubSignIn = () => signInWith(signInWithGithub);
 
   const handleLogout = async () => {
-    await signOut(auth);
+    await signOut();
     setUser(null);
   };
+
   return {
     user,
     isLoading,

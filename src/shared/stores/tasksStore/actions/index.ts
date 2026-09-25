@@ -2,21 +2,34 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { RESTORE_FALLBACK_QUADRANT } from '../consts';
 import { useTaskStore } from '../hooks/useTasksStore';
-import {
-  fetchTasksFromFirebase,
-  syncTasksToFirebase,
-  deleteTaskFromFirebase,
-  clearCompletedTasksFromFirebase,
-} from '../lib';
+import { wholeMatrixChanges } from '../lib';
 import { MatrixKey, Revert, Task, Tasks } from '../types';
+import { isSignedInToCloud, writeToCloud } from './cloudSync';
 
-export const syncTasks = async () => {
-  const result = await fetchTasksFromFirebase();
-  if (!result) return;
-  useTaskStore.setState((state) => {
-    state.firebaseTasks = result.tasks;
-    state.firebaseCompletedTasks = result.completedTasks;
-  });
+export {
+  subscribeToCloudMatrix,
+  holdCloudSnapshotsAction,
+  releaseCloudSnapshotsAction,
+} from './cloudSync';
+
+// Rewrites the whole cloud Matrix, as it did before the live subscription
+const writeCloudMatrix = async () => {
+  const { firebaseTasks, firebaseCompletedTasks } = useTaskStore.getState();
+  try {
+    await writeToCloud(
+      wholeMatrixChanges(firebaseTasks, firebaseCompletedTasks),
+    );
+  } catch (error) {
+    console.error('Error syncing tasks:', error);
+  }
+};
+
+const deleteFromCloud = async (taskId: string) => {
+  try {
+    await writeToCloud([{ type: 'delete', id: taskId }]);
+  } catch (error) {
+    console.error('Error deleting task:', error);
+  }
 };
 
 export const switchToLocalTasks = () => {
@@ -55,11 +68,7 @@ export const addTaskAction = async (
     }
   });
   if (useTaskStore.getState().activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(
-      state.firebaseTasks,
-      state.firebaseCompletedTasks,
-    );
+    await writeCloudMatrix();
   }
   return taskId;
 };
@@ -105,11 +114,7 @@ export const editTaskAction = async (
 
   if (isChanged) {
     if (useTaskStore.getState().activeState === 'firebase') {
-      const state = useTaskStore.getState();
-      await syncTasksToFirebase(
-        state.firebaseTasks,
-        state.firebaseCompletedTasks,
-      );
+      await writeCloudMatrix();
     }
   }
 };
@@ -153,8 +158,7 @@ export const dragEndAction = async (newTasks: Tasks) => {
   });
 
   if (activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(newTasks, state.firebaseCompletedTasks);
+    await writeCloudMatrix();
   }
 };
 
@@ -194,11 +198,7 @@ export const moveTaskAction = async (
   if (originalIndex === undefined) return;
 
   if (activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(
-      state.firebaseTasks,
-      state.firebaseCompletedTasks,
-    );
+    await writeCloudMatrix();
   }
 
   const indexToRestore = originalIndex;
@@ -249,11 +249,7 @@ export const completeTaskAction = async (
   if (!completed) return;
 
   if (activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(
-      state.firebaseTasks,
-      state.firebaseCompletedTasks,
-    );
+    await writeCloudMatrix();
   }
 
   const indexToRestore = originalIndex;
@@ -304,11 +300,7 @@ export const restoreTaskAction = async (
   if (!restoredToQuadrant) return;
 
   if (activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(
-      state.firebaseTasks,
-      state.firebaseCompletedTasks,
-    );
+    await writeCloudMatrix();
   }
 
   const quadrantKey = restoredToQuadrant;
@@ -346,11 +338,7 @@ const undoDeleteTaskAction = async (
   });
 
   if (useTaskStore.getState().activeState === 'firebase') {
-    const state = useTaskStore.getState();
-    await syncTasksToFirebase(
-      state.firebaseTasks,
-      state.firebaseCompletedTasks,
-    );
+    await writeCloudMatrix();
   }
 };
 
@@ -379,7 +367,7 @@ export const deleteTaskAction = async (
   if (!deletedTask) return;
 
   if (activeState === 'firebase') {
-    await deleteTaskFromFirebase(taskId);
+    await deleteFromCloud(taskId);
   }
 
   const taskToRestore = deletedTask;
@@ -412,7 +400,7 @@ export const deleteCompletedTaskAction = async (
   if (!deletedTask) return;
 
   if (activeState === 'firebase') {
-    await deleteTaskFromFirebase(taskId);
+    await deleteFromCloud(taskId);
   }
 
   const taskToRestore = deletedTask;
@@ -426,7 +414,13 @@ export const clearAllCompletedTasksAction = async () => {
   const { activeState } = useTaskStore.getState();
 
   if (activeState === 'firebase') {
-    await clearCompletedTasksFromFirebase();
+    if (!isSignedInToCloud()) {
+      throw new Error('User must be authenticated to clear tasks');
+    }
+    const { firebaseCompletedTasks } = useTaskStore.getState();
+    await writeToCloud(
+      firebaseCompletedTasks.map(({ id }) => ({ type: 'delete', id })),
+    );
   }
 
   useTaskStore.setState((state) => {
@@ -462,9 +456,5 @@ export const copyLocalTasksToFirebaseAction = async () => {
     state.firebaseCompletedTasks.push(...newCompletedTasks);
   });
 
-  const updatedState = useTaskStore.getState();
-  await syncTasksToFirebase(
-    updatedState.firebaseTasks,
-    updatedState.firebaseCompletedTasks,
-  );
+  await writeCloudMatrix();
 };

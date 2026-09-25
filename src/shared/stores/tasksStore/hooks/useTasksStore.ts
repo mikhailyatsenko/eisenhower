@@ -21,6 +21,7 @@ export const useTaskStore = create<TaskState>()(
       localCompletedTasks: [],
       firebaseCompletedTasks: [],
       activeState: LOCAL_STATE_KEY,
+      isCloudLoaded: false,
     })),
     {
       name: STORAGE_KEY,

@@ -11,20 +11,27 @@ import { getEmptyTasksState } from '@/shared/stores/tasksStore/lib';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { dismissToast } from '@/shared/ui/toast';
 import { AppShell } from '../layouts/AppShell';
+import {
+  CloudOptions,
+  SignedInUser,
+  cloud,
+  forgetFakeCloudListeners,
+  resetFakeCloud,
+} from './fakeCloud';
 
 // These mocks apply to modules loaded after this file: a test imports
 // renderHomePage before anything that pulls in Firebase or the router.
 
-// External boundary: no real Firebase. Auth reports "signed out" right away.
-jest.mock('@/shared/config/firebaseConfig', () => ({
-  db: {},
-  auth: {
-    onAuthStateChanged: (next: (user: null) => void) => {
-      next(null);
-      return () => {};
-    },
-  },
-}));
+// External boundary: no real Firebase. The two cloud clients are a fake
+// cloud the test controls; without `signedIn` it reports no user.
+jest.mock(
+  '@/shared/api/cloudMatrix/client',
+  () => jest.requireActual('./fakeCloud').fakeCloudMatrixClient,
+);
+jest.mock(
+  '@/shared/api/auth/client',
+  () => jest.requireActual('./fakeCloud').fakeAuthClient,
+);
 
 // External boundary: the Next app router isn't mounted outside Next
 jest.mock('next/navigation', () => {
@@ -152,9 +159,20 @@ export interface RenderHomePageOptions {
   tasks?: Partial<Record<MatrixKey, SeedTask[]>>;
   completedTasks?: Task[];
   viewport?: Partial<Viewport>;
+  /** Signed in with Google; the Matrix then comes from the cloud */
+  signedIn?: SignedInUser;
+  /** The server, the device cache and the network of the fake cloud */
+  cloud?: CloudOptions;
 }
 
 const SEED_DATE = new Date('2026-09-20T10:00:00.000Z');
+
+// The matrix shows a loader until the first snapshot of the (fake) cloud,
+// which comes a few promise hops after mount
+const settle = () =>
+  act(async () => {
+    for (let hop = 0; hop < 5; hop += 1) await Promise.resolve();
+  });
 
 const toTask = (seed: SeedTask, key: MatrixKey, index: number): Task =>
   typeof seed === 'string'
@@ -169,6 +187,8 @@ export const renderHomePage = async ({
   tasks = {},
   completedTasks = [],
   viewport: viewportOverrides,
+  signedIn,
+  cloud: cloudOptions,
 }: RenderHomePageOptions = {}) => {
   // Stores are module singletons: drop what a previous test left behind.
   // Resetting persists the empty state, so it goes before seeding.
@@ -176,6 +196,7 @@ export const renderHomePage = async ({
   useUIStore.setState(useUIStore.getInitialState(), true);
   dismissToast();
   localStorage.clear();
+  resetFakeCloud(signedIn, cloudOptions);
   mediaQueryLists.clear();
   viewport = { ...DESKTOP, ...viewportOverrides };
   window.innerWidth = viewport.width;
@@ -210,17 +231,36 @@ export const renderHomePage = async ({
       }
     },
   });
-  const result = render(
+  const page = (
     <AppShell serverThemeCookie="light">
       <HomePage />
-    </AppShell>,
+    </AppShell>
   );
-  // The matrix shows a loader until the (signed-out) sync settles
-  await act(async () => {});
+  let result = render(page);
+  await settle();
 
   return {
     ...result,
+    get container() {
+      return result.container;
+    },
     user,
+    cloud,
+    /**
+     * Closes the page and opens it again: the stores start over from
+     * localStorage, the fake cloud keeps its device cache and queue
+     */
+    reload: async () => {
+      result.unmount();
+      forgetFakeCloudListeners();
+      useTaskStore.setState(useTaskStore.getInitialState(), true);
+      useUIStore.setState(useUIStore.getInitialState(), true);
+      dismissToast();
+      await useTaskStore.persist.rehydrate();
+      await useUIStore.persist.rehydrate();
+      result = render(page);
+      await settle();
+    },
     /** Switches pointer and width mid-test, firing matchMedia and resize */
     setViewport: (next: Partial<Viewport>) =>
       act(() => applyViewport({ ...viewport, ...next })),

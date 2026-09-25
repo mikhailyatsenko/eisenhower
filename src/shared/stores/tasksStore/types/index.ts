@@ -23,18 +23,8 @@ export interface TaskState {
   localCompletedTasks: Task[];
   firebaseCompletedTasks: Task[];
   activeState: StateKey;
-}
-
-export interface FirestoreTaskData {
-  id: string;
-  text: string;
-  createdAt: string;
-  dueDate?: string;
-  quadrantKey?: MatrixKey;
-  userId: string;
-  order: number;
-  completed?: boolean;
-  completedAt?: string;
+  /** The signed-in user's cloud Matrix has arrived, from the server or the device cache */
+  isCloudLoaded: boolean;
 }
 
 /** Puts things back as they were before an action */

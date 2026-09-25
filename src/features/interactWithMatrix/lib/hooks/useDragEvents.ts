@@ -5,6 +5,8 @@ import { MatrixKey, useTaskStore } from '@/shared/stores/tasksStore';
 import {
   dragEndAction,
   dragOverQuadrantAction,
+  holdCloudSnapshotsAction,
+  releaseCloudSnapshotsAction,
 } from '@/shared/stores/tasksStore';
 import { setRecentlyAddedQuadrantAction } from '@/shared/stores/uiStore';
 import { dropIndex, findQuadrant } from '..';
@@ -31,6 +33,7 @@ export const useDragEvents = (moveTask: MoveTask) => {
   const origin = useRef<DragOrigin | null>(null);
 
   const reset = () => {
+    releaseCloudSnapshotsAction();
     origin.current = null;
     setDragOverQuadrant(null);
     setActiveTaskId(null);
@@ -45,6 +48,7 @@ export const useDragEvents = (moveTask: MoveTask) => {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
+    holdCloudSnapshotsAction();
     const taskId = event.active.id as string;
     const activeArea = event.active.data.current?.quadrantKey as
       | MatrixKey
@@ -100,11 +104,17 @@ export const useDragEvents = (moveTask: MoveTask) => {
       const targetIndex = dropIndex(activeIndex, overIndex, start.index);
       const unchanged =
         activeIndex === start.index && targetIndex === start.index;
+      // What came from the cloud during the drag goes in before the write
+      releaseCloudSnapshotsAction();
       if (targetIndex !== undefined && !unchanged) {
-        dragEndAction({
-          ...tasks,
-          [overArea]: arrayMove(tasks[overArea], activeIndex, targetIndex),
-        });
+        const fresh = currentTasks();
+        const fromIndex = fresh[overArea].findIndex(({ id }) => id === taskId);
+        if (fromIndex !== -1) {
+          dragEndAction({
+            ...fresh,
+            [overArea]: arrayMove(fresh[overArea], fromIndex, targetIndex),
+          });
+        }
       }
     } else {
       const targetIndex =
@@ -113,6 +123,7 @@ export const useDragEvents = (moveTask: MoveTask) => {
           : undefined;
       // Move goes from where the drag started, so its Undo returns the task there
       putBack(taskId);
+      releaseCloudSnapshotsAction();
       if (start.quadrantKey !== overArea) {
         moveTask(start.quadrantKey, taskId, overArea, targetIndex);
       }

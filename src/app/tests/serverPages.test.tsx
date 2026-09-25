@@ -10,7 +10,7 @@ import sitemap from '../../../app/sitemap';
 import { axe } from './axe';
 
 // External boundary: no real Firebase on the server render
-jest.mock('@/shared/config/firebaseConfig', () => ({ db: {}, auth: {} }));
+jest.mock('@/shared/config/firebaseConfig', () => ({ app: {} }));
 
 // External boundary: the Next app router isn't mounted outside Next
 jest.mock('next/navigation', () => ({
