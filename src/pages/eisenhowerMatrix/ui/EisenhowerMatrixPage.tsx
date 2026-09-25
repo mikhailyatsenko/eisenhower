@@ -172,8 +172,9 @@ export const EisenhowerMatrixPage = () => (
       </h3>
       <p>
         The whole matrix is one Tab stop: Tab takes you to the task you last
-        selected, or to the first one; in an empty matrix, to Add a task in Do
-        First. From there the keys below work. In the app, press ? to see them.
+        selected, or to the first one; in an empty matrix, to the button that
+        adds a task in Do First. From there the keys below work. In the app,
+        press ? to see them.
       </p>
       <ShortcutsTable shortcuts={MATRIX_SHORTCUTS} />
     </Section>

@@ -12,6 +12,7 @@ import {
 } from '@/shared/stores/uiStore';
 import { AddTaskButton } from '../components/addTaskButton';
 import { Quadrant } from '../components/quadrant';
+import { QuadrantExamples } from '../components/quadrantExamples';
 import { QuadrantTaskList } from '../components/quadrantTaskList';
 import { TaskItem } from '../components/taskItem';
 import { useFullScreenQuadrant } from '../hooks';
@@ -24,6 +25,8 @@ interface MatrixLayoutProps {
   dragOverQuadrant: MatrixKey | null;
   taskInputText: string;
   slots: QuadrantSlots;
+  /** Empty quadrants show their example tasks */
+  hasExamples: boolean;
 }
 
 export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
@@ -32,6 +35,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   dragOverQuadrant,
   taskInputText,
   slots,
+  hasExamples,
 }) => {
   const recentlyAddedQuadrant = useUIStore(
     (state) => state.recentlyAddedQuadrant,
@@ -88,6 +92,9 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                 labelledBy={titleId}
                 listEnd={
                   <>
+                    {taskCount === 0 && hasExamples && (
+                      <QuadrantExamples quadrant={quadrantKey} />
+                    )}
                     {taskCount === 0 && (
                       <AddTaskButton
                         quadrant={quadrantKey}

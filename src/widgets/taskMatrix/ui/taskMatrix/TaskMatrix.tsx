@@ -46,6 +46,9 @@ export const TaskMatrix: React.FC = () => {
   );
   const isAwaitingServer = useSyncStore((state) => state.isAwaitingServer);
 
+  // The account's tasks haven't come yet: examples would make it look empty
+  const isAccountAwaited = !!user && isInCloudStorage && isAwaitingServer;
+
   if (isLoading || (user && isWaitingForCloud)) {
     return <LoaderFullScreen />;
   }
@@ -53,7 +56,7 @@ export const TaskMatrix: React.FC = () => {
   return (
     <>
       {/* The Matrix is on screen without the server: the tasks aren't lost */}
-      {user && isInCloudStorage && isAwaitingServer && (
+      {isAccountAwaited && (
         <p className="mt-6 text-center text-sm text-gray-700 dark:text-gray-300">
           Your tasks are in your account. They&apos;ll appear when you&apos;re
           back online.
@@ -85,6 +88,7 @@ export const TaskMatrix: React.FC = () => {
               taskInputText={taskInputText}
               moveTask={moveTask}
               quadrantSlots={QUADRANT_SLOTS}
+              hasExamples={!isAccountAwaited}
             />
           </>
         ) : (

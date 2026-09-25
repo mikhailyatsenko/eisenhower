@@ -20,10 +20,13 @@ const queryFields = () =>
 
 /** An empty quadrant's own button, described by the quadrant's title */
 const addATask = (title: string) =>
-  screen.getByRole('button', { name: 'Add a task', description: title });
+  screen.getByRole('button', {
+    name: 'Click to add a task',
+    description: title,
+  });
 
 const queryAddATask = () =>
-  screen.queryAllByRole('button', { name: 'Add a task' });
+  screen.queryAllByRole('button', { name: 'Click to add a task' });
 
 const task = (text: string) => screen.getByRole('option', { name: text });
 

@@ -19,7 +19,10 @@ const matrix = () => screen.getByRole('group', { name: 'Task matrix' });
 
 /** An empty quadrant's own button, described by the quadrant's title */
 const addATask = (title: string) =>
-  screen.getByRole('button', { name: 'Add a task', description: title });
+  screen.getByRole('button', {
+    name: 'Click to add a task',
+    description: title,
+  });
 
 const field = (title: string) =>
   screen.getByRole('textbox', { name: `Add task to ${title}` });

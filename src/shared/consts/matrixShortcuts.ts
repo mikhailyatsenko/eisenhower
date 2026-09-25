@@ -16,7 +16,7 @@ export const MATRIX_SHORTCUTS: Shortcut[] = [
   {
     keys: ['←', '→'],
     action:
-      'The same place in the next quadrant, or its Add a task button when it’s empty',
+      'The same place in the next quadrant, or the button that adds a task there when it’s empty',
   },
   { keys: ['Tab'], action: 'From the task to its action panel; Esc goes back' },
   {
