@@ -9,6 +9,8 @@ import { PANEL_STYLES, QUADRANT_DOT } from '../consts';
 interface ActionToolbarProps extends TaskActionHandlers {
   toolbarRef: RefObject<HTMLDivElement | null>;
   location: TaskLocation;
+  /** "×": clears the selection, as Esc does */
+  onDeselect: () => void;
 }
 
 /** The key that does the button's action right now, on desktop only */
@@ -38,6 +40,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
   onEdit,
   onMove,
   onDelete,
+  onDeselect,
 }) => {
   useToastClearance(toolbarRef);
   const moveToLabelId = useId();
@@ -81,6 +84,21 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
     >
       Delete
       {hint('Del')}
+    </button>
+  );
+  // Named for what it does to the task: the panel only follows the selection
+  const deselectButton = (
+    <button
+      type="button"
+      aria-label="Deselect task"
+      aria-keyshortcuts="Escape"
+      onClick={onDeselect}
+      className={twMerge(styles.BUTTON, styles.DESELECT_BUTTON)}
+    >
+      <span aria-hidden="true" className="text-lg leading-none">
+        ×
+      </span>
+      {hint('Esc')}
     </button>
   );
   const moveToGroup = (
@@ -127,10 +145,13 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
     >
       {isPhone ? (
         <>
-          {/* The task may sit under the panel; the toolbar name already says it */}
-          <p aria-hidden="true" className={PANEL_STYLES.phone.TASK_TEXT}>
-            {task.text}
-          </p>
+          <div className={PANEL_STYLES.phone.TASK_ROW}>
+            {/* The task may sit under the panel; the toolbar name already says it */}
+            <p aria-hidden="true" className={PANEL_STYLES.phone.TASK_TEXT}>
+              {task.text}
+            </p>
+            {deselectButton}
+          </div>
           <div className={PANEL_STYLES.phone.ACTIONS_ROW}>
             {completeButton}
             {editButton}
@@ -146,6 +167,8 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
           {moveToGroup}
           <Divider />
           {deleteButton}
+          <Divider />
+          {deselectButton}
         </>
       )}
     </div>

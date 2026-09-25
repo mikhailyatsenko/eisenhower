@@ -124,8 +124,9 @@ export const EisenhowerMatrixPage = () => (
           .
         </li>
         <li>
-          Click or tap a task to select it. Click it again, click an empty spot
-          in its quadrant or press Esc to clear the selection.
+          Click or tap a task to select it. To clear the selection, click it
+          again, click any empty spot on the page, press the × in the action
+          panel or press Esc.
         </li>
         <li>
           While a task is selected, the action panel at the bottom of the window
@@ -158,8 +159,8 @@ export const EisenhowerMatrixPage = () => (
         <li>
           Tap a task to select it. The panel at the bottom of the screen has
           Complete, Edit and Delete, and under them Move to, laid out as a small
-          matrix: tap the quadrant the task should go to. Tap the task again or
-          an empty spot in its quadrant to close the panel.
+          matrix: tap the quadrant the task should go to. Tap the × next to the
+          task&apos;s text, the task again or any empty spot to close the panel.
         </li>
         <li>
           To drag a task, press and hold it until it lifts, then move it to

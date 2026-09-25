@@ -21,6 +21,7 @@ export const PANEL_STYLES = {
     MOVE_TO_LABEL: 'px-1 text-gray-300',
     MOVE_TO_GRID: 'contents',
     MOVE_TO_BUTTON: 'px-2',
+    DESELECT_BUTTON: 'flex items-center',
   },
   // Every target is at least 44×44 (min-h-11)
   phone: {
@@ -31,7 +32,9 @@ export const PANEL_STYLES = {
     MOVE_TO_LABEL: 'mb-1.5 block px-1 text-xs text-gray-300',
     MOVE_TO_GRID: 'grid grid-cols-2 gap-2',
     MOVE_TO_BUTTON: 'flex items-center px-3 text-left font-bold',
-    TASK_TEXT: 'mb-2 line-clamp-1 px-1 opacity-80',
+    TASK_ROW: 'mb-2 flex items-center gap-2',
+    TASK_TEXT: 'line-clamp-1 min-w-0 flex-1 px-1 opacity-80',
+    DESELECT_BUTTON: 'flex min-w-11 shrink-0 items-center justify-center',
     ACTIONS_ROW: 'grid grid-cols-3 gap-2',
   },
 } as const;
