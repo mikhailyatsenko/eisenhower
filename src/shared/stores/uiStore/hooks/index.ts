@@ -19,6 +19,7 @@ const initialState: UIState = {
   inlineAdd: null,
   addTaskTabStop: null,
   addTaskButtonToFocus: null,
+  hasAddedByEmptySpace: false,
 };
 
 export const useUIStore = create<UIState>()(
@@ -30,6 +31,7 @@ export const useUIStore = create<UIState>()(
         viewMode: state.viewMode,
         sortField: state.sortField,
         sortDirection: state.sortDirection,
+        hasAddedByEmptySpace: state.hasAddedByEmptySpace,
       }),
     },
   ),

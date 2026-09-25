@@ -82,7 +82,9 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
               setFullScreenQuadrantAction(isOpen ? quadrantKey : null);
             }}
             headerAction={slots.headerAction(quadrantKey)}
-            onEmptySpaceClick={() => slots.openAddField(quadrantKey)}
+            onEmptySpaceClick={() =>
+              slots.openAddFieldByEmptySpace(quadrantKey)
+            }
           >
             <SortableContext
               items={quadrantTasks}

@@ -253,9 +253,21 @@ export const renderHomePage = async ({
     reload: async () => {
       result.unmount();
       forgetFakeCloudListeners();
+      // Resetting persists the empty state: the device's storage goes back
+      // as it was before the stores read it again
+      const stored = Object.fromEntries(
+        Array.from({ length: localStorage.length }, (_, index) => {
+          const key = localStorage.key(index)!;
+          return [key, localStorage.getItem(key)!];
+        }),
+      );
       useTaskStore.setState(useTaskStore.getInitialState(), true);
       useUIStore.setState(useUIStore.getInitialState(), true);
       dismissToast();
+      localStorage.clear();
+      Object.entries(stored).forEach(([key, value]) =>
+        localStorage.setItem(key, value),
+      );
       await useTaskStore.persist.rehydrate();
       await useUIStore.persist.rehydrate();
       result = render(page);

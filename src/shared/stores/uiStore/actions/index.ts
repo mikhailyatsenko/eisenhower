@@ -55,9 +55,10 @@ export const getInlineAddReturnFocus = () =>
  * text. The selection goes: no action panel while the field is open. Esc
  * puts the focus back on `returnFocus`, else on the quadrant's "+".
  */
-export const openInlineAddAction = (
+const openInlineAdd = (
   quadrant: MatrixKey,
-  returnFocus: HTMLElement | null = null,
+  returnFocus: HTMLElement | null,
+  isByEmptySpace: boolean,
 ) => {
   inlineAddReturnFocus = returnFocus;
   useUIStore.setState((state) => {
@@ -66,7 +67,30 @@ export const openInlineAddAction = (
       quadrant,
       text: state.inlineAdd?.text ?? '',
       openCount: (state.inlineAdd?.openCount ?? 0) + 1,
+      isByEmptySpace,
     };
+  });
+};
+
+/** Opens the field from "+", the keyboard or "Add a task" */
+export const openInlineAddAction = (
+  quadrant: MatrixKey,
+  returnFocus: HTMLElement | null = null,
+) => openInlineAdd(quadrant, returnFocus, false);
+
+/** Opens the inline add field as a click on the quadrant's empty space */
+export const openInlineAddByEmptySpaceAction = (quadrant: MatrixKey) =>
+  openInlineAdd(quadrant, null, true);
+
+/**
+ * Records a task the inline add field added: its text goes. The first one
+ * added by a click on empty space retires the header hint.
+ */
+export const recordInlineTaskAddAction = () => {
+  useUIStore.setState((state) => {
+    if (!state.inlineAdd) return;
+    state.inlineAdd.text = '';
+    if (state.inlineAdd.isByEmptySpace) state.hasAddedByEmptySpace = true;
   });
 };
 

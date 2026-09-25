@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
+import { EmptySpaceHint } from '../../emptySpaceHint';
 import { HEADER_STYLES } from '../consts';
 
 /**
@@ -107,6 +108,8 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
 
   return (
     <div className={HEADER_STYLES.HEADER}>
+      {/* 640px and wider: a phone's header is the one above */}
+      <EmptySpaceHint />
       {/* Names the task list, so it holds the title only */}
       <h2 id={titleId} className={HEADER_STYLES.TITLE}>
         {title}

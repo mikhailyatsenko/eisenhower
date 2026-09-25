@@ -11,7 +11,11 @@ import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import { useTaskStore } from '@/shared/stores/tasksStore';
-import { openInlineAddAction, useUIStore } from '@/shared/stores/uiStore';
+import {
+  openInlineAddAction,
+  openInlineAddByEmptySpaceAction,
+  useUIStore,
+} from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
@@ -22,6 +26,7 @@ const QUADRANT_SLOTS: QuadrantSlots = {
   headerAction: (quadrant) => <QuadrantAddButton quadrant={quadrant} />,
   listEnd: (quadrant) => <InlineAddField quadrant={quadrant} />,
   openAddField: openInlineAddAction,
+  openAddFieldByEmptySpace: openInlineAddByEmptySpaceAction,
 };
 
 export const TaskMatrix: React.FC = () => {
