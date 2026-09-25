@@ -4,9 +4,20 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Обработчик `beforeunload` отменяет событие, только пока модель синхронизации видит Pending changes. У анонимного пользователя и без Pending changes событие не отменяется.
-- [ ] Работает в любом режиме кэша: откат SDK на memory cache (Firefox Private, переполнение квоты) не различаем.
-- [ ] Тесты на главном seam: `goOffline`, правка — `beforeunload` отменён (`defaultPrevented`); после `goOnline` и подтверждения — не отменён; анонимный — не отменён.
-- [ ] Чек-лист: DevTools Offline, правка, закрытие вкладки — предупреждение браузера.
+- [x] Обработчик `beforeunload` отменяет событие, только пока модель синхронизации видит Pending changes. У анонимного пользователя и без Pending changes событие не отменяется.
+- [x] Работает в любом режиме кэша: откат SDK на memory cache (Firefox Private, переполнение квоты) не различаем.
+- [x] Тесты на главном seam: `goOffline`, правка — `beforeunload` отменён (`defaultPrevented`); после `goOnline` и подтверждения — не отменён; анонимный — не отменён.
+- [x] Чек-лист: DevTools Offline, правка, закрытие вкладки — предупреждение браузера.
+
+## Comments
+
+- `LeaveGuard` в `app/providers`, смонтирован в `AppShell` рядом с `CloudMatrixSync`. Подписывается на `selectHasPendingChanges` модели синхронизации и держит слушатель `beforeunload` только пока Pending changes есть: без них слушателя нет, bfcache не ломается. Обработчик вызывает `preventDefault()` и ставит `returnValue` для Chrome/Edge до 119.
+- Отдельной проверки «вошёл» нет: `resetSyncAction` при отписке (выход, потеря сессии) обнуляет `hasPendingWrites` и `unconfirmedWrites`, а у анонимного облачных записей не бывает. Режим кэша код не различает, поэтому memory cache ведёт себя так же.
+- Очередь от прошлой сессии (снимок с `hasPendingWrites: true` после перезагрузки без сети) тоже считается Pending changes и предупреждает. Это совпадает с формулировкой «пока модель синхронизации видит Pending changes».
+- Тесты: `src/app/tests/beforeUnload.test.tsx`, describe «Closing the tab».
+- Ревью, известные ограничения:
+  - Если сессия истекла при неотправленных правках (07), отписка сбрасывает модель, и предупреждения больше нет. С IndexedDB очередь переживает закрытие, а с memory cache (Firefox Private) закрытие вкладки её теряет молча. Спека требует предупреждения только «у вошедшего», так что это не нарушение, но дыра.
+  - Тест `RootLayout` (`src/app/layouts/index.test.tsx`) падает в окружении без `NEXT_PUBLIC_FIREBASE_API_KEY` (`auth/invalid-api-key`), и до этого тикета тоже. Здесь полный прогон и pre-commit шли с фиктивным ключом.
+- Ручной чек-лист: раздел J, «Предупреждение при закрытии вкладки». В настоящем браузере и с VoiceOver в этой сессии не проверялся.

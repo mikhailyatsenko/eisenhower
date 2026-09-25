@@ -24,6 +24,8 @@ export interface AuthIndicatorProps {
   handleLogout: () => void;
   localTasks: Record<MatrixKey, Task[]>;
   cloudTasks: Record<MatrixKey, Task[]>;
+  /** The account button, shown while the menu is closed */
+  accountButtonRef?: React.Ref<HTMLButtonElement>;
 }
 
 export const quadrantBgStyles = {
@@ -41,6 +43,7 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
   displayName,
   localTasks,
   cloudTasks,
+  accountButtonRef,
 }) => {
   const userImage = photoURL ? (
     <Image
@@ -82,6 +85,7 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       closedLabel={isSignedIn ? displayName || 'Account' : undefined}
+      closedButtonRef={accountButtonRef}
       iconWhenClosed={isSignedIn ? userImage : signInLabel}
     >
       {isSignedIn ? (

@@ -41,6 +41,8 @@ describe('Signing out on a shared device', () => {
     expect(cloud.deviceTasks()).toContain('Buy milk');
 
     await signOut(user);
+    // The unsent change makes Sign out ask first
+    await user.click(screen.getByRole('button', { name: 'Sign out anyway' }));
 
     expect(cloud.deviceTasks()).toEqual([]);
     expect(screen.queryByText('Pay rent')).not.toBeInTheDocument();

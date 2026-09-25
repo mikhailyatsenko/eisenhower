@@ -7,6 +7,8 @@ interface BubbleCornerButtonProps {
   iconWhenClosed: React.ReactNode;
   /** Accessible name of the closed button, for when its content has no text */
   closedLabel?: string;
+  /** The button shown while the bubble is closed */
+  closedButtonRef?: React.Ref<HTMLButtonElement>;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }
@@ -15,6 +17,7 @@ export const BubbleCornerButton: React.FC<BubbleCornerButtonProps> = ({
   children,
   iconWhenClosed,
   closedLabel,
+  closedButtonRef,
   isOpen,
   setIsOpen,
 }) => {
@@ -81,6 +84,7 @@ export const BubbleCornerButton: React.FC<BubbleCornerButtonProps> = ({
       ) : (
         // The click bubbles up to the wrapper, which opens the bubble
         <button
+          ref={closedButtonRef}
           type="button"
           aria-label={closedLabel}
           className="flex h-full w-full cursor-pointer items-center gap-2 px-3 text-sm font-semibold text-gray-900 focus-visible:ring-2 focus-visible:ring-indigo-700 focus-visible:outline-none focus-visible:ring-inset dark:text-gray-100 dark:focus-visible:ring-indigo-300"
