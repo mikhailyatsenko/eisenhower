@@ -17,6 +17,13 @@ const toast = () => screen.getByRole('status', { name: 'Notifications' });
 
 const matrix = () => screen.getByRole('group', { name: 'Task matrix' });
 
+/** An empty quadrant's own button, described by the quadrant's title */
+const addATask = (title: string) =>
+  screen.getByRole('button', { name: 'Add a task', description: title });
+
+const field = (title: string) =>
+  screen.getByRole('textbox', { name: `Add task to ${title}` });
+
 const tasksIn = (title: string) =>
   within(screen.getByRole('listbox', { name: title }))
     .queryAllByRole('option')
@@ -35,20 +42,13 @@ const expectCurrentTask = (text: string) => {
 
 type Page = Awaited<ReturnType<typeof renderHomePage>>;
 
-/** Tabs from the top of the page until focus lands on a task, if ever */
+/** Tabs from the top of the page until focus is in the matrix, if ever */
 const tabIntoMatrix = async ({ user }: Page) => {
   (document.activeElement as HTMLElement | null)?.blur();
   for (let step = 0; step < 30; step++) {
     await user.tab();
-    if (document.activeElement?.getAttribute('role') === 'option') return;
+    if (matrix().contains(document.activeElement)) return;
   }
-};
-
-/** Fills the open add form and saves it */
-const addTask = async ({ user }: Page, text: string) => {
-  const dialog = screen.getByRole('dialog', { name: 'New task' });
-  await user.type(within(dialog).getByRole('textbox'), text);
-  await user.click(within(dialog).getByRole('button', { name: 'Save' }));
 };
 
 describe('Matrix Tab stop', () => {
@@ -112,11 +112,16 @@ describe('Matrix Tab stop', () => {
     expectCurrentTask('Alpha');
   });
 
-  it('has no Tab stop in an empty matrix', async () => {
-    await renderHomePage();
+  it('stops on Add a task in Do First in an empty matrix', async () => {
+    const page = await renderHomePage();
 
     expect(screen.queryAllByRole('option')).toEqual([]);
     expect(matrix()).toHaveAttribute('tabindex', '-1');
+
+    await tabIntoMatrix(page);
+
+    expect(addATask('Do First')).toHaveFocus();
+    expect(selectedTasks()).toEqual([]);
   });
 });
 
@@ -166,27 +171,21 @@ describe('Matrix keys without a selection', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('opens the add form in quadrant N on 1–4, once', async () => {
-    const page = await renderHomePage({ tasks: { ImportantUrgent: TASKS } });
+  it('opens the add field in quadrant N on 1–4, once', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
 
-    await page.user.keyboard('3');
-    expect(screen.getAllByRole('dialog', { name: 'New task' })).toHaveLength(1);
+    await user.keyboard('3');
 
-    await addTask(page, 'Answer emails');
+    expect(screen.getAllByRole('textbox')).toEqual([field('Delegate')]);
+    expect(field('Delegate')).toHaveFocus();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    await user.keyboard('Answer emails{Enter}');
 
     expect(tasksIn('Delegate')).toEqual(['Answer emails']);
     expect(tasksIn('Do First')).toEqual(TASKS);
-  });
-
-  it('opens the add form in Do First on N', async () => {
-    const page = await renderHomePage({
-      tasks: { ImportantNotUrgent: ['Delta'] },
-    });
-
-    await page.user.keyboard('n');
-    await addTask(page, 'Fix the server');
-
-    expect(tasksIn('Do First')).toEqual(['Fix the server']);
   });
 
   it('keeps only 1–4 in List view', async () => {
@@ -255,13 +254,15 @@ describe('Matrix keys with a selection', () => {
     expectCurrentTask('B2');
   });
 
-  it('skips an empty neighbour quadrant', async () => {
+  it('goes to the Add a task of an empty neighbour quadrant', async () => {
     const { user } = await renderHomePage({ tasks: GRID });
 
     await user.click(task('C1'));
     await user.keyboard('{ArrowRight}');
 
-    expectCurrentTask('C1');
+    expect(addATask('Eliminate')).toHaveFocus();
+    expect(selectedTasks()).toEqual([]);
+    expect(queryToolbar()).not.toBeInTheDocument();
   });
 
   it('moves the task on 1–4 and does nothing for its own quadrant', async () => {
@@ -317,14 +318,15 @@ describe('Matrix keys with a selection', () => {
     },
   );
 
-  it('opens the add form in the selected quadrant on N', async () => {
-    const page = await renderHomePage({ tasks: GRID });
+  it('opens the add field in the selected quadrant on N', async () => {
+    const { user } = await renderHomePage({ tasks: GRID });
 
-    await page.user.click(task('B1'));
-    await page.user.keyboard('n');
-    await addTask(page, 'Plan the quarter');
+    await user.click(task('B1'));
+    await user.keyboard('n');
+    await user.keyboard('Plan the quarter{Enter}');
 
     expect(tasksIn('Schedule')).toEqual(['B1', 'B2', 'Plan the quarter']);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('clears the selection on Escape and keeps the focus on the task', async () => {
@@ -396,7 +398,7 @@ describe('Focus after an action', () => {
     jest.useRealTimers();
   });
 
-  it('goes to the neighbour quadrant after completing its last task', async () => {
+  it('goes to the emptied quadrant’s Add a task after completing its last task', async () => {
     const { user } = await renderHomePage({
       tasks: {
         ImportantUrgent: ['Alpha'],
@@ -408,10 +410,12 @@ describe('Focus after an action', () => {
     await user.click(task('Alpha'));
     await user.keyboard('c');
 
-    expectCurrentTask('Bravo');
+    expect(addATask('Do First')).toHaveFocus();
+    expect(selectedTasks()).toEqual([]);
+    expect(queryToolbar()).not.toBeInTheDocument();
   });
 
-  it('goes to the quadrant below when the one in the row is empty', async () => {
+  it('goes to the emptied quadrant’s Add a task after deleting its last task', async () => {
     const { user } = await renderHomePage({
       tasks: {
         ImportantNotUrgent: ['Bravo'],
@@ -422,10 +426,11 @@ describe('Focus after an action', () => {
     await user.click(task('Bravo'));
     await user.keyboard('{Delete}');
 
-    expectCurrentTask('Delta');
+    expect(addATask('Schedule')).toHaveFocus();
+    expect(selectedTasks()).toEqual([]);
   });
 
-  it('goes to the nearest quadrant after moving the last task of a quadrant', async () => {
+  it('goes to the emptied quadrant’s Add a task after moving its last task', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: ['Alpha'], NotImportantUrgent: ['Charlie'] },
     });
@@ -434,10 +439,11 @@ describe('Focus after an action', () => {
     await user.keyboard('2');
 
     expect(tasksIn('Schedule')).toEqual(['Alpha']);
-    expectCurrentTask('Charlie');
+    expect(addATask('Do First')).toHaveFocus();
+    expect(selectedTasks()).toEqual([]);
   });
 
-  it('focuses the matrix once its last task is gone', async () => {
+  it('goes to Add a task, not the matrix, once the last task is gone', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: ['Alpha'] },
     });
@@ -446,10 +452,10 @@ describe('Focus after an action', () => {
     await user.keyboard('{Delete}');
 
     expect(selectedTasks()).toEqual([]);
-    expect(matrix()).toHaveFocus();
+    expect(addATask('Do First')).toHaveFocus();
   });
 
-  it('focuses the matrix once the last task is completed from the toolbar', async () => {
+  it('goes to Add a task once the last task is completed from the toolbar', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: ['Alpha'] },
     });
@@ -460,10 +466,10 @@ describe('Focus after an action', () => {
     );
 
     expect(queryToolbar()).not.toBeInTheDocument();
-    expect(matrix()).toHaveFocus();
+    expect(addATask('Do First')).toHaveFocus();
   });
 
-  it('keeps the moved task selected when nothing else is in the matrix', async () => {
+  it('goes to the emptied quadrant’s Add a task after moving the only task', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: ['Alpha'] },
     });
@@ -472,10 +478,11 @@ describe('Focus after an action', () => {
     await user.keyboard('3');
 
     expect(tasksIn('Delegate')).toEqual(['Alpha']);
-    expectCurrentTask('Alpha');
+    expect(addATask('Do First')).toHaveFocus();
+    expect(selectedTasks()).toEqual([]);
   });
 
-  it('keeps the moved task selected after the toolbar Move', async () => {
+  it('goes to the emptied quadrant’s Add a task after the toolbar Move', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: ['Alpha'] },
     });
@@ -486,7 +493,7 @@ describe('Focus after an action', () => {
     );
 
     expect(tasksIn('Delegate')).toEqual(['Alpha']);
-    expectCurrentTask('Alpha');
+    expect(addATask('Do First')).toHaveFocus();
   });
 
   it('selects and focuses the restored task on Undo', async () => {

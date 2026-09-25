@@ -9,6 +9,7 @@ import {
   useTaskStore,
 } from '@/shared/stores/tasksStore';
 import {
+  requestAddTaskButtonFocusAction,
   requestTaskFocusAction,
   selectTaskAction,
   useUIStore,
@@ -43,6 +44,8 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
 }) => {
   const selectedTaskId = useUIStore((state) => state.selectedTaskId);
   const isMatrixView = useUIStore((state) => state.viewMode === 'matrix');
+  // The inline add field keeps the panel closed while it's open
+  const isAddingInline = useUIStore((state) => state.inlineAdd !== null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   // By id: a dialog left open for another task must not pop up on a later selection
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -50,15 +53,17 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
   const found = locateTask(tasks, selectedTaskId);
-  // The selected task has left the matrix (Complete, Delete, a change in the
-  // cloud): its neighbour takes over in this very render, so the panel and
-  // the focus in it stay put
+  // The selected task has left the matrix (Complete, Delete): its neighbour
+  // takes over in this very render, so the panel and the focus in it stay
+  // put. A change in the cloud drops the selection before this (J1).
   const left =
     !found && lastLocation.current?.task.id === selectedTaskId
       ? lastLocation.current
       : null;
   const location =
     found ?? (left ? locateTask(tasks, neighbourTaskId(tasks, left)) : null);
+  // No neighbour: the quadrant is empty, its "Add a task" takes the focus
+  const emptiedQuadrant = left && !location ? left.quadrantKey : null;
   const isSelectionStale = selectedTaskId !== null && !found;
   const locatedTaskId = location?.task.id ?? null;
 
@@ -70,7 +75,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     if (isSelectionStale) selectTaskAction(locatedTaskId);
   }, [isSelectionStale, locatedTaskId]);
 
-  useFocusAfterAction(matrixRef, locatedTaskId);
+  useFocusAfterAction(matrixRef, locatedTaskId, emptiedQuadrant);
 
   const handleMove = async (toQuadrant: MatrixKey) => {
     if (!location) return;
@@ -82,23 +87,19 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     };
     const neighbourId = neighbourTaskId(withoutTask, location);
     selectTaskAction(neighbourId);
+    // The last task leaves: the quadrant's "Add a task" takes the focus as
+    // soon as it shows
+    if (!neighbourId) requestAddTaskButtonFocusAction(quadrantKey);
 
     await moveTask(quadrantKey, task.id, toQuadrant);
 
     // The move failed or did nothing: the selection goes back to the task,
     // unless the user has picked another one meanwhile
-    const tasksNow = getActiveTasks();
     const isUntouched = useUIStore.getState().selectedTaskId === neighbourId;
-    const movedTo = locateTask(tasksNow, task.id)?.quadrantKey;
+    const movedTo = locateTask(getActiveTasks(), task.id)?.quadrantKey;
     if (movedTo === quadrantKey && isUntouched) {
+      if (!neighbourId) requestAddTaskButtonFocusAction(null);
       selectTaskAction(task.id);
-    } else if (movedTo === toQuadrant && isUntouched && !neighbourId) {
-      // Nothing else in the matrix: the task stays selected where it went
-      selectTaskAction(task.id);
-      const active = document.activeElement;
-      if (!active || active === document.body || active === matrixRef.current) {
-        requestTaskFocusAction(task.id);
-      }
     }
   };
 
@@ -133,7 +134,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
 
   return (
     <>
-      {location && (
+      {location && !isAddingInline && (
         <ActionToolbar
           toolbarRef={toolbarRef}
           location={location}

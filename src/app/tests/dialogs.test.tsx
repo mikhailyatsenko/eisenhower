@@ -158,19 +158,6 @@ describe('Add dialog', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(newTask).toHaveFocus();
   });
-
-  it('gives the focus back to the task that N was pressed on', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.keyboard('n');
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expectCurrentTask('Bravo');
-  });
 });
 
 describe('Shortcuts cheatsheet', () => {
@@ -187,7 +174,7 @@ describe('Shortcuts cheatsheet', () => {
     expectModalDialog(cheatsheet());
   });
 
-  it('lists every matrix key, Undo and drag', async () => {
+  it('explains adding and lists every matrix key, Undo and drag', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },
     });
@@ -219,6 +206,14 @@ describe('Shortcuts cheatsheet', () => {
     expect(cheatsheet()).toHaveTextContent(
       'Drag a task to reorder or move it; long-press on touch',
     );
+    // Adding: empty space, +, N and 1–4 open the field; New task, the form
+    expect(cheatsheet()).toHaveTextContent('click empty space in a quadrant');
+    expect(cheatsheet()).toHaveTextContent('the + in its title');
+    expect(cheatsheet()).toHaveTextContent('press N or 1–4');
+    expect(cheatsheet()).toHaveTextContent(
+      'Enter adds the task and keeps the field open for the next one',
+    );
+    expect(cheatsheet()).toHaveTextContent('New task button');
   });
 
   it('opens with a task selected, holds the matrix keys and gives the focus back', async () => {

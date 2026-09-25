@@ -11,7 +11,11 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { MatrixLayout, TaskDragPreview } from '@/entities/matrixLayout';
+import {
+  MatrixLayout,
+  QuadrantSlots,
+  TaskDragPreview,
+} from '@/entities/matrixLayout';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 
@@ -23,11 +27,14 @@ import { MoveTask } from '../types';
 interface InteractWithMatrixProps {
   taskInputText: string;
   moveTask: MoveTask;
+  /** What the quadrants hold besides tasks, from the matrix widget */
+  quadrantSlots: QuadrantSlots;
 }
 
 export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   taskInputText,
   moveTask,
+  quadrantSlots,
 }) => {
   const { activeState, localTasks, firebaseTasks } = useTaskStore();
   const tasks = activeState === 'local' ? localTasks : firebaseTasks;
@@ -74,6 +81,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
         quadrantOrder={quadrantOrder}
         dragOverQuadrant={dragOverQuadrant}
         taskInputText={taskInputText}
+        slots={quadrantSlots}
       />
 
       <DragOverlay dropAnimation={dropAnimation}>

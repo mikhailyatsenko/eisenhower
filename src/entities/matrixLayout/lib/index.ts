@@ -1,2 +1,7 @@
+export {
+  ADD_TASK_BUTTON_ATTRIBUTE,
+  addTaskButtonQuadrant,
+} from './addTaskButtonQuadrant';
 export { firstTaskId } from './firstTaskId';
-export { tabStopTaskId } from './tabStopTaskId';
+export { matrixTabStop } from './matrixTabStop';
+export type { MatrixStop } from './matrixTabStop';

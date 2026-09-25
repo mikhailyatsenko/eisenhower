@@ -2,11 +2,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { twMerge } from 'tailwind-merge';
 
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import {
-  openFormWithCategoryAction,
-  selectTaskAction,
-  useUIStore,
-} from '@/shared/stores/uiStore';
+import { selectTaskAction, useUIStore } from '@/shared/stores/uiStore';
 import { FullScreenMode, QuadrantHeader } from '../../quadrantHeader';
 import { DRAG_OVER_RING, QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
@@ -23,7 +19,14 @@ export interface QuadrantProps {
   taskCount: number;
   fullScreen: FullScreenMode;
   onFullScreenChange: (isOpen: boolean) => void;
+  /** A button after the title in the header */
+  headerAction: React.ReactNode;
+  /** A click on empty space with no task selected */
+  onEmptySpaceClick: () => void;
 }
+
+// What isn't empty space: a card, a button (the header's, "+N below") or a field
+const NOT_EMPTY_SPACE = '[role="option"], button, input';
 
 export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
@@ -35,14 +38,14 @@ export const Quadrant: React.FC<QuadrantProps> = ({
   taskCount,
   fullScreen,
   onFullScreenChange,
+  headerAction,
+  onEmptySpaceClick,
   children,
 }) => {
   const { setNodeRef } = useDroppable({
     id: quadrantKey,
     data: { quadrantKey },
   });
-
-  const isNoTasks = taskCount === 0;
 
   const isFullScreen = fullScreen === 'open';
 
@@ -60,12 +63,12 @@ export const Quadrant: React.FC<QuadrantProps> = ({
 
   const hasSelection = useUIStore((state) => state.selectedTaskId !== null);
 
-  // A click on empty space clears the selection. Until slice G a click in an
-  // empty quadrant also opens the add form there.
+  // A click on empty space clears the selection, and only that: without a
+  // selection it's the quadrant's own
   const handleQuadrantClick = (event: React.MouseEvent) => {
-    if ((event.target as HTMLElement).closest('button')) return;
+    if ((event.target as HTMLElement).closest(NOT_EMPTY_SPACE)) return;
     if (hasSelection) selectTaskAction(null);
-    if (isNoTasks) openFormWithCategoryAction(quadrantKey);
+    else onEmptySpaceClick();
   };
 
   return (
@@ -78,7 +81,6 @@ export const Quadrant: React.FC<QuadrantProps> = ({
         animateByRecentlyAddedQuadrant,
         isDragOver && [QUADRANT_STYLES.DRAG_OVER, DRAG_OVER_RING[quadrantKey]],
         QUADRANT_STYLES.CONTAINER,
-        isNoTasks && 'cursor-pointer',
         isFullScreen && QUADRANT_STYLES.FULL_SCREEN,
       )}
       onClick={handleQuadrantClick}
@@ -89,6 +91,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
         taskCount={taskCount}
         fullScreen={fullScreen}
         onFullScreenChange={onFullScreenChange}
+        headerAction={headerAction}
       />
       {children}
     </div>

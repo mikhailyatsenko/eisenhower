@@ -2,17 +2,27 @@
 
 import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
+import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import { useTaskStore } from '@/shared/stores/tasksStore';
-import { useUIStore } from '@/shared/stores/uiStore';
+import { openInlineAddAction, useUIStore } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
+
+// Adding in the quadrant: its "+", the inline field, a click on empty space
+// and "Add a task"
+const QUADRANT_SLOTS: QuadrantSlots = {
+  headerAction: (quadrant) => <QuadrantAddButton quadrant={quadrant} />,
+  listEnd: (quadrant) => <InlineAddField quadrant={quadrant} />,
+  openAddField: openInlineAddAction,
+};
 
 export const TaskMatrix: React.FC = () => {
   const { isLoading, user } = useAuth();
@@ -58,7 +68,7 @@ export const TaskMatrix: React.FC = () => {
         tabIndex={-1}
         // The phone grid's axis labels are small: less room above it
         className={twMerge(
-          'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
+          'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
           viewMode === 'matrix' && 'mt-5 sm:mt-14',
         )}
       >
@@ -74,6 +84,7 @@ export const TaskMatrix: React.FC = () => {
             <InteractWithMatrix
               taskInputText={taskInputText}
               moveTask={moveTask}
+              quadrantSlots={QUADRANT_SLOTS}
             />
           </>
         ) : (

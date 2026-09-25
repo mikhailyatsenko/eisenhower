@@ -110,17 +110,20 @@ describe('Selected Task', () => {
     expect(queryToolbar()).not.toBeInTheDocument();
   });
 
-  it('still opens the add form on a click in an empty quadrant', async () => {
+  it('opens the inline add field on a click in an empty quadrant', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },
     });
 
     await user.click(screen.getByRole('listbox', { name: 'Schedule' }));
 
-    expect(screen.getByRole('dialog', { name: 'New task' })).toBeVisible();
+    expect(
+      screen.getByRole('textbox', { name: 'Add task to Schedule' }),
+    ).toHaveFocus();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('opens the add form from an empty quadrant with a task selected', async () => {
+  it('only clears the selection on a click in an empty quadrant', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },
     });
@@ -128,8 +131,9 @@ describe('Selected Task', () => {
     await user.click(task('Bravo'));
     await user.click(screen.getByRole('listbox', { name: 'Schedule' }));
 
-    expect(screen.getByRole('dialog', { name: 'New task' })).toBeVisible();
     expect(selectedTasks()).toEqual([]);
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('shows only text and deadline on the card, links as plain text', async () => {

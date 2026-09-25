@@ -17,6 +17,8 @@ interface QuadrantHeaderProps {
   taskCount: number;
   fullScreen: FullScreenMode;
   onFullScreenChange: (isOpen: boolean) => void;
+  /** A button after the title, like the quadrant's "+" */
+  headerAction: React.ReactNode;
 }
 
 /** Title and task count; on a phone also the way in and out of full screen */
@@ -26,6 +28,7 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
   taskCount,
   fullScreen,
   onFullScreenChange,
+  headerAction,
 }) => {
   const { title } = QUADRANTS[quadrantKey];
   const isFullScreen = fullScreen === 'open';
@@ -73,27 +76,32 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
           {title}
         </h2>
         {count}
+        {headerAction}
       </div>
     );
   }
 
   if (fullScreen === 'closed') {
-    // The list is still named by the title alone, not by the button
+    // The list is still named by the title alone, not by the button. The
+    // action sits next to the button, not in it.
     return (
-      <h2 className={HEADER_STYLES.HEADER}>
-        <button
-          ref={openButtonRef}
-          type="button"
-          aria-label={`Open ${title} full screen`}
-          onClick={switchTo(true)}
-          className={HEADER_STYLES.OPEN_BUTTON}
-        >
-          <span id={titleId} className={HEADER_STYLES.TITLE}>
-            {title}
-          </span>
-          {count}
-        </button>
-      </h2>
+      <div className={HEADER_STYLES.GRID_HEADER}>
+        <h2 className={HEADER_STYLES.OPEN_HEADING}>
+          <button
+            ref={openButtonRef}
+            type="button"
+            aria-label={`Open ${title} full screen`}
+            onClick={switchTo(true)}
+            className={HEADER_STYLES.OPEN_BUTTON}
+          >
+            <span id={titleId} className={HEADER_STYLES.TITLE}>
+              {title}
+            </span>
+            {count}
+          </button>
+        </h2>
+        {headerAction}
+      </div>
     );
   }
 
@@ -104,6 +112,7 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
         {title}
       </h2>
       {count}
+      {headerAction}
     </div>
   );
 };

@@ -1,14 +1,20 @@
 interface ListLayout {
-  /** Visible height of every quadrant list, px */
+  /** Visible height of every quadrant's scrolling area, px */
   listHeight: number;
   /** Height of every task card; cards stack without gaps, px */
   rowHeight: number;
 }
 
 /**
+ * The area that scrolls a quadrant's list (`listbox`) and what comes after it,
+ * like the inline add field
+ */
+export const scrollAreaOf = (list: Element) => list.parentElement!;
+
+/**
  * jsdom doesn't lay out: every size is 0 and nothing scrolls. This gives each
- * quadrant list (`listbox`) a fixed height and each task (`option`) a row, and
- * makes `scrollTop` and `scrollTo` move the list and fire `scroll`.
+ * quadrant's scrolling area a fixed height and each task (`option`) a row, and
+ * makes `scrollTop` and `scrollTo` move the area and fire `scroll`.
  * Returns a function that puts jsdom back.
  */
 export const mockListLayout = ({ listHeight, rowHeight }: ListLayout) => {
@@ -19,7 +25,8 @@ export const mockListLayout = ({ listHeight, rowHeight }: ListLayout) => {
     descriptor: PropertyDescriptor | undefined;
   }[] = [];
 
-  const isList = (el: Element) => el.getAttribute('role') === 'listbox';
+  const isList = (el: Element) =>
+    el.querySelector(':scope > [role="listbox"]') !== null;
   const isTask = (el: Element) => el.getAttribute('role') === 'option';
   const tasksOf = (list: Element) =>
     Array.from(list.querySelectorAll('[role="option"]'));
@@ -72,7 +79,7 @@ export const mockListLayout = ({ listHeight, rowHeight }: ListLayout) => {
   });
   override(proto, 'offsetTop', {
     get(this: HTMLElement) {
-      const list = this.closest('[role="listbox"]');
+      const list = this.closest('[role="listbox"]')?.parentElement;
       if (!isTask(this) || !list) return original('offsetTop', this);
       return tasksOf(list).indexOf(this) * rowHeight;
     },

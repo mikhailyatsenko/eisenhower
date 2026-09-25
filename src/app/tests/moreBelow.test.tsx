@@ -1,6 +1,6 @@
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import { axe } from './axe';
-import { mockListLayout } from './listLayout';
+import { mockListLayout, scrollAreaOf } from './listLayout';
 import { renderHomePage } from './renderHomePage';
 
 // Whole-page flows with axe run past the default 5 s on a cold pre-commit run
@@ -18,7 +18,7 @@ const moreBelow = () =>
 
 const scrollDoFirst = (top: number) =>
   act(() => {
-    doFirst().scrollTop = top;
+    scrollAreaOf(doFirst()).scrollTop = top;
   });
 
 let restoreLayout: () => void;
@@ -83,7 +83,7 @@ describe('"+N below" on an overflowing quadrant', () => {
     await user.click(moreBelow()!);
 
     // The first task that didn't fit is now at the top
-    expect(doFirst().scrollTop).toBe(80);
+    expect(scrollAreaOf(doFirst()).scrollTop).toBe(80);
     expect(moreBelow()).toHaveAccessibleName('2 more tasks below');
 
     await user.click(moreBelow()!);
@@ -146,7 +146,7 @@ describe('"+N below" on an overflowing quadrant', () => {
     await renderHomePage({ tasks: { ImportantUrgent: SIX } });
 
     // The class is the requirement here: it hid the scrollbar (M2)
-    expect(doFirst()).not.toHaveClass('scrollbar-hidden');
+    expect(scrollAreaOf(doFirst())).not.toHaveClass('scrollbar-hidden');
   });
 
   it('passes axe with the indicator shown', async () => {
