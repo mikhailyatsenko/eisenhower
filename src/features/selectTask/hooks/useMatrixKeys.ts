@@ -1,5 +1,9 @@
 import { RefObject, useEffect, useRef } from 'react';
-import { addTaskButtonQuadrant, firstTaskId } from '@/entities/matrixLayout';
+import {
+  MatrixStop,
+  addTaskButtonQuadrant,
+  firstTaskId,
+} from '@/entities/matrixLayout';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { isDialogOpen } from '@/shared/lib/isDialogOpen';
 import { isTextField } from '@/shared/lib/isTextField';
@@ -20,7 +24,7 @@ import {
   locateTask,
   taskCard,
 } from '../lib';
-import { MatrixTarget, TaskActionHandlers, TaskLocation } from '../types';
+import { TaskActionHandlers, TaskLocation } from '../types';
 
 interface MatrixKeysOptions extends TaskActionHandlers {
   tasks: Tasks;
@@ -38,7 +42,7 @@ const selectAndFocus = (taskId: string) => {
 };
 
 /** A task gets selected and focused; "Add a task" gets focused, with no selection */
-const goTo = (target: MatrixTarget) => {
+const goTo = (target: MatrixStop) => {
   if ('taskId' in target) {
     selectAndFocus(target.taskId);
   } else {

@@ -1,5 +1,6 @@
+import { MatrixStop } from '@/entities/matrixLayout';
 import { Tasks } from '@/shared/stores/tasksStore';
-import { ArrowKey, MatrixTarget, TaskLocation } from '../types';
+import { ArrowKey, TaskLocation } from '../types';
 import { isLeftColumn, rowNeighbour } from './gridNeighbours';
 
 /**
@@ -13,7 +14,7 @@ export const arrowTarget = (
   tasks: Tasks,
   { quadrantKey, index }: Pick<TaskLocation, 'quadrantKey' | 'index'>,
   key: ArrowKey,
-): MatrixTarget | null => {
+): MatrixStop | null => {
   const inQuadrant = (taskIndex: number) => {
     const taskId = tasks[quadrantKey][taskIndex]?.id;
     return taskId ? { taskId } : null;

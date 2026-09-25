@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+import { addTaskButtonQuadrant } from '@/entities/matrixLayout';
 import { QUADRANTS } from '@/shared/consts';
 import {
   MatrixKey,
@@ -77,7 +78,10 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
       if (returnFocus?.isConnected) {
         // Back where the keyboard or "Add a task" opened the field from
         returnFocus.focus();
-      } else if (returnFocus && lastTaskId) {
+      } else if (
+        addTaskButtonQuadrant(returnFocus) === quadrant &&
+        lastTaskId
+      ) {
         // "Add a task" has given way to the tasks just added: the last one
         requestTaskFocusAction(lastTaskId);
       } else {

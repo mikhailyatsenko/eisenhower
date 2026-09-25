@@ -89,8 +89,8 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                         quadrant={quadrantKey}
                         titleId={titleId}
                         isTabStop={
-                          'quadrant' in tabStop &&
-                          tabStop.quadrant === quadrantKey
+                          'emptyQuadrant' in tabStop &&
+                          tabStop.emptyQuadrant === quadrantKey
                         }
                         onClick={(button) =>
                           slots.openAddField(quadrantKey, button)

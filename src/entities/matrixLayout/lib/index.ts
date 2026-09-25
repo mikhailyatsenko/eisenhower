@@ -4,4 +4,4 @@ export {
 } from './addTaskButtonQuadrant';
 export { firstTaskId } from './firstTaskId';
 export { matrixTabStop } from './matrixTabStop';
-export type { MatrixTabStop } from './matrixTabStop';
+export type { MatrixStop } from './matrixTabStop';

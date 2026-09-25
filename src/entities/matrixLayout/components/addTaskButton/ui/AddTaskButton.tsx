@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import {
-  focusedAddTaskButtonAction,
+  setAddTaskTabStopAction,
   requestAddTaskButtonFocusAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
@@ -48,7 +48,7 @@ export const AddTaskButton: React.FC<AddTaskButtonProps> = ({
       tabIndex={isTabStop ? 0 : -1}
       aria-describedby={titleId}
       {...{ [ADD_TASK_BUTTON_ATTRIBUTE]: quadrant }}
-      onFocus={() => focusedAddTaskButtonAction(quadrant)}
+      onFocus={() => setAddTaskTabStopAction(quadrant)}
       onClick={(event) => onClick(event.currentTarget)}
       className={ADD_TASK_BUTTON_STYLES}
     >

@@ -39,15 +39,16 @@ export const openFormWithCategoryAction = (category: MatrixKey) => {
   });
 };
 
-// Where Esc from the inline add field puts the focus back. An element, so it
-// stays out of the store's state: nothing renders from it.
+// Where Esc from the inline add field puts the focus back, set by each open.
+// An element, so it stays out of the store's state: nothing renders from it.
 let inlineAddReturnFocus: HTMLElement | null = null;
 
 /**
- * What the keyboard or "Add a task" opened the inline add field from, maybe
- * gone from the page since; null for a click on empty space or "+"
+ * What the keyboard or "Add a task" opened the open inline add field from,
+ * maybe gone from the page since; null for a click on empty space or "+"
  */
-export const getInlineAddReturnFocus = () => inlineAddReturnFocus;
+export const getInlineAddReturnFocus = () =>
+  useUIStore.getState().inlineAdd ? inlineAddReturnFocus : null;
 
 /**
  * Opens the inline add field in the quadrant, or moves it there with its
@@ -76,7 +77,6 @@ export const setInlineAddTextAction = (text: string) => {
 };
 
 export const closeInlineAddAction = () => {
-  inlineAddReturnFocus = null;
   useUIStore.setState((state) => {
     state.inlineAdd = null;
   });
@@ -90,7 +90,6 @@ export const setViewModeAction = (viewMode: 'matrix' | 'list') => {
     state.selectedTaskId = null;
     state.inlineAdd = null;
   });
-  inlineAddReturnFocus = null;
 };
 
 export const setSortFieldAction = (field: 'createdAt' | 'importance') => {
@@ -122,10 +121,10 @@ export const selectTaskAction = (taskId: string | null) => {
 };
 
 /**
- * An empty quadrant's "Add a task" has the focus: no task is selected, and
- * the button is the matrix's Tab stop
+ * Makes an empty quadrant's "Add a task" the matrix's Tab stop, as it takes
+ * the focus. No task is selected meanwhile.
  */
-export const focusedAddTaskButtonAction = (quadrant: MatrixKey) => {
+export const setAddTaskTabStopAction = (quadrant: MatrixKey) => {
   useUIStore.setState((state) => {
     state.selectedTaskId = null;
     state.addTaskTabStop = quadrant;
