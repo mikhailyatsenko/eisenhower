@@ -2,6 +2,10 @@
 
 import { AuthIndicator } from '@/entities/authIndicator';
 import { useAuth } from '@/shared/api/auth';
+import {
+  cancelDeviceClear,
+  requestDeviceClear,
+} from '@/shared/api/cloudMatrix';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 
 export const Auth: React.FC = () => {
@@ -9,6 +13,15 @@ export const Auth: React.FC = () => {
 
   const { localTasks } = useTaskStore();
   const { firebaseTasks } = useTaskStore();
+
+  // Signing out leaves none of the user's tasks on the device
+  const handleSignOut = () => {
+    requestDeviceClear();
+    handleLogout().catch((error) => {
+      cancelDeviceClear();
+      console.error('Signing out failed:', error);
+    });
+  };
 
   return (
     <div
@@ -21,7 +34,7 @@ export const Auth: React.FC = () => {
         displayName={user?.displayName || undefined}
         isSignedIn={!!user}
         handleGoogleSignIn={handleGoogleSignIn}
-        handleLogout={handleLogout}
+        handleLogout={handleSignOut}
       />
     </div>
   );

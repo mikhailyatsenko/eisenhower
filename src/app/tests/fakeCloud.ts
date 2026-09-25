@@ -48,6 +48,8 @@ let server: Docs = new Map();
 /** What IndexedDB holds: the server as last seen, without the queue */
 let cache: Docs = new Map();
 let isCacheWarm = false;
+/** Another open tab still has the Firestore instance on IndexedDB */
+let isDeviceHeld = false;
 let queue: QueuedWrite[] = [];
 let network: Network = 'online';
 let listeners = new Set<Listener>();
@@ -235,7 +237,14 @@ export const fakeCloudMatrixClient = {
     }),
 
   clearDevice: async () => {
+    // terminate() stops the listeners even when the clearing fails
     listeners.clear();
+    if (isDeviceHeld) {
+      // Like FirestoreError: clearIndexedDbPersistence doesn't map it
+      throw Object.assign(new Error('Firestore is running in another tab'), {
+        code: 'failed-precondition',
+      });
+    }
     cache = new Map();
     isCacheWarm = false;
     queue = [];
@@ -316,6 +325,7 @@ export const resetFakeCloud = (
   });
 
   isCacheWarm = deviceCache === 'warm';
+  isDeviceHeld = false;
   cache = isCacheWarm ? copyDocs(server) : new Map();
   queue = [];
   listeners = new Set();
@@ -366,6 +376,22 @@ export const cloud = {
       listeners = new Set();
       failed.forEach(({ onError }) => onError({ code, isRejected: true }));
     }),
+  /** The session ends without Sign out: the auth client reports no user */
+  expireSession: () =>
+    act(() => {
+      user = null;
+      notifyUser();
+    }),
+  /** Another tab keeps IndexedDB open, so clearing the device fails */
+  holdDeviceInAnotherTab: () => {
+    isDeviceHeld = true;
+  },
+  /** The other tab is closed */
+  closeAnotherTab: () => {
+    isDeviceHeld = false;
+  },
+  /** Every task text the device keeps: its cache and the queue on top */
+  deviceTasks: () => [...localDocs().values()].map(({ task }) => task.text),
   /** What the server holds now, by task text */
   serverTasks: () => {
     const { tasks, completedTasks } = toSnapshot(server, false);

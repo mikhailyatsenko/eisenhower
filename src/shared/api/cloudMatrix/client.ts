@@ -32,7 +32,8 @@ const BATCH_LIMIT = 500;
 
 let db: Firestore | null = null;
 
-// Created on first use, and again after clearDevice: terminate() ends it for good
+// Created on first use, and again after clearDevice: terminate() ends it for
+// good and removes it from the app, so initializeFirestore works once more
 const getDb = () => {
   if (!db) {
     try {

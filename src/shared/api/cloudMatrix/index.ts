@@ -1,4 +1,9 @@
-export { subscribe, write, waitForPendingWrites, clearDevice } from './client';
+export { subscribe, write, waitForPendingWrites } from './client';
+export {
+  requestDeviceClear,
+  cancelDeviceClear,
+  clearDeviceIfRequested,
+} from './device';
 export type {
   CloudSnapshot,
   SyncFailure,
