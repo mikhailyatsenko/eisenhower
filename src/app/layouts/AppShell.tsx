@@ -1,3 +1,4 @@
+import { SyncBar } from '@/widgets/syncBar';
 import { Auth } from '@/features/auth';
 import { ViewToggle } from '@/features/switchViewMode';
 import { ThemeToggle } from '@/features/toggleTheme';
@@ -16,6 +17,7 @@ export const AppShell = ({ children, serverThemeCookie }: AppShellProps) => (
     {/* Scroll mask for top buttons */}
     <div className="bg-background/60 pointer-events-none fixed top-0 left-0 z-10 h-12 w-full backdrop-blur-xl" />
     <main className="relative min-h-screen flex-grow">
+      <SyncBar />
       <Auth />
       <ThemeToggle serverThemeCookie={serverThemeCookie} />
       <ViewToggle />

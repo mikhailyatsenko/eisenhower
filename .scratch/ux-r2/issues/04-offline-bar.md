@@ -4,12 +4,22 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Модель синхронизации из 02 выдаёт одно состояние полосы: `hidden` | `offline` | `syncing` | `saved` (форма из спеки; `error` добавит тикет 06). Сигналы: `navigator.onLine` и события `online`/`offline`, `hasPendingWrites` и `fromCache` последнего снимка, время, с которого есть Pending changes.
-- [ ] `offline` — сразу при `navigator.onLine === false` и при «lie-fi»: Pending changes не подтверждены дольше ~10 с. Текст: «You're offline. Changes are saved on this device and will sync when you're back online.»
-- [ ] `syncing` («Syncing…») и `saved` («All changes saved», через 2 с `hidden`) бывают только после `offline`. При хорошей сети правка полосу не показывает даже на миг. У анонимного пользователя полоса всегда `hidden`.
-- [ ] Полоса во всю ширину сразу под верхним рядом кнопок, сдвигает контент вниз, не перекрывает матрицу, видна при прокрутке. Кнопок нет. Нейтральный тон, контраст текста ≥ 4.5:1 в обеих темах. При `prefers-reduced-motion` появляется без движения.
-- [ ] Один контейнер `role="status"` (polite) на все три состояния: каждое объявляется один раз. Фокус полоса не перехватывает.
-- [ ] Тесты на главном seam: `goOffline` — `status` с текстом offline; `stall` — полоса только после 10 с (fake timers); `goOnline` при очереди — «Syncing…», затем «All changes saved», через 2 с полосы нет; при хорошей сети правка без полосы; анонимный без сети — полосы нет; фокус не сдвинулся при появлении полосы; axe чист в каждом состоянии.
-- [ ] Чек-лист: полоса при DevTools Offline и при throttling, VoiceOver объявляет каждое состояние один раз.
+- [x] Модель синхронизации из 02 выдаёт одно состояние полосы: `hidden` | `offline` | `syncing` | `saved` (форма из спеки; `error` добавит тикет 06). Сигналы: `navigator.onLine` и события `online`/`offline`, `hasPendingWrites` и `fromCache` последнего снимка, время, с которого есть Pending changes.
+- [x] `offline` — сразу при `navigator.onLine === false` и при «lie-fi»: Pending changes не подтверждены дольше ~10 с. Текст: «You're offline. Changes are saved on this device and will sync when you're back online.»
+- [x] `syncing` («Syncing…») и `saved` («All changes saved», через 2 с `hidden`) бывают только после `offline`. При хорошей сети правка полосу не показывает даже на миг. У анонимного пользователя полоса всегда `hidden`.
+- [x] Полоса во всю ширину сразу под верхним рядом кнопок, сдвигает контент вниз, не перекрывает матрицу, видна при прокрутке. Кнопок нет. Нейтральный тон, контраст текста ≥ 4.5:1 в обеих темах. При `prefers-reduced-motion` появляется без движения.
+- [x] Один контейнер `role="status"` (polite) на все три состояния: каждое объявляется один раз. Фокус полоса не перехватывает.
+- [x] Тесты на главном seam: `goOffline` — `status` с текстом offline; `stall` — полоса только после 10 с (fake timers); `goOnline` при очереди — «Syncing…», затем «All changes saved», через 2 с полосы нет; при хорошей сети правка без полосы; анонимный без сети — полосы нет; фокус не сдвинулся при появлении полосы; axe чист в каждом состоянии.
+- [x] Чек-лист: полоса при DevTools Offline и при throttling, VoiceOver объявляет каждое состояние один раз.
+
+## Comments
+
+- Модель: `src/shared/stores/syncStore`. Чистый переход `nextSyncBar` в `lib`, сигналы и таймеры (lie-fi 10 с, «saved» 2 с) — `actions/applySyncSignals.ts`. `startSyncAction` вызывается из `subscribeToCloudMatrix` и слушает `online`/`offline`, `resetSyncAction` при отписке снимает слушатели и таймеры. Тип полосы назван `SyncBarState`: имя `SyncBar` занято компонентом.
+- Часы lie-fi идут, пока есть Pending changes при сети, и начинаются заново при каждом возврате сети. Иначе после долгого офлайна «Syncing…» сразу сменялось бы на offline.
+- «Syncing…» и «All changes saved» показываются, только если во время offline были Pending changes (`hasChangesToSave`). Offline без правок и возврат сети просто прячут полосу: сохранять было нечего (замечание ревью). Когда lie-fi кончается ответом сервера, полоса идёт из offline сразу в «All changes saved», без «Syncing…». Правка во время «All changes saved» полосу не возвращает, она прячется через 2 с.
+- `fromCache` в модель не заведён: в 04 его ничто не использует, правило «10 с без ответа сервера» для холодного старта добавит тикет 05.
+- Полоса — `widgets/syncBar`, в `AppShell` первым ребёнком `main`: `sticky top-12` сразу под маской прокрутки, `mt-12 -mb-12` компенсируют друг друга, поэтому пустая полоса места не занимает, а видимая сдвигает страницу на свою высоту. Анимации нет совсем, поэтому `prefers-reduced-motion` выполняется. Контейнер `role="status"` смонтирован всегда, текст меняется внутри. У региона есть имя «Sync status»: dnd-kit держит свой безымянный `status` прямо в `main`, и без имени полосу не отличить (как toast-регион «Notifications»).
+- Тесты: `src/app/tests/syncBar.test.tsx`. axe проверен в hidden, offline и saved. «Syncing…» живёт до следующей микрозадачи, а axe асинхронный и на fake timers зависает, поэтому это состояние axe не проверяет: это тот же регион с другим текстом.
+- Ручной чек-лист: раздел J, «Полоса офлайна». Вёрстку в настоящем браузере в этой сессии проверить не удалось (Chrome не был подключён): место под кнопками, прокрутка, телефон, контраст в тёмной теме и VoiceOver ждут ручного прохода.

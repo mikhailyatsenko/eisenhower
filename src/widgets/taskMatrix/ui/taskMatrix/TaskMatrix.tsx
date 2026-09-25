@@ -7,6 +7,7 @@ import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { useAuth } from '@/shared/api/auth';
+import { useSyncStore } from '@/shared/stores/syncStore';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 import { useUIStore } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
@@ -30,12 +31,25 @@ export const TaskMatrix: React.FC = () => {
     (state) => state.activeState === 'firebase' && !state.isCloudLoaded,
   );
 
+  const isInCloudStorage = useTaskStore(
+    (state) => state.activeState === 'firebase',
+  );
+  const isAwaitingServer = useSyncStore((state) => state.isAwaitingServer);
+
   if (isLoading || (user && isWaitingForCloud)) {
     return <LoaderFullScreen />;
   }
 
   return (
     <>
+      {/* The Matrix is on screen without the server: the tasks aren't lost */}
+      {user && isInCloudStorage && isAwaitingServer && (
+        <p className="mt-6 text-center text-sm text-gray-700 dark:text-gray-300">
+          Your tasks are in your account. They&apos;ll appear when you&apos;re
+          back online.
+        </p>
+      )}
+
       {/* Focus lands here, not on <body>, when the matrix has no task left */}
       <div
         ref={matrixRef}
