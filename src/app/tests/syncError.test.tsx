@@ -27,6 +27,11 @@ const tasksIn = (title: string) =>
 const reloadButton = () =>
   within(screen.getByRole('alert')).getByRole('button', { name: 'Reload' });
 
+const signInAgainButton = () =>
+  within(screen.getByRole('alert')).getByRole('button', {
+    name: 'Sign in again',
+  });
+
 const advance = (ms: number) =>
   act(async () => {
     jest.advanceTimersByTime(ms);
@@ -239,6 +244,82 @@ describe('Sync error of a signed-in user', () => {
   });
 });
 
+describe('Sync error when the session ends by itself', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('offers to sign in again while changes wait for the cloud', async () => {
+    const { user, cloud } = await renderHomePage({
+      signedIn: ADA,
+      cloud: { tasks: SERVER_TASKS },
+    });
+    cloud.goOffline();
+    await addTask(user, 'Buy milk');
+
+    cloud.expireSession();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(NOT_SAVED);
+    expect(signInAgainButton()).toBeVisible();
+    expect(syncBar()).toBeEmptyDOMElement();
+    // The queue waits on the device for the same user
+    expect(cloud.deviceTasks()).toContain('Buy milk');
+  });
+
+  it('sends the changes once the same user signs in again', async () => {
+    const { user, cloud } = await renderHomePage({
+      signedIn: ADA,
+      cloud: { tasks: SERVER_TASKS },
+    });
+    cloud.goOffline();
+    await addTask(user, 'Buy milk');
+    cloud.expireSession();
+
+    await user.click(signInAgainButton());
+    await advance(0);
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(syncBar()).toHaveTextContent(OFFLINE);
+    expect(tasksIn('Do First')).toEqual([
+      'Pay rent',
+      'Call the bank',
+      'Buy milk',
+    ]);
+
+    cloud.goOnline();
+    await advance(2_000);
+
+    expect(cloud.serverTasks().ImportantUrgent).toEqual([
+      'Pay rent',
+      'Call the bank',
+      'Buy milk',
+    ]);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(syncBar()).toBeEmptyDOMElement();
+    // The button went with the bar: focus isn't dropped on <body>
+    expect(document.activeElement).not.toBe(document.body);
+  });
+
+  it('shows no error when nothing waits for the cloud', async () => {
+    const { user, cloud } = await renderHomePage({
+      signedIn: ADA,
+      cloud: { tasks: SERVER_TASKS },
+    });
+    await addTask(user, 'Buy milk');
+    await advance(0);
+
+    cloud.expireSession();
+    await advance(15_000);
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(syncBar()).toBeEmptyDOMElement();
+  });
+});
+
 // axe waits on real timers
 describe('Sync error accessibility', () => {
   it('has no axe violations while the error shows', async () => {
@@ -251,6 +332,20 @@ describe('Sync error accessibility', () => {
     await addTask(user, 'Buy milk');
 
     expect(await screen.findByRole('alert')).toHaveTextContent(NOT_SAVED);
+    expect(await axe(document.body)).toHaveNoViolations();
+  });
+
+  it('has no axe violations while it offers to sign in again', async () => {
+    const { user, cloud } = await renderHomePage({
+      signedIn: ADA,
+      cloud: { tasks: SERVER_TASKS },
+    });
+    cloud.goOffline();
+    await addTask(user, 'Buy milk');
+
+    cloud.expireSession();
+
+    expect(signInAgainButton()).toBeVisible();
     expect(await axe(document.body)).toHaveNoViolations();
   });
 });

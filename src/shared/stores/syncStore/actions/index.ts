@@ -14,6 +14,13 @@ const countUnconfirmed = (delta: number) =>
 /** The cloud refused changes or dropped the subscription: the bar offers a reload */
 export const failSyncAction = () => applySyncSignals({ syncError: 'refused' });
 
+/**
+ * The session expired without Sign out while changes waited for the cloud:
+ * the bar offers to sign in again, and the queue waits on the device
+ */
+export const failExpiredSessionAction = () =>
+  applySyncSignals({ syncError: 'sessionExpired' });
+
 /** The Matrix came from the server again after a Sync error */
 export const clearSyncErrorAction = () => applySyncSignals({ syncError: null });
 
@@ -43,7 +50,11 @@ export const setCloudPendingWritesAction = (hasPendingWrites: boolean) =>
 export const setAwaitingServerAction = (isAwaitingServer: boolean) =>
   applySyncSignals({ isAwaitingServer });
 
-/** A user is signed in to the cloud Matrix: the bar follows the network */
+/**
+ * A user is signed in to the cloud Matrix: the bar follows the network. The
+ * subscription starts with no Sync error, so signing in again sets an
+ * expired session right.
+ */
 export const startSyncAction = () => {
   stopWatchingNetwork?.();
   const onNetworkChange = () =>
@@ -54,7 +65,11 @@ export const startSyncAction = () => {
     window.removeEventListener('online', onNetworkChange);
     window.removeEventListener('offline', onNetworkChange);
   };
-  applySyncSignals({ isSignedIn: true, isOnline: navigator.onLine });
+  applySyncSignals({
+    isSignedIn: true,
+    isOnline: navigator.onLine,
+    syncError: null,
+  });
 };
 
 /** Forgets the cloud Matrix: on sign-out or when the page closes */

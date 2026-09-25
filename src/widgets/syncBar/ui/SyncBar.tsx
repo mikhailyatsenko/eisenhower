@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useAuth } from '@/shared/api/auth';
 import {
   SyncBarState,
   SyncErrorAction,
@@ -20,13 +21,6 @@ const TEXTS: Record<NeutralKind, string> = {
 
 const ERROR_TEXT = "Some changes couldn't be saved to your account.";
 
-const ERROR_ACTIONS: Record<
-  SyncErrorAction,
-  { label: string; run: () => void }
-> = {
-  reload: { label: 'Reload', run: reloadCloudMatrixAction },
-};
-
 /**
  * Full width right under the top row of buttons: pushes the page down while
  * it shows and stays in view on scroll. One status region for the neutral
@@ -35,21 +29,30 @@ const ERROR_ACTIONS: Record<
  */
 export const SyncBar = () => {
   const bar = useSyncStore((state) => state.bar);
-  const errorAction = bar.kind === 'error' ? ERROR_ACTIONS[bar.action] : null;
+  const { handleGoogleSignIn } = useAuth();
+  const errorActions: Record<
+    SyncErrorAction,
+    { label: string; run: () => void }
+  > = {
+    reload: { label: 'Reload', run: reloadCloudMatrixAction },
+    signIn: { label: 'Sign in again', run: handleGoogleSignIn },
+  };
+  const errorAction = bar.kind === 'error' ? errorActions[bar.action] : null;
+  const hasError = errorAction !== null;
   const barRef = useRef<HTMLDivElement>(null);
   const hasFocusInError = useRef(false);
 
   // The error goes with its button: focus goes to the selected task or stays
   // at the bar's place, not on <body>
   useEffect(() => {
-    if (errorAction || !hasFocusInError.current) return;
+    if (hasError || !hasFocusInError.current) return;
     hasFocusInError.current = false;
     const active = document.activeElement;
     if (active && active !== document.body) return;
     const { selectedTaskId } = useUIStore.getState();
     if (selectedTaskId) requestTaskFocusAction(selectedTaskId);
     else barRef.current?.focus();
-  }, [errorAction]);
+  }, [hasError]);
 
   return (
     // Sticks right under the scroll mask (h-12). The margins cancel out: only

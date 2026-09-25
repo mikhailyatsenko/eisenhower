@@ -9,6 +9,7 @@ import { selectIsServerOutOfReach } from './selectIsServerOutOfReach';
 
 const ERROR_ACTIONS: Record<SyncErrorCause, SyncErrorAction> = {
   refused: 'reload',
+  sessionExpired: 'signIn',
 };
 
 /**
@@ -18,8 +19,9 @@ const ERROR_ACTIONS: Record<SyncErrorCause, SyncErrorAction> = {
  */
 export const nextSyncBar = (state: SyncState): SyncBarState => {
   const { bar, isSignedIn, hasChangesToSave, syncError } = state;
-  if (!isSignedIn) return { kind: 'hidden' };
+  // An expired session shows its error with no one signed in
   if (syncError) return { kind: 'error', action: ERROR_ACTIONS[syncError] };
+  if (!isSignedIn) return { kind: 'hidden' };
   if (selectIsServerOutOfReach(state)) return { kind: 'offline' };
   // Once the error is set right, the bar starts over
   if (bar.kind === 'error') return { kind: 'hidden' };
