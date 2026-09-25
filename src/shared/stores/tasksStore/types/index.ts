@@ -15,6 +15,9 @@ export interface Task {
 }
 export type Tasks = Record<MatrixKey, Task[]>;
 
+/** A quadrant of the Matrix, or Completed */
+export type TaskArea = MatrixKey | 'completed';
+
 export type StateKey = typeof LOCAL_STATE_KEY | typeof CLOUD_STATE_KEY;
 
 export interface TaskState {

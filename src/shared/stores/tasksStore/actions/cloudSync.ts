@@ -1,5 +1,10 @@
 import * as cloudMatrix from '@/shared/api/cloudMatrix';
 import type { CloudSnapshot, TaskChange } from '@/shared/api/cloudMatrix';
+import {
+  resetSyncAction,
+  setCloudPendingWritesAction,
+  trackCloudWriteAction,
+} from '@/shared/stores/syncStore';
 import { selectTaskAction, useUIStore } from '@/shared/stores/uiStore';
 import { useTaskStore } from '../hooks/useTasksStore';
 import { getEmptyTasksState } from '../lib';
@@ -56,6 +61,7 @@ export const subscribeToCloudMatrix = (userId: string) => {
   const unsubscribe = cloudMatrix.subscribe(
     userId,
     (snapshot) => {
+      setCloudPendingWritesAction(snapshot.hasPendingWrites);
       if (isHolding) heldSnapshot = snapshot;
       else applySnapshot(snapshot);
     },
@@ -74,6 +80,7 @@ export const subscribeToCloudMatrix = (userId: string) => {
     isHolding = false;
     heldSnapshot = null;
     resetCloudMatrix();
+    resetSyncAction();
   };
 };
 
@@ -91,12 +98,13 @@ export const releaseCloudSnapshotsAction = () => {
 };
 
 /**
- * Writes the changes to the signed-in user's cloud Matrix. Resolves when the
- * server has them; does nothing when no one is signed in.
+ * Sends the changes to the signed-in user's cloud Matrix without waiting for
+ * the server: the device has them at once, the sync model tracks the rest.
+ * Does nothing when no one is signed in.
  */
-export const writeToCloud = async (changes: TaskChange[]) => {
-  if (!uid) return;
-  await cloudMatrix.write(uid, changes);
+export const writeToCloud = (changes: TaskChange[]) => {
+  if (!uid || changes.length === 0) return;
+  trackCloudWriteAction(cloudMatrix.write(uid, changes));
 };
 
 export const isSignedInToCloud = () => uid !== null;
