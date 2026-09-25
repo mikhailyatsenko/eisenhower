@@ -81,7 +81,6 @@ export const Quadrant: React.FC<QuadrantProps> = ({
         animateByRecentlyAddedQuadrant,
         isDragOver && [QUADRANT_STYLES.DRAG_OVER, DRAG_OVER_RING[quadrantKey]],
         QUADRANT_STYLES.CONTAINER,
-        'cursor-pointer',
         isFullScreen && QUADRANT_STYLES.FULL_SCREEN,
       )}
       onClick={handleQuadrantClick}
@@ -92,7 +91,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
         taskCount={taskCount}
         fullScreen={fullScreen}
         onFullScreenChange={onFullScreenChange}
-        action={headerAction}
+        headerAction={headerAction}
       />
       {children}
     </div>

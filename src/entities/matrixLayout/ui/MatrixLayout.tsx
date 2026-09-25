@@ -75,7 +75,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             >
               <QuadrantTaskList
                 labelledBy={titleId}
-                end={slots.listEnd(quadrantKey)}
+                listEnd={slots.listEnd(quadrantKey)}
               >
                 {quadrantTasks.map((task, index) => (
                   <TaskItem

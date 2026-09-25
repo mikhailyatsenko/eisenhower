@@ -9,7 +9,7 @@ export const QUADRANT_STYLES = {
   TYPING_NEW_TASK_INACTIVE: `w-[calc(45%-8px)] !opacity-25 ${PHONE_HEIGHT} sm:h-[calc(100vh/2)] transition-[width] duration-300`,
   DEFAULT: `w-[calc(50%-8px)] ${PHONE_HEIGHT} sm:h-[calc(100vh/2-64px)] min-h-40`,
   CONTAINER:
-    'relative m-1 flex flex-col overflow-hidden rounded-md p-1 ease-in-out sm:p-6 dark:border dark:bg-gray-950',
+    'relative m-1 flex cursor-pointer flex-col overflow-hidden rounded-md p-1 ease-in-out sm:p-6 dark:border dark:bg-gray-950',
   // Alone in the grid's box: two rows of PHONE_HEIGHT (100dvh - 176px) and
   // their m-1 margins (16px), less its own margin (8px). Change with PHONE_HEIGHT.
   FULL_SCREEN: 'h-[calc(100dvh-168px)] w-[calc(100%-8px)]',

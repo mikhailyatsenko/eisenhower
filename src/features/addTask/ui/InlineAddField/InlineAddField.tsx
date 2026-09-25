@@ -11,7 +11,7 @@ import {
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { FIELD_BORDER, FIELD_STYLES, MAX_TASK_LENGTH } from '../../consts';
-import { addButtonId } from '../../lib';
+import { addButtonId, scrollIntoArea } from '../../lib';
 
 interface InlineAddFieldProps {
   quadrant: MatrixKey;
@@ -35,9 +35,11 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
     if (openCount) inputRef.current?.focus({ preventScroll: true });
   }, [openCount]);
 
-  // The field, and the task just added above it, stay in sight
+  // The field, and the task just added above it, stay in sight. Only the
+  // quadrant's list scrolls, not the page.
   useEffect(() => {
-    if (openCount) inputRef.current?.scrollIntoView({ block: 'nearest' });
+    const input = inputRef.current;
+    if (openCount && input) scrollIntoArea(input);
   }, [openCount, addedCount]);
 
   if (!inlineAdd) return null;
@@ -75,7 +77,7 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
       placeholder={`Add task to ${title}`}
       value={inlineAdd.text}
       maxLength={MAX_TASK_LENGTH}
-      enterKeyHint="done"
+      enterKeyHint="enter"
       autoComplete="off"
       onChange={(event) => setInlineAddTextAction(event.target.value)}
       onKeyDown={handleKeyDown}

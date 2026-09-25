@@ -11,14 +11,14 @@ interface QuadrantTaskListProps {
   labelledBy: string;
   children: React.ReactNode;
   /** After the tasks, in the scrolling area but outside the list */
-  end: React.ReactNode;
+  listEnd: React.ReactNode;
 }
 
 /** A quadrant's scrolling task list with "+N below" when tasks don't fit */
 export const QuadrantTaskList: React.FC<QuadrantTaskListProps> = ({
   labelledBy,
   children,
-  end,
+  listEnd,
 }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { count, recount } = useTasksBelowCount(scrollAreaRef);
@@ -47,7 +47,7 @@ export const QuadrantTaskList: React.FC<QuadrantTaskListProps> = ({
         >
           {children}
         </ul>
-        {end}
+        {listEnd}
       </div>
       {count > 0 && <MoreBelowButton count={count} onClick={scrollDown} />}
     </div>

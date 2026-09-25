@@ -18,7 +18,7 @@ interface QuadrantHeaderProps {
   fullScreen: FullScreenMode;
   onFullScreenChange: (isOpen: boolean) => void;
   /** A button after the title, like the quadrant's "+" */
-  action?: React.ReactNode;
+  headerAction: React.ReactNode;
 }
 
 /** Title and task count; on a phone also the way in and out of full screen */
@@ -28,7 +28,7 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
   taskCount,
   fullScreen,
   onFullScreenChange,
-  action,
+  headerAction,
 }) => {
   const { title } = QUADRANTS[quadrantKey];
   const isFullScreen = fullScreen === 'open';
@@ -76,7 +76,7 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
           {title}
         </h2>
         {count}
-        {action}
+        {headerAction}
       </div>
     );
   }
@@ -100,7 +100,7 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
             {count}
           </button>
         </h2>
-        {action}
+        {headerAction}
       </div>
     );
   }
@@ -112,7 +112,7 @@ export const QuadrantHeader: React.FC<QuadrantHeaderProps> = ({
         {title}
       </h2>
       {count}
-      {action}
+      {headerAction}
     </div>
   );
 };
