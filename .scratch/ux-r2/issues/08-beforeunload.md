@@ -4,9 +4,9 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Обработчик `beforeunload` отменяет событие, только пока модель синхронизации видит Pending changes. У анонимного пользователя и без Pending changes событие не отменяется.
-- [ ] Работает в любом режиме кэша: откат SDK на memory cache (Firefox Private, переполнение квоты) не различаем.
-- [ ] Тесты на главном seam: `goOffline`, правка — `beforeunload` отменён (`defaultPrevented`); после `goOnline` и подтверждения — не отменён; анонимный — не отменён.
-- [ ] Чек-лист: DevTools Offline, правка, закрытие вкладки — предупреждение браузера.
+- [x] Обработчик `beforeunload` отменяет событие, только пока модель синхронизации видит Pending changes. У анонимного пользователя и без Pending changes событие не отменяется.
+- [x] Работает в любом режиме кэша: откат SDK на memory cache (Firefox Private, переполнение квоты) не различаем.
+- [x] Тесты на главном seam: `goOffline`, правка — `beforeunload` отменён (`defaultPrevented`); после `goOnline` и подтверждения — не отменён; анонимный — не отменён.
+- [x] Чек-лист: DevTools Offline, правка, закрытие вкладки — предупреждение браузера.
