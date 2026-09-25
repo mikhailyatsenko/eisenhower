@@ -9,6 +9,8 @@ interface ModalProps {
   children: ReactNode;
   /** Accessible name of the dialog */
   label: string;
+  /** Id of the element whose text describes the dialog */
+  describedBy?: string;
   onClose: () => void;
   /**
    * Where the focus goes once the dialog is gone. By default it goes back to
@@ -32,6 +34,7 @@ const widthClasses = {
 export const Modal = ({
   children,
   label,
+  describedBy,
   onClose,
   restoreFocus,
   className,
@@ -86,6 +89,7 @@ export const Modal = ({
     <dialog
       ref={dialogRef}
       aria-label={label}
+      aria-describedby={describedBy}
       className={twMerge(
         'm-auto h-fit max-h-[calc(100dvh-40px)] w-[calc(100%-2rem)] overflow-visible bg-transparent p-0 backdrop:bg-black/40 backdrop:backdrop-blur-sm',
         widthClasses[width],
