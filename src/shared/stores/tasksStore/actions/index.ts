@@ -64,7 +64,6 @@ export const addTaskAction = async (
   quadrantKey: MatrixKey,
   taskInputText: string,
   dueDate?: Date | null,
-  index?: number | null,
 ) => {
   if (taskInputText.length > 200) return;
   const taskId = uuidv4();
@@ -77,11 +76,7 @@ export const addTaskAction = async (
   useTaskStore.setState((state) => {
     const tasks =
       state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
-    if (typeof index === 'number') {
-      tasks[quadrantKey].splice(index, 0, newTask);
-    } else {
-      tasks[quadrantKey].push(newTask);
-    }
+    tasks[quadrantKey].push(newTask);
   });
   if (useTaskStore.getState().activeState === 'firebase') {
     writeChanged([taskId], [quadrantKey]);

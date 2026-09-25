@@ -2,25 +2,26 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import React, { useId } from 'react';
+import { useId } from 'react';
 import { MATRIX_KEYS } from '@/shared/consts';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 import {
   setFullScreenQuadrantAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
-import { InsertTaskZone } from '../components/InsertTaskZone';
 import { Quadrant } from '../components/quadrant';
 import { QuadrantTaskList } from '../components/quadrantTaskList';
 import { TaskItem } from '../components/taskItem';
 import { useFullScreenQuadrant } from '../hooks';
 import { tabStopTaskId } from '../lib';
+import { QuadrantSlots } from '../types';
 
 interface MatrixLayoutProps {
   tasks: Record<MatrixKey, Task[]>;
   quadrantOrder: MatrixKey[];
   dragOverQuadrant: MatrixKey | null;
   taskInputText: string;
+  slots: QuadrantSlots;
 }
 
 export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
@@ -28,6 +29,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   quadrantOrder,
   dragOverQuadrant,
   taskInputText,
+  slots,
 }) => {
   const recentlyAddedQuadrant = useUIStore(
     (state) => state.recentlyAddedQuadrant,
@@ -64,32 +66,26 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             onFullScreenChange={(isOpen) =>
               setFullScreenQuadrantAction(isOpen ? quadrantKey : null)
             }
+            headerAction={slots.headerAction(quadrantKey)}
+            onEmptySpaceClick={() => slots.onEmptySpaceClick(quadrantKey)}
           >
             <SortableContext
               items={quadrantTasks}
               strategy={verticalListSortingStrategy}
             >
-              <QuadrantTaskList labelledBy={titleId}>
-                {/* Top Insert Zone */}
-                {taskCount > 0 && (
-                  <InsertTaskZone quadrantKey={quadrantKey} index={0} />
-                )}
-
+              <QuadrantTaskList
+                labelledBy={titleId}
+                end={slots.listEnd(quadrantKey)}
+              >
                 {quadrantTasks.map((task, index) => (
-                  <React.Fragment key={task.id}>
-                    <TaskItem
-                      task={task}
-                      quadrantKey={quadrantKey}
-                      index={index}
-                      isTabStop={task.id === tabStopId}
-                      isFullText={isFullScreen}
-                    />
-                    {/* Intermediate and Bottom Insert Zone */}
-                    <InsertTaskZone
-                      quadrantKey={quadrantKey}
-                      index={index + 1}
-                    />
-                  </React.Fragment>
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    quadrantKey={quadrantKey}
+                    index={index}
+                    isTabStop={task.id === tabStopId}
+                    isFullText={isFullScreen}
+                  />
                 ))}
               </QuadrantTaskList>
             </SortableContext>

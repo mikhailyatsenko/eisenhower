@@ -10,37 +10,45 @@ interface QuadrantTaskListProps {
   /** Id of the quadrant title, which names the list */
   labelledBy: string;
   children: React.ReactNode;
+  /** After the tasks, in the scrolling area but outside the list */
+  end: React.ReactNode;
 }
 
 /** A quadrant's scrolling task list with "+N below" when tasks don't fit */
 export const QuadrantTaskList: React.FC<QuadrantTaskListProps> = ({
   labelledBy,
   children,
+  end,
 }) => {
-  const listRef = useRef<HTMLUListElement>(null);
-  const { count, recount } = useTasksBelowCount(listRef);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { count, recount } = useTasksBelowCount(scrollAreaRef);
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   const scrollDown = () => {
-    const list = listRef.current;
-    if (!list) return;
-    list.scrollTo({
-      top: scrollTopBelow(list),
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return;
+    scrollArea.scrollTo({
+      top: scrollTopBelow(scrollArea),
       behavior: reduceMotion ? 'auto' : 'smooth',
     });
   };
 
   return (
     <div className={LIST_STYLES.WRAPPER}>
-      <ul
-        ref={listRef}
-        role="listbox"
-        aria-labelledby={labelledBy}
+      <div
+        ref={scrollAreaRef}
         onScroll={recount}
-        className={LIST_STYLES.LIST}
+        className={LIST_STYLES.SCROLL_AREA}
       >
-        {children}
-      </ul>
+        <ul
+          role="listbox"
+          aria-labelledby={labelledBy}
+          className={LIST_STYLES.LIST}
+        >
+          {children}
+        </ul>
+        {end}
+      </div>
       {count > 0 && <MoreBelowButton count={count} onClick={scrollDown} />}
     </div>
   );

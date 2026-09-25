@@ -1,0 +1,14 @@
+import { MatrixKey } from '@/shared/stores/tasksStore';
+
+/**
+ * What a quadrant holds besides its tasks. The matrix widget fills these in
+ * with the add feature, which the quadrant doesn't know.
+ */
+export interface QuadrantSlots {
+  /** A button after the title, the "+" */
+  headerAction: (quadrant: MatrixKey) => React.ReactNode;
+  /** After the last task, in the scrolling area: the inline add field */
+  listEnd: (quadrant: MatrixKey) => React.ReactNode;
+  /** A click on empty space with no task selected */
+  onEmptySpaceClick: (quadrant: MatrixKey) => void;
+}

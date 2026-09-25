@@ -9,27 +9,31 @@ import {
 import { tasksBelow } from '../lib';
 
 /**
- * How many tasks of the list aren't fully visible below its edge. Recounts
- * after every render (tasks added, removed or edited), on resize and on the
- * `recount` it returns, which the list calls on scroll.
+ * How many tasks of the scrolling area aren't fully visible below its edge.
+ * Recounts after every render (tasks added, removed or edited), on resize and
+ * on the `recount` it returns, which the area calls on scroll.
  */
-export const useTasksBelowCount = (listRef: RefObject<HTMLElement | null>) => {
+export const useTasksBelowCount = (
+  scrollAreaRef: RefObject<HTMLElement | null>,
+) => {
   const [count, setCount] = useState(0);
 
   const recount = useCallback(() => {
-    if (listRef.current) setCount(tasksBelow(listRef.current).length);
-  }, [listRef]);
+    if (scrollAreaRef.current) {
+      setCount(tasksBelow(scrollAreaRef.current).length);
+    }
+  }, [scrollAreaRef]);
 
   useLayoutEffect(recount);
 
   useEffect(() => {
-    const list = listRef.current;
+    const scrollArea = scrollAreaRef.current;
     // jsdom has no ResizeObserver
-    if (!list || typeof ResizeObserver === 'undefined') return;
+    if (!scrollArea || typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(recount);
-    observer.observe(list);
+    observer.observe(scrollArea);
     return () => observer.disconnect();
-  }, [listRef, recount]);
+  }, [scrollAreaRef, recount]);
 
   return { count, recount };
 };

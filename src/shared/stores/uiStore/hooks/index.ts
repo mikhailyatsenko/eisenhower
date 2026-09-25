@@ -9,7 +9,6 @@ const initialState: UIState = {
   taskInputText: '',
   recentlyAddedQuadrant: null,
   isFormOpened: false,
-  taskInsertIndex: null,
   viewMode: 'matrix',
   sortField: 'importance',
   sortDirection: 'desc',
@@ -17,6 +16,7 @@ const initialState: UIState = {
   selectedTaskId: null,
   lastSelectedTaskId: null,
   fullScreenQuadrant: null,
+  inlineAdd: null,
 };
 
 export const useUIStore = create<UIState>()(

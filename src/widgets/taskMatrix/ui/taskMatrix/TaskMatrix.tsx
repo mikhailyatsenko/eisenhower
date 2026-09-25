@@ -2,17 +2,26 @@
 
 import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
+import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import { useTaskStore } from '@/shared/stores/tasksStore';
-import { useUIStore } from '@/shared/stores/uiStore';
+import { openInlineAddAction, useUIStore } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
+
+// Adding in the quadrant: its "+", the inline field and a click on empty space
+const QUADRANT_SLOTS: QuadrantSlots = {
+  headerAction: (quadrant) => <QuadrantAddButton quadrant={quadrant} />,
+  listEnd: (quadrant) => <InlineAddField quadrant={quadrant} />,
+  onEmptySpaceClick: openInlineAddAction,
+};
 
 export const TaskMatrix: React.FC = () => {
   const { isLoading, user } = useAuth();
@@ -74,6 +83,7 @@ export const TaskMatrix: React.FC = () => {
             <InteractWithMatrix
               taskInputText={taskInputText}
               moveTask={moveTask}
+              quadrantSlots={QUADRANT_SLOTS}
             />
           </>
         ) : (

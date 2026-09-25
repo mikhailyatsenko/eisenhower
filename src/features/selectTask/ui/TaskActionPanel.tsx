@@ -43,6 +43,8 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
 }) => {
   const selectedTaskId = useUIStore((state) => state.selectedTaskId);
   const isMatrixView = useUIStore((state) => state.viewMode === 'matrix');
+  // The inline add field keeps the panel closed while it's open
+  const isAddingInline = useUIStore((state) => state.inlineAdd !== null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   // By id: a dialog left open for another task must not pop up on a later selection
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -133,7 +135,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
 
   return (
     <>
-      {location && (
+      {location && !isAddingInline && (
         <ActionToolbar
           toolbarRef={toolbarRef}
           location={location}

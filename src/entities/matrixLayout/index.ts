@@ -7,3 +7,4 @@ export {
 export { EditTaskForm } from './components/editTaskForm';
 export { colors } from './consts';
 export { firstTaskId } from './lib';
+export type { QuadrantSlots } from './types';

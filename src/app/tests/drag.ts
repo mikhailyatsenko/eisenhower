@@ -15,9 +15,10 @@ const CELL_ORIGINS: Record<MatrixKey, { x: number; y: number }> = {
 
 export const list = (title: string) =>
   screen.getByRole('listbox', { name: title });
-// The quadrant cell holds the list's scroll wrapper, the list and the title
+// The quadrant cell holds the title and the list's wrapper, which holds its
+// scrolling area and the list
 export const cell = (title: string) =>
-  list(title).parentElement!.parentElement!;
+  list(title).parentElement!.parentElement!.parentElement!;
 
 /** The quadrant an element lies in: named by its list's `aria-labelledby` */
 const quadrantOf = (el: Element): MatrixKey | undefined => {

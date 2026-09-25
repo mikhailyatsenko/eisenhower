@@ -1,11 +1,19 @@
 import { MatrixKey } from '../../tasksStore/types';
 
+/** The inline add field: one on the page, at the end of a quadrant's list */
+export interface InlineAdd {
+  quadrant: MatrixKey;
+  /** Moves with the field when it opens in another quadrant */
+  text: string;
+  /** Counts the opens: each one, in the same quadrant too, focuses the field */
+  openCount: number;
+}
+
 export interface UIState {
   selectedCategory: MatrixKey;
   taskInputText: string;
   recentlyAddedQuadrant: MatrixKey | null;
   isFormOpened: boolean;
-  taskInsertIndex: number | null;
   viewMode: 'matrix' | 'list';
   sortField: 'createdAt' | 'importance';
   sortDirection: 'asc' | 'desc';
@@ -17,4 +25,6 @@ export interface UIState {
   lastSelectedTaskId: string | null;
   /** The quadrant open full screen on a phone; the 2×2 grid when null */
   fullScreenQuadrant: MatrixKey | null;
+  /** Closed when null */
+  inlineAdd: InlineAdd | null;
 }
