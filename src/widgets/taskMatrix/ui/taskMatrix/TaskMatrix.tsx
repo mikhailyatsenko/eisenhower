@@ -10,13 +10,17 @@ import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { useSyncStore } from '@/shared/stores/syncStore';
-import { useTaskStore } from '@/shared/stores/tasksStore';
+import {
+  useIsTaskStoreRestored,
+  useTaskStore,
+} from '@/shared/stores/tasksStore';
 import {
   openInlineAddAction,
   openInlineAddByEmptySpaceAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
+import { NoSignUpLine } from '../../components/NoSignUpLine';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
@@ -54,6 +58,17 @@ export const TaskMatrix: React.FC = () => {
   // The account's tasks haven't come yet: examples would make it look empty
   const isAccountAwaited = !!user && isInCloudStorage && isAwaitingServer;
 
+  // Not before the device's tasks are read: a returning user would see it
+  // flash. The device's tasks, not the active ones: on sign-out the user is
+  // gone a render before the Matrix switches back to them.
+  const isTaskStoreRestored = useIsTaskStoreRestored();
+  const isDeviceMatrixEmpty = useTaskStore((state) =>
+    Object.values(state.localTasks).every(
+      (quadrantTasks) => quadrantTasks.length === 0,
+    ),
+  );
+  const hasNoSignUpLine = !user && isTaskStoreRestored && isDeviceMatrixEmpty;
+
   if (isLoading || (user && isWaitingForCloud)) {
     return <LoaderFullScreen />;
   }
@@ -67,6 +82,7 @@ export const TaskMatrix: React.FC = () => {
           back online.
         </p>
       )}
+      {hasNoSignUpLine && <NoSignUpLine />}
 
       {/* Focus lands here, not on <body>, when the matrix has no task left */}
       <div
