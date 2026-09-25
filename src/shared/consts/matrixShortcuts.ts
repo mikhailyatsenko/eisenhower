@@ -30,7 +30,10 @@ export const MATRIX_SHORTCUTS: Shortcut[] = [
     keys: ['N'],
     action: `Open the add field in the quadrant of the selected or last selected task, or in ${QUADRANT_TITLES[0]}`,
   },
-  { keys: ['Esc'], action: 'Clear the selection' },
+  {
+    keys: ['Esc'],
+    action: 'Clear the selection, as the × in the action panel does',
+  },
   { keys: ['Ctrl/Cmd+Z'], action: 'Undo the last action' },
   { keys: ['?'], action: 'Show these shortcuts' },
 ];

@@ -40,6 +40,7 @@ export const ToastCard = ({ toast }: ToastCardProps) => {
 
   return (
     <div
+      data-toast-card
       className="motion-safe:animate-toast-slide-in motion-reduce:animate-toast-fade-in pointer-events-auto flex min-h-12 max-w-full touch-pan-y items-center gap-4 rounded-lg bg-gray-900 py-1 pr-1 pl-4 text-sm font-medium text-white shadow-lg dark:bg-gray-700"
       style={
         offset

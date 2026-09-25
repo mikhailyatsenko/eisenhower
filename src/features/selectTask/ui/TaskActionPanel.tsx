@@ -16,8 +16,12 @@ import {
 } from '@/shared/stores/uiStore';
 import { ActionToolbar } from '../components/ActionToolbar';
 import { ShortcutsDialog } from '../components/ShortcutsDialog';
-import { useFocusAfterAction, useMatrixKeys } from '../hooks';
-import { locateTask, neighbourTaskId } from '../lib';
+import {
+  useDeselectOnPageClick,
+  useFocusAfterAction,
+  useMatrixKeys,
+} from '../hooks';
+import { locateTask, neighbourTaskId, taskCard } from '../lib';
 import { TaskActions, TaskLocation } from '../types';
 
 const getActiveTasks = () => {
@@ -76,6 +80,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   }, [isSelectionStale, locatedTaskId]);
 
   useFocusAfterAction(matrixRef, locatedTaskId, emptiedQuadrant);
+  useDeselectOnPageClick();
 
   const handleMove = async (toQuadrant: MatrixKey) => {
     if (!location) return;
@@ -108,6 +113,13 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   const handleDelete = () =>
     location && deleteTask(location.quadrantKey, location.task.id);
   const handleEdit = () => location && setEditingTaskId(location.task.id);
+  // As Esc from the task: the card keeps the focus, not the selection. It's
+  // focused while still selected, so its focus doesn't select it again.
+  const handleDeselect = () => {
+    if (!location) return;
+    taskCard(location.task.id)?.focus();
+    selectTaskAction(null);
+  };
 
   useMatrixKeys({
     tasks,
@@ -142,6 +154,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
           onEdit={handleEdit}
           onMove={handleMove}
           onDelete={handleDelete}
+          onDeselect={handleDeselect}
         />
       )}
 

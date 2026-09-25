@@ -39,6 +39,16 @@ body {
   @apply bg-background text-foreground antialiased;
 }
 
+/* iOS Safari sends a tap on a plain element to a document click listener only
+   when it looks clickable: a tap on empty space clears the selection (Q) */
+@media (hover: none) and (pointer: coarse) {
+  main,
+  footer {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 @theme {
   @keyframes from-bottom-appear {
     0% {

@@ -2,7 +2,7 @@
 
 **What to build:** Пустой квадрант объясняет метод сам: показывает, что сюда класть, и что по нему можно кликнуть. Срез I [спеки R3](../spec.md), решение: [Онбординг первого визита](../../ui-ux-audit/issues/08-first-visit-onboarding.md), строка «Пример + CTA в пустом квадранте». Закрывает F3.
 
-**Blocked by:** 02, 03 (кнопка «Add a task»; G уходит в `main` до I)
+**Blocked by:** 02, 03, 17 (кнопка «Add a task»; G и Q уходят в `main` до I)
 
 **Status:** ready-for-agent
 

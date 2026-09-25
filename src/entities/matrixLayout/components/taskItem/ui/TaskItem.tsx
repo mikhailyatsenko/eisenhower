@@ -100,7 +100,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         isDragging && 'opacity-50',
         isSelected
           ? 'ring-2 ring-indigo-700 ring-offset-2 dark:ring-indigo-300 dark:ring-offset-gray-950'
-          : 'hover:ring-1 hover:ring-gray-500',
+          : // Focused, not selected (after Esc or "×"): dashed, unlike the selection
+            'hover:ring-1 hover:ring-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700 focus-visible:outline-dashed dark:focus-visible:outline-indigo-300',
       )}
     >
       <TaskCardContent task={task} isFullText={isFullText} />
