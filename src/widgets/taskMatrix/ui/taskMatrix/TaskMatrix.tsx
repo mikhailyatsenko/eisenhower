@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
-import { TaskActionPanel } from '@/features/selectTask';
+import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
@@ -109,6 +109,9 @@ export const TaskMatrix: React.FC = () => {
           moveTask={moveTask}
         />
       </div>
+
+      {/* Selection comes to List view in slice N, the line with it */}
+      {viewMode === 'matrix' && <SelectionHint />}
 
       <CopyLocalToCloudButton />
     </>

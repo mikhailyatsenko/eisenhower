@@ -4,11 +4,37 @@
 
 **Blocked by:** 03 (G уходит в `main` до I)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Под матрицей в виде Matrix всегда видна строка: мышь — «Click a task to select it · ↑↓←→ move selection · ? all shortcuts», touch — «Tap a task to select it». Touch — по `(hover: none) and (pointer: coarse)`, не по ширине.
-- [ ] Строка — неинтерактивный текст: не встаёт в Tab-порядок, Undo toast остаётся следующей остановкой Tab после матрицы. В List view строки нет (до среза N).
-- [ ] В шпаргалке `?` ссылка «How the Eisenhower Matrix works →» на `/eisenhower-matrix`, в конце диалога, доступна по Tab внутри него.
-- [ ] Контраст строки не меньше 4.5:1 в обеих темах.
-- [ ] Тесты на главном seam: строка по указателю, в List view её нет; Tab после последней задачи по-прежнему на «Undo»; в шпаргалке `link` на `/eisenhower-matrix`; axe.
-- [ ] Чек-лист, раздел I: строка на телефоне и desktop, ссылка из шпаргалки клавиатурой.
+- [x] Под матрицей в виде Matrix всегда видна строка: мышь — «Click a task to select it · ↑↓←→ move selection · ? all shortcuts», touch — «Tap a task to select it». Touch — по `(hover: none) and (pointer: coarse)`, не по ширине.
+- [x] Строка — неинтерактивный текст: не встаёт в Tab-порядок, Undo toast остаётся следующей остановкой Tab после матрицы. В List view строки нет (до среза N).
+- [x] В шпаргалке `?` ссылка «How the Eisenhower Matrix works →» на `/eisenhower-matrix`, в конце диалога, доступна по Tab внутри него.
+- [x] Контраст строки не меньше 4.5:1 в обеих темах.
+- [x] Тесты на главном seam: строка по указателю, в List view её нет; Tab после последней задачи по-прежнему на «Undo»; в шпаргалке `link` на `/eisenhower-matrix`; axe.
+- [x] Чек-лист, раздел I: строка на телефоне и desktop, ссылка из шпаргалки клавиатурой.
+
+## Comments
+
+**Что сделано.**
+
+- **Строка под матрицей.** `SelectionHint` — новый компонент в `features/selectTask/ui`, экспортируется из слайса. `TaskMatrix` ставит его сразу после группы «Task matrix», только в виде Matrix. Это `<p>` мелким текстом по центру (`text-xs`, `text-gray-700` / `dark:text-gray-300`). Вариант выбирает `useIsTouchScreen` (`(hover: none) and (pointer: coarse)`): мышь — «Click a task to select it · ↑↓←→ move selection · ? all shortcuts», touch — «Tap a task to select it». Видна и под пустой матрицей, и под квадрантом, раскрытым на весь экран на телефоне.
+- **Tab.** Строка — простой текст между матрицей и регионом toast, остановкой Tab не становится, так что «Undo» по-прежнему идёт следующим после матрицы. Клик по ней при выделении снимает выделение, как по любому неинтерактивному месту (срез Q).
+- **Шпаргалка.** Последний элемент диалога — ссылка `next/link` «How the Eisenhower Matrix works →» на `/eisenhower-matrix`, после строки про drag. `Tab` от «Close» ведёт на неё.
+
+**Тесты.** Новый `src/app/tests/selectionHint.test.tsx`:
+
+- при мыши — текст для мыши, при `pointer: 'coarse'` — «Tap a task to select it» на любой ширине, после смены на `pointer: 'fine'` снова текст для мыши;
+- под пустой матрицей строка есть, в List view её нет;
+- `Tab` с «×» в панели ведёт прямо на «Undo»;
+- axe.
+
+В `dialogs.test.tsx`: в шпаргалке `link` «How the Eisenhower Matrix works →» с `href="/eisenhower-matrix"`, `Tab` от «Close» встаёт на неё, ссылка идёт после строки про drag. Чек-лист, раздел I: блок «Строка под матрицей и ссылка в шпаргалке».
+
+**Проверено в Chrome.** Desktop 1280px в тёмной и светлой темах: строка под матрицей, `?` → `Tab` от «Close» ставит фокус на ссылку с кольцом. Эмуляция 375×667 с touch: «Tap a task to select it» под сеткой и под раскрытым Do First, «New task» её не закрывает. В дереве доступности строка стоит между группой «Task matrix» и регионом «Notifications». Контраст по вычисленным цветам:
+- строка — 13.5 в тёмной теме и 10.3 в светлой;
+- ссылка на фоне диалога — 8.8 в тёмной и 7.7 в светлой.
+
+**Известные ограничения.**
+
+- Ноутбук с сенсорным экраном и мышью и VoiceOver в эмуляции не проверяются. Пункты есть в чек-листе.
+- На телефоне строка под сеткой уходит ниже первого экрана (на 375×667 видна после небольшой прокрутки). Спека просит «под матрицей», место не менял.
