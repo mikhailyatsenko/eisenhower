@@ -1,0 +1,1 @@
+export { SyncBar } from './SyncBar';

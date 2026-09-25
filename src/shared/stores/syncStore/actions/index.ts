@@ -1,12 +1,14 @@
 import { useSyncStore } from '../hooks/useSyncStore';
+import { applySyncSignals, stopSyncTimers } from './applySyncSignals';
 
 // Writes made before the last reset settle into a fresh count: they don't count
 let resets = 0;
+let stopWatchingNetwork: (() => void) | null = null;
 
 const countUnconfirmed = (delta: number) =>
-  useSyncStore.setState(({ unconfirmedWrites }) => ({
-    unconfirmedWrites: unconfirmedWrites + delta,
-  }));
+  applySyncSignals({
+    unconfirmedWrites: useSyncStore.getState().unconfirmedWrites + delta,
+  });
 
 /**
  * Counts the write as unconfirmed until the server confirms or refuses it.
@@ -23,10 +25,27 @@ export const trackCloudWriteAction = (write: Promise<void>) => {
 };
 
 export const setCloudPendingWritesAction = (hasPendingWrites: boolean) =>
-  useSyncStore.setState({ hasPendingWrites });
+  applySyncSignals({ hasPendingWrites });
+
+/** A user is signed in to the cloud Matrix: the bar follows the network */
+export const startSyncAction = () => {
+  stopWatchingNetwork?.();
+  const onNetworkChange = () =>
+    applySyncSignals({ isOnline: navigator.onLine });
+  window.addEventListener('online', onNetworkChange);
+  window.addEventListener('offline', onNetworkChange);
+  stopWatchingNetwork = () => {
+    window.removeEventListener('online', onNetworkChange);
+    window.removeEventListener('offline', onNetworkChange);
+  };
+  applySyncSignals({ isSignedIn: true, isOnline: navigator.onLine });
+};
 
 /** Forgets the cloud Matrix: on sign-out or when the page closes */
 export const resetSyncAction = () => {
   resets += 1;
+  stopWatchingNetwork?.();
+  stopWatchingNetwork = null;
+  stopSyncTimers();
   useSyncStore.setState(useSyncStore.getInitialState(), true);
 };

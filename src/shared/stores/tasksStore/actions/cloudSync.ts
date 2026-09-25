@@ -3,6 +3,7 @@ import type { CloudSnapshot, TaskChange } from '@/shared/api/cloudMatrix';
 import {
   resetSyncAction,
   setCloudPendingWritesAction,
+  startSyncAction,
   trackCloudWriteAction,
 } from '@/shared/stores/syncStore';
 import { selectTaskAction, useUIStore } from '@/shared/stores/uiStore';
@@ -57,6 +58,7 @@ const resetCloudMatrix = () =>
 export const subscribeToCloudMatrix = (userId: string) => {
   uid = userId;
   resetCloudMatrix();
+  startSyncAction();
 
   const unsubscribe = cloudMatrix.subscribe(
     userId,
