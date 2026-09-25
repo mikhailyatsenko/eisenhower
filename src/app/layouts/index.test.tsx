@@ -9,6 +9,17 @@ jest.mock('next/headers', () => ({
   }),
 }));
 
+// External boundary: no real Firebase, so no API key in the environment is
+// needed. The fake cloud reports no user.
+jest.mock(
+  '@/shared/api/cloudMatrix/client',
+  () => jest.requireActual('../tests/fakeCloud').fakeCloudMatrixClient,
+);
+jest.mock(
+  '@/shared/api/auth/client',
+  () => jest.requireActual('../tests/fakeCloud').fakeAuthClient,
+);
+
 jest.mock('@/features/auth', () => ({
   ...jest.requireActual('@/features/auth'),
   Auth: () => <div>Auth Component</div>,
