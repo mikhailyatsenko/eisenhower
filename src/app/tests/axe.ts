@@ -11,10 +11,7 @@ interface KnownViolation {
  * Violations already known from the UI/UX audit, by axe rule. The slice that
  * fixes a finding removes its rules; any other violation fails the check.
  */
-export const KNOWN_VIOLATIONS: Record<string, KnownViolation> = {
-  // X1: the theme toggle has no accessible name; slice L (R3) names it.
-  'button-name': { finding: 'X1', nodes: 1 },
-};
+export const KNOWN_VIOLATIONS: Record<string, KnownViolation> = {};
 
 const runAxe = configureAxe();
 

@@ -7,6 +7,7 @@ import EisenhowerMatrixPage, {
 } from '../../../app/eisenhower-matrix/page';
 import HomePage from '../../../app/page';
 import sitemap from '../../../app/sitemap';
+import { AppShell } from '../layouts/AppShell';
 import { axe } from './axe';
 
 // External boundary: no real Firebase on the server render
@@ -135,6 +136,19 @@ describe('Server pages', () => {
 
       expect(
         within(page).getByRole('link', { name: 'Open the matrix' }),
+      ).toHaveAttribute('href', '/');
+    });
+
+    it('has the header with a link back to the matrix', () => {
+      const page = renderServerHtml(
+        <AppShell>
+          <EisenhowerMatrixPage />
+        </AppShell>,
+      );
+
+      const header = within(page).getByRole('banner');
+      expect(
+        within(header).getByRole('link', { name: 'Eisenhower Matrix' }),
       ).toHaveAttribute('href', '/');
     });
 

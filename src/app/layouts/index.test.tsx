@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { act } from 'react';
 import { RootLayout } from './index';
@@ -61,9 +61,10 @@ describe('RootLayout', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Auth Component')).toBeInTheDocument();
+      const header = screen.getByRole('banner');
+      expect(within(header).getByText('Auth Component')).toBeInTheDocument();
       expect(
-        screen.getByText('ThemeToggle Component - dark'),
+        within(header).getByText('ThemeToggle Component - dark'),
       ).toBeInTheDocument();
       expect(document.querySelector('link[rel="icon"]')).toBeInTheDocument();
       expect(document.querySelector('script')).toBeInTheDocument();

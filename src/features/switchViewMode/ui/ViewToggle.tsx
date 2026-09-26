@@ -12,15 +12,17 @@ export const ViewToggle: React.FC = () => {
 
   return (
     <button
+      type="button"
       onClick={toggleViewMode}
-      className="fixed top-1 right-[54px] z-[20] flex h-12 w-12 cursor-pointer items-center justify-center rounded-lg p-2 hover:bg-gray-100 sm:right-[72px] dark:hover:bg-gray-700"
+      className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-indigo-700 focus-visible:outline-none dark:hover:bg-gray-800 dark:focus-visible:ring-indigo-300"
       title={
         viewMode === 'matrix' ? 'Switch to List View' : 'Switch to Matrix View'
       }
     >
       {viewMode === 'matrix' ? (
         <svg
-          className="h-12 w-12"
+          aria-hidden
+          className="h-8 w-8"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +51,8 @@ export const ViewToggle: React.FC = () => {
         </svg>
       ) : (
         <svg
-          className="h-12 w-12 fill-gray-500 dark:fill-gray-400"
+          aria-hidden
+          className="h-7 w-7 fill-gray-500 dark:fill-gray-400"
           viewBox="0 0 28 28"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"

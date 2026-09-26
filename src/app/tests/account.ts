@@ -1,8 +1,8 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 /**
- * The account button of a signed-out user. After Sign out the line above the
- * empty matrix has a "Sign in" button too; the account button comes first.
+ * The account button of a signed-out user, in the header. After Sign out the
+ * line above the empty matrix has a "Sign in" button too.
  */
 export const getAccountSignIn = () =>
-  screen.getAllByRole('button', { name: 'Sign in' })[0];
+  within(screen.getByRole('banner')).getByRole('button', { name: 'Sign in' });

@@ -22,8 +22,8 @@ const TEXTS: Record<NeutralKind, string> = {
 const ERROR_TEXT = "Some changes couldn't be saved to your account.";
 
 /**
- * Full width right under the top row of buttons: pushes the page down while
- * it shows and stays in view on scroll. One status region for the neutral
+ * Full width right under the header, sticky with it: pushes the page down
+ * while it shows and stays in view on scroll. One status region for the neutral
  * states, so each is announced once; empty, it takes no space. A Sync error
  * takes its place as an alert with a way to set it right.
  */
@@ -55,13 +55,7 @@ export const SyncBar = () => {
   }, [hasError]);
 
   return (
-    // Sticks right under the scroll mask (h-12). The margins cancel out: only
-    // the bar's own height moves the page
-    <div
-      ref={barRef}
-      tabIndex={-1}
-      className="sticky top-12 z-10 mt-12 -mb-12 outline-none"
-    >
+    <div ref={barRef} tabIndex={-1} className="outline-none">
       <div role="status" aria-label="Sync status">
         {bar.kind !== 'hidden' && bar.kind !== 'error' && (
           <p className="border-y border-gray-200 bg-gray-100 px-4 py-2 text-center text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
