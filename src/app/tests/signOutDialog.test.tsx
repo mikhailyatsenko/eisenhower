@@ -21,7 +21,7 @@ const addTask = async (user: User, text: string) => {
 
 const signOut = async (user: User) => {
   await user.click(screen.getByRole('button', { name: 'Ada' }));
-  await user.click(screen.getByRole('button', { name: 'Logout' }));
+  await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 };
 
 const signOutDialog = () => screen.getByRole('dialog', { name: 'Sign out?' });

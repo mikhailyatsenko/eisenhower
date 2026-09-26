@@ -74,7 +74,7 @@ describe('The line above an empty matrix', () => {
     });
 
     await user.click(screen.getByRole('button', { name: 'Ada' }));
-    await user.click(screen.getByRole('button', { name: 'Logout' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeVisible();
     expect(

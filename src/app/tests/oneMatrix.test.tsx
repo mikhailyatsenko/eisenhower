@@ -59,7 +59,7 @@ describe('One Matrix', () => {
     expect(tasksIn('Do First')).toEqual(['Pay rent', 'Call the bank']);
 
     await user.click(screen.getByRole('button', { name: 'Ada' }));
-    await user.click(screen.getByRole('button', { name: 'Logout' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 
     expect(tasksIn('Do First')).toEqual(['Local only']);
   });
@@ -82,7 +82,7 @@ describe('One Matrix', () => {
     expect(cloud.serverTasks().ImportantUrgent).toContain('Buy milk');
 
     await user.click(screen.getByRole('button', { name: 'Ada' }));
-    await user.click(screen.getByRole('button', { name: 'Logout' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 
     expect(tasksIn('Do First')).toEqual(['Local only']);
   });
