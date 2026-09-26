@@ -10,12 +10,12 @@ import {
   useTaskStore,
 } from '@/shared/stores/tasksStore';
 import { dismissToast, showToast } from '@/shared/ui/toast';
-import { migrationPlan } from '../lib';
-import type { MatrixTasks } from '../types';
+import { migrationPlan, taskCount } from '../lib';
+import type { MatrixTasks, MigrationPlan, MigrationQuestion } from '../types';
 import { isMigrationRefused, refuseMigration } from './refusal';
 
 const movedMessage = (count: number) =>
-  `${count} ${count === 1 ? 'task' : 'tasks'} moved to your account`;
+  `${taskCount(count)} moved to your account`;
 
 const snapshotIds = ({ tasks, completedTasks }: CloudSnapshot) =>
   [...Object.values(tasks).flat(), ...completedTasks].map(({ id }) => id);
@@ -26,14 +26,19 @@ const matrixIds = ({ tasks, completedTasks }: MatrixTasks) =>
 /**
  * Moves the device's Matrix into the signed-in user's cloud once the cloud
  * is known. Into an empty cloud it goes at once, with a toast that stays
- * until the user changes the Matrix. The device lets go of a task only once
- * the server has it, so a lost network, a closed tab or a refusal loses
- * nothing: the next start finds the tasks in the cloud and just clears them.
+ * until the user changes the Matrix; into a cloud with its own tasks only
+ * after `ask` gets "Add", and "Don't add" is a refusal, like Undo. The
+ * device lets go of a task only once the server has it, so a lost network,
+ * a closed tab or a refusal loses nothing: the next start finds the tasks in
+ * the cloud and just clears them.
  * Undo takes them out of the cloud, back to the device, and no move is
  * offered again while the user stays signed in. Returns the stop, for
  * sign-out and page close.
  */
-export const startMigration = (uid: string) => {
+export const startMigration = (
+  uid: string,
+  ask: (question: MigrationQuestion) => void,
+) => {
   let isStopped = false;
   let isDecided = false;
   let lastSnapshot: CloudSnapshot | null = null;
@@ -109,19 +114,38 @@ export const startMigration = (uid: string) => {
     });
   };
 
-  const decide = (cloud: CloudSnapshot) => {
-    if (isMigrationRefused(uid)) return;
-    const { localTasks, localCompletedTasks } = useTaskStore.getState();
-    const device = { tasks: localTasks, completedTasks: localCompletedTasks };
-    const plan = migrationPlan(device, cloud);
-    // Asking whether to add to a cloud with its own tasks comes later
-    if (plan.decision === 'ask') return;
-    if (plan.decision === 'move') {
+  const applyPlan = (device: MatrixTasks, plan: MigrationPlan) => {
+    if (plan.decision !== 'none') {
       showMoved(device, plan.count, moveToCloudAction(plan.changes));
     }
     // Firestore rejects the wait when the user changes: the tasks stay, the
     // next start clears them
     clearDevice().catch(() => {});
+  };
+
+  const decide = (cloud: CloudSnapshot) => {
+    if (isMigrationRefused(uid)) return;
+    const { localTasks, localCompletedTasks } = useTaskStore.getState();
+    const device = { tasks: localTasks, completedTasks: localCompletedTasks };
+    const plan = migrationPlan(device, cloud);
+
+    if (plan.decision !== 'ask') {
+      applyPlan(device, plan);
+      return;
+    }
+    // Neither the cloud nor the device changes until the user answers
+    ask({
+      count: plan.count,
+      add: () => {
+        // Refused in another tab meanwhile
+        if (isStopped || isMigrationRefused(uid)) return;
+        // After the cloud as it is now, not as it was when asked
+        applyPlan(device, migrationPlan(device, lastSnapshot ?? cloud));
+      },
+      refuse: () => {
+        if (!isStopped) refuseMigration(uid);
+      },
+    });
   };
 
   const stopListening = listenToCloudSnapshots((snapshot, isKnown) => {

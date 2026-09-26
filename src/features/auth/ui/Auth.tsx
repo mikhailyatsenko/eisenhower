@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { AuthIndicator } from '@/entities/authIndicator';
 import { useAuth } from '@/shared/api/auth';
 import {
@@ -13,12 +13,16 @@ import {
 } from '@/shared/stores/syncStore';
 import { SignOutDialog } from '../components/SignOutDialog';
 
-export const Auth: React.FC = () => {
+interface AuthProps {
+  /** The account button, shown while the menu is closed */
+  accountButtonRef: React.RefObject<HTMLButtonElement | null>;
+}
+
+export const Auth: React.FC<AuthProps> = ({ accountButtonRef }) => {
   const { user, handleGoogleSignIn, handleLogout, isLoading } = useAuth();
 
   // Pending changes when Sign out was pressed; undefined while not asking
   const [pendingChanges, setPendingChanges] = useState<number | null>();
-  const accountButtonRef = useRef<HTMLButtonElement>(null);
 
   // Signed out meanwhile (the session ended, another tab): nothing to ask.
   // Signing out now would clear the queue an expired session keeps.

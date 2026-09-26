@@ -293,3 +293,154 @@ describe('Undo Migration', () => {
     expectDeviceTasksShown();
   });
 });
+
+describe('Migration into an account with its own tasks', () => {
+  const DEVICE = {
+    ImportantUrgent: ['Pay rent'],
+    NotImportantUrgent: ['Book the flights'],
+  };
+  const ACCOUNT = { cloud: { tasks: { ImportantUrgent: ['Plan the trip'] } } };
+  const QUESTION = 'Add 2 tasks from this device to your account?';
+
+  const question = () => screen.getByRole('dialog', { name: QUESTION });
+
+  const expectAccountOnly = () => {
+    expect(tasksIn('Do First')).toEqual(['Plan the trip']);
+    expect(tasksIn('Delegate')).toEqual([]);
+  };
+
+  it('asks once, in a modal <dialog> with the focus on "Add"', async () => {
+    const { user } = await renderHomePage({ tasks: DEVICE, ...ACCOUNT });
+
+    await signIn(user);
+
+    const dialog = question();
+    expect(dialog.tagName).toBe('DIALOG');
+    expect(dialog).toHaveAttribute('open');
+    expect(dialog).toHaveAccessibleDescription(
+      'Your account already has tasks. The tasks from this device will be added after them.',
+    );
+    expect(screen.getByRole('button', { name: 'Add' })).toHaveFocus();
+    expect(await axe(document.body)).toHaveNoViolations();
+  });
+
+  it('"Add" puts the device\'s tasks after the account\'s, with the toast', async () => {
+    const { user, cloud } = await renderHomePage({ tasks: DEVICE, ...ACCOUNT });
+
+    await signIn(user);
+    // The keyboard: no click outside closes the account menu on the way
+    await user.keyboard('{Enter}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(tasksIn('Do First')).toEqual(['Plan the trip', 'Pay rent']);
+    expect(tasksIn('Delegate')).toEqual(['Book the flights']);
+    expect(toast()).toHaveTextContent('2 tasks moved to your account');
+    expect(screen.getByRole('button', { name: 'Ada' })).toHaveFocus();
+    expect(cloud.serverTasks()).toMatchObject({
+      ImportantUrgent: ['Plan the trip', 'Pay rent'],
+      NotImportantUrgent: ['Book the flights'],
+    });
+
+    await signOut(user);
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+  });
+
+  it('Undo after "Add" puts the account back as it was', async () => {
+    const { user, cloud } = await renderHomePage({ tasks: DEVICE, ...ACCOUNT });
+
+    await signIn(user);
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+
+    expectAccountOnly();
+    expect(cloud.serverTasks()).toMatchObject({
+      ImportantUrgent: ['Plan the trip'],
+      NotImportantUrgent: [],
+    });
+
+    await signOut(user);
+
+    expect(tasksIn('Do First')).toEqual(['Pay rent']);
+    expect(tasksIn('Delegate')).toEqual(['Book the flights']);
+  });
+
+  it('adds after the account\'s tasks as they are when "Add" is pressed', async () => {
+    const { user, cloud } = await renderHomePage({ tasks: DEVICE, ...ACCOUNT });
+
+    await signIn(user);
+    await act(async () => {
+      cloud.remoteChange((server) => {
+        server.add('ImportantUrgent', 'Renew passport');
+        server.add('ImportantUrgent', 'Book a dentist');
+      });
+    });
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(tasksIn('Do First')).toEqual([
+      'Plan the trip',
+      'Renew passport',
+      'Book a dentist',
+      'Pay rent',
+    ]);
+  });
+
+  it('a click on the backdrop answers nothing', async () => {
+    const { user } = await renderHomePage({ tasks: DEVICE, ...ACCOUNT });
+
+    await signIn(user);
+    await user.click(question());
+
+    expect(question()).toHaveAttribute('open');
+  });
+
+  it.each([
+    {
+      answer: '"Don\'t add"',
+      dismiss: (user: User) =>
+        user.click(screen.getByRole('button', { name: "Don't add" })),
+    },
+    { answer: 'Escape', dismiss: (user: User) => user.keyboard('{Escape}') },
+  ])(
+    '$answer leaves both matrices as they are and stops asking until sign-out',
+    async ({ dismiss }) => {
+      const { user, cloud, reload } = await renderHomePage({
+        tasks: DEVICE,
+        ...ACCOUNT,
+      });
+
+      await signIn(user);
+      await dismiss(user);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expectAccountOnly();
+      expect(toast()).toBeEmptyDOMElement();
+      expect(screen.getByRole('button', { name: 'Ada' })).toHaveFocus();
+      expect(cloud.serverTasks()).toMatchObject({
+        ImportantUrgent: ['Plan the trip'],
+        NotImportantUrgent: [],
+      });
+
+      await reload();
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expectAccountOnly();
+
+      await signOut(user);
+
+      expect(tasksIn('Do First')).toEqual(['Pay rent']);
+      expect(tasksIn('Delegate')).toEqual(['Book the flights']);
+
+      await signIn(user);
+
+      expect(question()).toBeInTheDocument();
+    },
+  );
+
+  it('asks a user who was signed in before, with tasks on the device and in the account', async () => {
+    await renderHomePage({ tasks: DEVICE, signedIn: ADA, ...ACCOUNT });
+
+    expect(question()).toBeInTheDocument();
+    expectAccountOnly();
+  });
+});

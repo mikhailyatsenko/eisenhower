@@ -85,6 +85,21 @@ describe('migrationPlan', () => {
       },
     },
     {
+      name: '"Add" goes after the last cloud task when its order has gaps',
+      device: matrix({ ImportantUrgent: ['a'] }),
+      cloud: {
+        ...matrix({}),
+        tasks: {
+          ...EMPTY,
+          ImportantUrgent: [
+            { ...task('c1'), order: 0 },
+            { ...task('c2'), order: 4 },
+          ],
+        },
+      },
+      expected: { decision: 'ask', count: 1, changes: ['ImportantUrgent:5 a'] },
+    },
+    {
       name: 'every device task already in the cloud: nothing to write',
       device: matrix({ ImportantUrgent: ['a', 'b'] }, [
         done('z', '2026-09-21T10:00:00Z'),
@@ -146,6 +161,24 @@ describe('migrationPlan', () => {
         changes: [
           'completed NotImportantNotUrgent:0 d3',
           'completed NotImportantNotUrgent:2 d1',
+        ],
+      },
+    },
+    {
+      name: '"Add" puts active tasks after each quadrant and Completed by time',
+      device: matrix({ ImportantUrgent: ['a'], NotImportantNotUrgent: ['b'] }, [
+        done('d1', '2026-09-23T10:00:00Z', 'ImportantUrgent'),
+      ]),
+      cloud: matrix({ ImportantUrgent: ['c1', 'c2'] }, [
+        done('c0', '2026-09-22T10:00:00Z'),
+      ]),
+      expected: {
+        decision: 'ask',
+        count: 3,
+        changes: [
+          'ImportantUrgent:2 a',
+          'NotImportantNotUrgent:0 b',
+          'completed ImportantUrgent:0 d1',
         ],
       },
     },

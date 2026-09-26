@@ -47,6 +47,14 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
   );
 
   const [isOpen, setIsOpen] = useState(false);
+  const [wasSignedIn, setWasSignedIn] = useState(isSignedIn);
+
+  // Signed in: the menu gives way to the account button, so a dialog opened
+  // on sign-in can return the focus to it
+  if (isSignedIn !== wasSignedIn) {
+    setWasSignedIn(isSignedIn);
+    if (isSignedIn) setIsOpen(false);
+  }
 
   return (
     <BubbleCornerButton

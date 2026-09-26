@@ -31,7 +31,11 @@ export const migrationPlan = (
   const isCloudEmpty = [...cloudIds].every((id) => deviceIds.has(id));
 
   const active = MATRIX_KEYS.flatMap((quadrantKey) => {
-    const orderOffset = isCloudEmpty ? 0 : cloud.tasks[quadrantKey].length;
+    // After the last cloud task, whatever gaps its `order` has
+    const cloudQuadrant = cloud.tasks[quadrantKey];
+    const orderOffset = isCloudEmpty
+      ? 0
+      : Math.max(cloudQuadrant.length, (cloudQuadrant.at(-1)?.order ?? -1) + 1);
     const quadrant = isCloudEmpty
       ? device.tasks[quadrantKey]
       : device.tasks[quadrantKey].filter(isNew);

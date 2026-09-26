@@ -16,3 +16,12 @@ export interface MigrationPlan {
   count: number;
   changes: TaskChange[];
 }
+
+/** Whether to add the device's tasks to a cloud with its own */
+export interface MigrationQuestion {
+  /** Tasks to add, active and Completed */
+  count: number;
+  add: () => void;
+  /** "Don't add": no Migration into this account until sign-out */
+  refuse: () => void;
+}
