@@ -11,14 +11,10 @@ import {
   selectPendingChangesCount,
   useSyncStore,
 } from '@/shared/stores/syncStore';
-import { useTaskStore } from '@/shared/stores/tasksStore';
 import { SignOutDialog } from '../components/SignOutDialog';
 
 export const Auth: React.FC = () => {
   const { user, handleGoogleSignIn, handleLogout, isLoading } = useAuth();
-
-  const { localTasks } = useTaskStore();
-  const { firebaseTasks } = useTaskStore();
 
   // Pending changes when Sign out was pressed; undefined while not asking
   const [pendingChanges, setPendingChanges] = useState<number | null>();
@@ -49,8 +45,6 @@ export const Auth: React.FC = () => {
       className={`${isLoading ? 'opacity-20' : 'opacity-100'} relative z-50`}
     >
       <AuthIndicator
-        localTasks={localTasks}
-        cloudTasks={firebaseTasks}
         photoURL={user?.photoURL || undefined}
         displayName={user?.displayName || undefined}
         isSignedIn={!!user}

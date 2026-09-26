@@ -6,13 +6,6 @@ import { useState } from 'react';
 
 import GoogleIcon from '@/shared/icons/google-icon.svg';
 import UserIcon from '@/shared/icons/user-icon.svg';
-import {
-  MatrixKey,
-  useTaskStore,
-  switchToFirebaseTasks,
-  switchToLocalTasks,
-} from '@/shared/stores/tasksStore';
-import { Task } from '@/shared/stores/tasksStore';
 import { BubbleCornerButton } from '@/shared/ui/bubbleCornerButton';
 import { SignWihGoogleButton } from '@/shared/ui/signWihGoogleButton';
 
@@ -22,18 +15,9 @@ export interface AuthIndicatorProps {
   photoURL?: string;
   isSignedIn: boolean;
   handleLogout: () => void;
-  localTasks: Record<MatrixKey, Task[]>;
-  cloudTasks: Record<MatrixKey, Task[]>;
   /** The account button, shown while the menu is closed */
   accountButtonRef?: React.Ref<HTMLButtonElement>;
 }
-
-export const quadrantBgStyles = {
-  ImportantUrgent: 'bg-red-200',
-  ImportantNotUrgent: 'bg-amber-200',
-  NotImportantUrgent: 'bg-blue-200 ',
-  NotImportantNotUrgent: 'bg-green-200',
-};
 
 export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
   handleGoogleSignIn,
@@ -41,8 +25,6 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
   isSignedIn,
   handleLogout,
   displayName,
-  localTasks,
-  cloudTasks,
   accountButtonRef,
 }) => {
   const userImage = photoURL ? (
@@ -64,20 +46,6 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
     </>
   );
 
-  const { activeState } = useTaskStore();
-
-  const handleSwitchToFirebase = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    switchToFirebaseTasks();
-  };
-
-  const handleSwitchToLocal = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    switchToLocalTasks();
-  };
-
-  const isCloud = activeState === 'firebase';
-
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -94,47 +62,14 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
             {userImage}
             <div>Logged in as {displayName}</div>
           </div>
-          <div className="flex w-[85%] flex-wrap justify-around">
-            <div
-              onClick={handleSwitchToFirebase}
-              className={`flex cursor-pointer flex-col items-center rounded-sm p-2 ${isCloud ? 'bg-gray-100/30' : ''} hover:bg-gray-100/30`}
+          <p className="w-full">Saved to your Google account</p>
+          <div className="flex w-[85%] justify-center">
+            <button
+              className="flex w-fit cursor-pointer items-center justify-center rounded-lg border-2 border-gray-100 px-4 py-2 text-gray-600 transition-colors duration-300 hover:bg-gray-50 dark:border-gray-300 dark:text-gray-100 dark:hover:bg-gray-900"
+              onClick={handleLogout}
             >
-              <h3 className="mb-2 text-sm leading-3 font-bold">Cloud Matrix</h3>
-              <div className="flex w-14 flex-wrap text-sm font-bold">
-                {Object.keys(cloudTasks).map((key) => (
-                  <div
-                    key={key}
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center text-gray-500 ${quadrantBgStyles[key as MatrixKey]}`}
-                  >
-                    {cloudTasks[key as MatrixKey].length}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div
-              onClick={handleSwitchToLocal}
-              className={`flex cursor-pointer flex-col items-center rounded-sm p-2 ${!isCloud ? 'bg-gray-100/30' : ''} hover:bg-gray-100/30`}
-            >
-              <h3 className="mb-2 text-sm leading-3 font-bold">Local Matrix</h3>
-              <div className="flex w-14 flex-wrap text-sm font-bold">
-                {Object.keys(localTasks).map((key) => (
-                  <div
-                    key={key}
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center text-gray-500 ${quadrantBgStyles[key as MatrixKey]}`}
-                  >
-                    {localTasks[key as MatrixKey].length}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-10 flex w-full justify-center">
-              <button
-                className="flex w-fit cursor-pointer items-center justify-center rounded-lg border-2 border-gray-100 px-4 py-2 text-gray-600 transition-colors duration-300 hover:bg-gray-50 dark:border-gray-300 dark:text-gray-100 dark:hover:bg-gray-900"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </div>
+              Logout
+            </button>
           </div>
         </div>
       ) : (

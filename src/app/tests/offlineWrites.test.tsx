@@ -192,28 +192,4 @@ describe('Changes of a signed-in user without a network', () => {
     expect(cloud.serverTasks().completed).toEqual([]);
     expect(cloud.serverTasks().ImportantUrgent).toEqual(['Call the bank']);
   });
-
-  it('copies the local tasks to the cloud and switches to it at once', async () => {
-    const { user, cloud } = await renderHomePage({
-      tasks: { ImportantUrgent: ['Local only'] },
-      signedIn: ADA,
-      cloud: { network: 'offline' },
-    });
-    await user.click(screen.getByRole('button', { name: 'Ada' }));
-    await user.click(screen.getByText('Local Matrix'));
-
-    await user.click(
-      screen.getByRole('button', { name: 'Copy all tasks to Cloud' }),
-    );
-
-    expect(toast()).toHaveTextContent('All local tasks copied to cloud');
-    expect(
-      screen.queryByRole('button', { name: 'Copy all tasks to Cloud' }),
-    ).not.toBeInTheDocument();
-    expect(tasksIn('Do First')).toEqual(['Local only']);
-
-    cloud.goOnline();
-
-    expect(cloud.serverTasks().ImportantUrgent).toEqual(['Local only']);
-  });
 });

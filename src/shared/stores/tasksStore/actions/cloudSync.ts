@@ -60,11 +60,11 @@ const showWithoutServer = () => {
 
 const applySnapshot = (snapshot: CloudSnapshot) => {
   const { selectedTaskId } = useUIStore.getState();
-  const { activeState, firebaseTasks } = useTaskStore.getState();
+  const { isInCloud, firebaseTasks } = useTaskStore.getState();
   // Still on screen, gone from the cloud: removed on another device or tab.
   // A task this device removed has left the store already.
   const isSelectionRemoved =
-    activeState === 'firebase' &&
+    isInCloud &&
     selectedTaskId !== null &&
     hasTask(firebaseTasks, selectedTaskId) &&
     !hasTask(snapshot.tasks, selectedTaskId);
@@ -88,11 +88,13 @@ const applySnapshot = (snapshot: CloudSnapshot) => {
   if (isSelectionRemoved) selectTaskAction(null);
 };
 
-const resetCloudMatrix = () =>
+/** The Matrix's Storage becomes the cloud while subscribed, the device after */
+const resetCloudMatrix = (isInCloud: boolean) =>
   useTaskStore.setState((state) => {
     state.firebaseTasks = getEmptyTasksState();
     state.firebaseCompletedTasks = [];
     state.isCloudLoaded = false;
+    state.isInCloud = isInCloud;
   });
 
 /** Starts a live subscription; a reload's first server snapshot ends the Sync error */
@@ -121,7 +123,7 @@ const listen = (userId: string, isReload: boolean) => {
 /** Keeps the store in step with the user's cloud Matrix; returns the unsubscribe */
 export const subscribeToCloudMatrix = (userId: string) => {
   uid = userId;
-  resetCloudMatrix();
+  resetCloudMatrix(true);
   isCacheEmpty = false;
   startSyncAction();
   setAwaitingServerAction(true);
@@ -137,7 +139,7 @@ export const subscribeToCloudMatrix = (userId: string) => {
     isCacheEmpty = false;
     stopWatchingSync?.();
     stopWatchingSync = null;
-    resetCloudMatrix();
+    resetCloudMatrix(false);
     resetSyncAction();
   };
 };
@@ -174,5 +176,3 @@ export const writeToCloud = (changes: TaskChange[]) => {
   if (!uid || changes.length === 0) return;
   trackCloudWriteAction(cloudMatrix.write(uid, changes));
 };
-
-export const isSignedInToCloud = () => uid !== null;

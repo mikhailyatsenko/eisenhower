@@ -2,14 +2,11 @@
 
 import { deleteCompletedTask, restoreTask } from '@/features/undo';
 import { CompletedTasksAccordion } from '@/entities/completedTasksAccordion';
-import { useTaskStore } from '@/shared/stores/tasksStore';
+import { selectCompletedTasks, useTaskStore } from '@/shared/stores/tasksStore';
 import { setRecentlyAddedQuadrantAction } from '@/shared/stores/uiStore';
 
 export const CompletedTasks = () => {
-  const { activeState, localCompletedTasks, firebaseCompletedTasks } =
-    useTaskStore();
-  const completedTasks =
-    activeState === 'local' ? localCompletedTasks : firebaseCompletedTasks;
+  const completedTasks = useTaskStore(selectCompletedTasks);
 
   const handleRestoreTask = async (taskId: string) => {
     // Find the task to get its original quadrant for animation

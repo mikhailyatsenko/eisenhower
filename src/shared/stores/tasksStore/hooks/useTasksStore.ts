@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { STORAGE_KEY, LOCAL_STATE_KEY } from '../consts';
+import { STORAGE_KEY } from '../consts';
 import { getEmptyTasksState } from '../lib';
 import { TaskState } from '../types';
 
@@ -20,7 +20,7 @@ export const useTaskStore = create<TaskState>()(
       firebaseTasks: getEmptyTasksState(),
       localCompletedTasks: [],
       firebaseCompletedTasks: [],
-      activeState: LOCAL_STATE_KEY,
+      isInCloud: false,
       isCloudLoaded: false,
     })),
     {

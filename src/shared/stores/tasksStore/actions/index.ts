@@ -1,11 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { MATRIX_KEYS } from '@/shared/consts';
 import { RESTORE_FALLBACK_QUADRANT } from '../consts';
 import { useTaskStore } from '../hooks/useTasksStore';
-import { actionChanges, reorderedQuadrants } from '../lib';
+import {
+  actionChanges,
+  reorderedQuadrants,
+  selectCompletedTasks,
+  selectTasks,
+} from '../lib';
 import { MatrixKey, Revert, Task, TaskArea, Tasks } from '../types';
-import { isSignedInToCloud, writeToCloud } from './cloudSync';
+import { writeToCloud } from './cloudSync';
 
 export {
   subscribeToCloudMatrix,
@@ -14,8 +18,10 @@ export {
   releaseCloudSnapshotsAction,
 } from './cloudSync';
 
-// Actions change the store at once and don't wait for the cloud: the write
-// goes to the sync model, the device has it already
+// Actions change the current Matrix at once and don't wait for the cloud: the
+// write goes to the sync model, the device has it already
+
+const isInCloud = () => useTaskStore.getState().isInCloud;
 
 /** Writes the changed tasks, in one batch with the order of the areas they touched */
 const writeChanged = (changedIds: string[], areas: TaskArea[]) => {
@@ -48,18 +54,6 @@ const writeChanged = (changedIds: string[], areas: TaskArea[]) => {
 const deleteFromCloud = (taskId: string) =>
   writeToCloud([{ type: 'delete', id: taskId }]);
 
-export const switchToLocalTasks = () => {
-  useTaskStore.setState((state) => {
-    state.activeState = 'local';
-  });
-};
-
-export const switchToFirebaseTasks = () => {
-  useTaskStore.setState((state) => {
-    state.activeState = 'firebase';
-  });
-};
-
 export const addTaskAction = async (
   quadrantKey: MatrixKey,
   taskInputText: string,
@@ -74,11 +68,10 @@ export const addTaskAction = async (
     dueDate: dueDate || undefined,
   };
   useTaskStore.setState((state) => {
-    const tasks =
-      state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const tasks = selectTasks(state);
     tasks[quadrantKey].push(newTask);
   });
-  if (useTaskStore.getState().activeState === 'firebase') {
+  if (isInCloud()) {
     writeChanged([taskId], [quadrantKey]);
   }
   return taskId;
@@ -95,8 +88,7 @@ export const editTaskAction = async (
   const areas: MatrixKey[] = [quadrantKey];
 
   useTaskStore.setState((state) => {
-    const tasks =
-      state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const tasks = selectTasks(state);
 
     // Find the task in the original quadrant
     const taskIndex = tasks[quadrantKey].findIndex((t) => t.id === taskId);
@@ -126,7 +118,7 @@ export const editTaskAction = async (
   });
 
   if (isChanged) {
-    if (useTaskStore.getState().activeState === 'firebase') {
+    if (isInCloud()) {
       writeChanged([taskId], areas);
     }
   }
@@ -140,8 +132,7 @@ export const dragOverQuadrantAction = (
   index?: number,
 ) => {
   useTaskStore.setState((state) => {
-    const tasks =
-      state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const tasks = selectTasks(state);
     const activeItems = tasks[fromQuadrant];
     const overItems = tasks[toQuadrant];
 
@@ -161,16 +152,16 @@ export const dragOverQuadrantAction = (
 };
 
 export const dragEndAction = async (newTasks: Tasks) => {
-  const { activeState, firebaseTasks } = useTaskStore.getState();
+  const { isInCloud: inCloud, firebaseTasks } = useTaskStore.getState();
   useTaskStore.setState((state) => {
-    if (activeState === 'local') {
-      state.localTasks = newTasks;
-    } else {
+    if (inCloud) {
       state.firebaseTasks = newTasks;
+    } else {
+      state.localTasks = newTasks;
     }
   });
 
-  if (activeState === 'firebase') {
+  if (inCloud) {
     writeChanged([], reorderedQuadrants(firebaseTasks, newTasks));
   }
 };
@@ -188,12 +179,11 @@ export const moveTaskAction = async (
 ): Promise<Revert | undefined> => {
   if (fromQuadrant === toQuadrant) return;
 
-  const { activeState } = useTaskStore.getState();
+  const inCloud = isInCloud();
   let originalIndex: number | undefined;
 
   useTaskStore.setState((state) => {
-    const tasks =
-      activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const tasks = selectTasks(state);
     const taskIndex = tasks[fromQuadrant].findIndex(
       (t: Task) => t.id === taskId,
     );
@@ -210,7 +200,7 @@ export const moveTaskAction = async (
 
   if (originalIndex === undefined) return;
 
-  if (activeState === 'firebase') {
+  if (inCloud) {
     writeChanged([taskId], [fromQuadrant, toQuadrant]);
   }
 
@@ -226,17 +216,13 @@ export const completeTaskAction = async (
   taskId: string,
   index?: number,
 ): Promise<Revert | undefined> => {
-  const { activeState } = useTaskStore.getState();
+  const inCloud = isInCloud();
   let completed = false;
   let originalIndex: number | undefined;
 
   useTaskStore.setState((state) => {
-    const tasks =
-      activeState === 'local' ? state.localTasks : state.firebaseTasks;
-    const completedTasks =
-      activeState === 'local'
-        ? state.localCompletedTasks
-        : state.firebaseCompletedTasks;
+    const tasks = selectTasks(state);
+    const completedTasks = selectCompletedTasks(state);
 
     const taskIndex = tasks[quadrantKey].findIndex(
       (t: Task) => t.id === taskId,
@@ -261,7 +247,7 @@ export const completeTaskAction = async (
 
   if (!completed) return;
 
-  if (activeState === 'firebase') {
+  if (inCloud) {
     writeChanged([taskId], [quadrantKey, 'completed']);
   }
 
@@ -276,17 +262,13 @@ export const restoreTaskAction = async (
   taskId: string,
   index?: number,
 ): Promise<Revert | undefined> => {
-  const { activeState } = useTaskStore.getState();
+  const inCloud = isInCloud();
   let restoredToQuadrant: MatrixKey | undefined;
   let originalIndexInCompleted: number | undefined;
 
   useTaskStore.setState((state) => {
-    const tasks =
-      activeState === 'local' ? state.localTasks : state.firebaseTasks;
-    const completedTasks =
-      activeState === 'local'
-        ? state.localCompletedTasks
-        : state.firebaseCompletedTasks;
+    const tasks = selectTasks(state);
+    const completedTasks = selectCompletedTasks(state);
 
     const taskIndex = completedTasks.findIndex((t: Task) => t.id === taskId);
     if (taskIndex !== -1) {
@@ -312,7 +294,7 @@ export const restoreTaskAction = async (
 
   if (!restoredToQuadrant) return;
 
-  if (activeState === 'firebase') {
+  if (inCloud) {
     writeChanged([taskId], [restoredToQuadrant, 'completed']);
   }
 
@@ -330,18 +312,15 @@ const undoDeleteTaskAction = async (
   index?: number,
 ) => {
   useTaskStore.setState((state) => {
-    const isLocal = state.activeState === 'local';
     if (isCompleted) {
-      const completedTasks = isLocal
-        ? state.localCompletedTasks
-        : state.firebaseCompletedTasks;
+      const completedTasks = selectCompletedTasks(state);
       if (typeof index === 'number') {
         completedTasks.splice(index, 0, taskToRestore);
       } else {
         completedTasks.push(taskToRestore);
       }
     } else if (quadrantKey) {
-      const tasks = isLocal ? state.localTasks : state.firebaseTasks;
+      const tasks = selectTasks(state);
       if (typeof index === 'number') {
         tasks[quadrantKey].splice(index, 0, taskToRestore);
       } else {
@@ -350,7 +329,7 @@ const undoDeleteTaskAction = async (
     }
   });
 
-  if (useTaskStore.getState().activeState === 'firebase') {
+  if (isInCloud()) {
     const area = isCompleted ? 'completed' : quadrantKey;
     writeChanged([taskToRestore.id], area ? [area] : []);
   }
@@ -361,13 +340,12 @@ export const deleteTaskAction = async (
   quadrantKey: MatrixKey,
   taskId: string,
 ): Promise<Revert | undefined> => {
-  const { activeState } = useTaskStore.getState();
+  const inCloud = isInCloud();
   let deletedTask: Task | undefined;
   let originalIndex: number | undefined;
 
   useTaskStore.setState((state) => {
-    const tasks =
-      activeState === 'local' ? state.localTasks : state.firebaseTasks;
+    const tasks = selectTasks(state);
     const taskIndex = tasks[quadrantKey].findIndex(
       (t: Task) => t.id === taskId,
     );
@@ -380,7 +358,7 @@ export const deleteTaskAction = async (
 
   if (!deletedTask) return;
 
-  if (activeState === 'firebase') {
+  if (inCloud) {
     deleteFromCloud(taskId);
   }
 
@@ -394,15 +372,12 @@ export const deleteTaskAction = async (
 export const deleteCompletedTaskAction = async (
   taskId: string,
 ): Promise<Revert | undefined> => {
-  const { activeState } = useTaskStore.getState();
+  const inCloud = isInCloud();
   let deletedTask: Task | undefined;
   let originalIndex: number | undefined;
 
   useTaskStore.setState((state) => {
-    const completedTasks =
-      activeState === 'local'
-        ? state.localCompletedTasks
-        : state.firebaseCompletedTasks;
+    const completedTasks = selectCompletedTasks(state);
     const index = completedTasks.findIndex((t: Task) => t.id === taskId);
     if (index !== -1) {
       originalIndex = index;
@@ -413,7 +388,7 @@ export const deleteCompletedTaskAction = async (
 
   if (!deletedTask) return;
 
-  if (activeState === 'firebase') {
+  if (inCloud) {
     deleteFromCloud(taskId);
   }
 
@@ -423,14 +398,10 @@ export const deleteCompletedTaskAction = async (
     undoDeleteTaskAction(taskToRestore, true, undefined, indexToRestore);
 };
 
-/** Throws if no one is signed in to the cloud Matrix; the completed tasks then stay */
 export const clearAllCompletedTasksAction = async () => {
-  const { activeState } = useTaskStore.getState();
+  const inCloud = isInCloud();
 
-  if (activeState === 'firebase') {
-    if (!isSignedInToCloud()) {
-      throw new Error('User must be authenticated to clear tasks');
-    }
+  if (inCloud) {
     const { firebaseCompletedTasks } = useTaskStore.getState();
     writeToCloud(
       firebaseCompletedTasks.map(({ id }) => ({ type: 'delete', id })),
@@ -438,40 +409,10 @@ export const clearAllCompletedTasksAction = async () => {
   }
 
   useTaskStore.setState((state) => {
-    if (activeState === 'local') {
-      state.localCompletedTasks = [];
-    } else {
+    if (inCloud) {
       state.firebaseCompletedTasks = [];
+    } else {
+      state.localCompletedTasks = [];
     }
   });
-};
-
-export const copyLocalTasksToFirebaseAction = async () => {
-  const { localTasks, localCompletedTasks } = useTaskStore.getState();
-  const copiedIds: string[] = [];
-
-  useTaskStore.setState((state) => {
-    // Copy active tasks
-    (Object.keys(localTasks) as MatrixKey[]).forEach((quadrant) => {
-      const newTasks = localTasks[quadrant].map((task) => ({
-        ...task,
-        id: uuidv4(),
-        createdAt: new Date(task.createdAt),
-      }));
-      copiedIds.push(...newTasks.map(({ id }) => id));
-      state.firebaseTasks[quadrant].push(...newTasks);
-    });
-
-    // Copy completed tasks
-    const newCompletedTasks = localCompletedTasks.map((task) => ({
-      ...task,
-      id: uuidv4(),
-      createdAt: new Date(task.createdAt),
-      completedAt: task.completedAt ? new Date(task.completedAt) : undefined,
-    }));
-    copiedIds.push(...newCompletedTasks.map(({ id }) => id));
-    state.firebaseCompletedTasks.push(...newCompletedTasks);
-  });
-
-  writeChanged(copiedIds, [...MATRIX_KEYS, 'completed']);
 };

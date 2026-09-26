@@ -6,6 +6,7 @@ import {
   MatrixKey,
   Tasks,
   editTaskAction,
+  selectTasks,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
 import {
@@ -24,10 +25,7 @@ import {
 import { locateTask, neighbourTaskId, taskCard } from '../lib';
 import { TaskActions, TaskLocation } from '../types';
 
-const getActiveTasks = () => {
-  const state = useTaskStore.getState();
-  return state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
-};
+const getActiveTasks = () => selectTasks(useTaskStore.getState());
 
 interface TaskActionPanelProps extends TaskActions {
   tasks: Tasks;

@@ -8,6 +8,7 @@ import { QUADRANTS } from '@/shared/consts';
 import {
   MatrixKey,
   addTaskAction,
+  selectTasks,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
 import {
@@ -21,10 +22,7 @@ import {
 import { FIELD_BORDER, FIELD_STYLES, MAX_TASK_LENGTH } from '../../consts';
 import { addButtonId, scrollIntoArea } from '../../lib';
 
-const getActiveTasks = () => {
-  const state = useTaskStore.getState();
-  return state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
-};
+const getActiveTasks = () => selectTasks(useTaskStore.getState());
 
 interface InlineAddFieldProps {
   quadrant: MatrixKey;

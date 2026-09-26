@@ -3,7 +3,6 @@
 import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
-import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
@@ -11,6 +10,7 @@ import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import {
+  selectTasks,
   useIsTaskStoreRestored,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
@@ -35,9 +35,7 @@ const QUADRANT_SLOTS: QuadrantSlots = {
 
 export const TaskMatrix: React.FC = () => {
   const { isLoading, user } = useAuth();
-  const tasks = useTaskStore((state) =>
-    state.activeState === 'local' ? state.localTasks : state.firebaseTasks,
-  );
+  const tasks = useTaskStore(selectTasks);
   const viewMode = useUIStore((state) => state.viewMode);
   const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
   const matrixRef = useRef<HTMLDivElement>(null);
@@ -45,22 +43,19 @@ export const TaskMatrix: React.FC = () => {
   // Use specific selector to prevent unnecessary re-renders
   const taskInputText = useUIStore((state) => state.taskInputText);
 
-  // Until the cloud Matrix arrives; an error doesn't hide the Matrix
-  const isWaitingForCloud = useTaskStore(
-    (state) => state.activeState === 'firebase' && !state.isCloudLoaded,
-  );
+  // Until the cloud Matrix arrives, from the moment the user is known: the
+  // device's tasks never flash in between. An error doesn't hide the Matrix.
+  const isCloudLoaded = useTaskStore((state) => state.isCloudLoaded);
 
-  const isInCloudStorage = useTaskStore(
-    (state) => state.activeState === 'firebase',
-  );
+  const isInCloudStorage = useTaskStore((state) => state.isInCloud);
   const isAwaitingServer = useSyncStore((state) => state.isAwaitingServer);
 
   // The account's tasks haven't come yet: examples would make it look empty
   const isAccountAwaited = !!user && isInCloudStorage && isAwaitingServer;
 
   // Not before the device's tasks are read: a returning user would see it
-  // flash. The device's tasks, not the active ones: on sign-out the user is
-  // gone a render before the Matrix switches back to them.
+  // flash. The device's tasks, not the Matrix's: on sign-out the user is
+  // gone a render before the cloud subscription ends.
   const isTaskStoreRestored = useIsTaskStoreRestored();
   const isDeviceMatrixEmpty = useTaskStore((state) =>
     Object.values(state.localTasks).every(
@@ -69,7 +64,7 @@ export const TaskMatrix: React.FC = () => {
   );
   const hasNoSignUpLine = !user && isTaskStoreRestored && isDeviceMatrixEmpty;
 
-  if (isLoading || (user && isWaitingForCloud)) {
+  if (isLoading || (user && !isCloudLoaded)) {
     return <LoaderFullScreen />;
   }
 
@@ -128,8 +123,6 @@ export const TaskMatrix: React.FC = () => {
 
       {/* Selection comes to List view in slice N, the line with it */}
       {viewMode === 'matrix' && <SelectionHint />}
-
-      <CopyLocalToCloudButton />
     </>
   );
 };
