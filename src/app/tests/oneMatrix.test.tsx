@@ -44,11 +44,7 @@ describe('One Matrix', () => {
   });
 
   it('offers no second Matrix to an anonymous user', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: ['Local only'] },
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+    await renderHomePage({ tasks: { ImportantUrgent: ['Local only'] } });
 
     expectNoSecondMatrix();
   });

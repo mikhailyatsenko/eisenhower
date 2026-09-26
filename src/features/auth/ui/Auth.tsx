@@ -11,10 +11,11 @@ import {
   selectPendingChangesCount,
   useSyncStore,
 } from '@/shared/stores/syncStore';
+import { SignedOutAccount } from '../components/SignedOutAccount';
 import { SignOutDialog } from '../components/SignOutDialog';
 
 interface AuthProps {
-  /** The account button, shown while the menu is closed */
+  /** The signed-in account button, shown while the menu is closed */
   accountButtonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
@@ -48,14 +49,18 @@ export const Auth: React.FC<AuthProps> = ({ accountButtonRef }) => {
     <div
       className={`${isLoading ? 'opacity-20' : 'opacity-100'} relative z-50`}
     >
-      <AuthIndicator
-        photoURL={user?.photoURL || undefined}
-        displayName={user?.displayName || undefined}
-        isSignedIn={!!user}
-        handleGoogleSignIn={handleGoogleSignIn}
-        handleLogout={handleSignOut}
-        accountButtonRef={accountButtonRef}
-      />
+      {user ? (
+        // Mounted on sign-in with the menu closed, so a dialog opened on
+        // sign-in can return the focus to the account button
+        <AuthIndicator
+          photoURL={user.photoURL || undefined}
+          displayName={user.displayName || undefined}
+          handleLogout={handleSignOut}
+          accountButtonRef={accountButtonRef}
+        />
+      ) : (
+        <SignedOutAccount onSignIn={handleGoogleSignIn} />
+      )}
       {pendingChanges !== undefined && (
         <SignOutDialog
           pendingChanges={pendingChanges}
