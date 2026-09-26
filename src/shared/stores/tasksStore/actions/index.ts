@@ -8,7 +8,7 @@ import {
   selectCompletedTasks,
   selectTasks,
 } from '../lib';
-import { MatrixKey, Revert, Task, TaskArea, Tasks } from '../types';
+import { Deadline, MatrixKey, Revert, Task, TaskArea, Tasks } from '../types';
 import { writeToCloud } from './cloudSync';
 
 export {
@@ -61,7 +61,7 @@ const deleteFromCloud = (taskId: string) =>
 export const addTaskAction = async (
   quadrantKey: MatrixKey,
   taskInputText: string,
-  dueDate?: Date | null,
+  deadline?: Deadline | null,
 ) => {
   if (taskInputText.length > 200) return;
   const taskId = uuidv4();
@@ -69,7 +69,7 @@ export const addTaskAction = async (
     id: taskId,
     text: taskInputText,
     createdAt: new Date(),
-    dueDate: dueDate || undefined,
+    ...deadline,
   };
   useTaskStore.setState((state) => {
     const tasks = selectTasks(state);
@@ -85,7 +85,8 @@ export const editTaskAction = async (
   quadrantKey: MatrixKey,
   taskId: string,
   newText: string,
-  newDueDate?: Date | null,
+  /** Null removes the deadline; undefined leaves it as it is */
+  newDeadline?: Deadline | null,
   newQuadrantKey?: MatrixKey,
 ) => {
   let isChanged = false;
@@ -101,15 +102,23 @@ export const editTaskAction = async (
       const task = tasks[quadrantKey][taskIndex];
 
       const textChanged = task.text !== newText;
-      const dateChanged = task.dueDate?.getTime() !== newDueDate?.getTime();
+      const deadlineChanged =
+        newDeadline !== undefined &&
+        (task.dueDate?.getTime() !== newDeadline?.dueDate.getTime() ||
+          (task.hasDueTime !== false) !== newDeadline?.hasDueTime);
       const quadrantChanged = newQuadrantKey && newQuadrantKey !== quadrantKey;
 
-      if (textChanged || dateChanged || quadrantChanged) {
+      if (textChanged || deadlineChanged || quadrantChanged) {
         task.text = newText;
-        task.dueDate =
-          newDueDate === null ? undefined : newDueDate || task.dueDate;
-        // A new deadline from the form has a time
-        if (dateChanged && newDueDate !== undefined) delete task.hasDueTime;
+        if (deadlineChanged) {
+          if (newDeadline) {
+            task.dueDate = newDeadline.dueDate;
+            task.hasDueTime = newDeadline.hasDueTime;
+          } else {
+            delete task.dueDate;
+            delete task.hasDueTime;
+          }
+        }
 
         if (quadrantChanged && newQuadrantKey) {
           const [movedTask] = tasks[quadrantKey].splice(taskIndex, 1);

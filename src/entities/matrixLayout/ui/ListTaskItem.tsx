@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 import CheckIcon from '@/shared/icons/check-icon.svg';
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
-import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import { Deadline, MatrixKey, Task } from '@/shared/stores/tasksStore';
 import { useTaskFocusRequest } from '@/shared/stores/uiStore';
 import { Linkify } from '@/shared/ui/linkify';
 import { DeadlineLine, OVERDUE_STRIPE_CLASS } from '../components/deadlineLine';
@@ -20,7 +20,7 @@ interface ListTaskItemProps {
     quadrantKey: MatrixKey,
     taskId: string,
     newText: string,
-    newDueDate?: Date | null,
+    newDeadline?: Deadline | null,
     newQuadrantKey?: MatrixKey,
   ) => void;
   completeTaskAction: (quadrantKey: MatrixKey, taskId: string) => void;
@@ -48,10 +48,10 @@ export const ListTaskItem: React.FC<ListTaskItemProps> = ({
 
   const handleSave = (
     editText: string,
-    dueDate: Date | null,
+    deadline: Deadline | null,
     newQuadrant?: MatrixKey,
   ) => {
-    editTaskAction(quadrantKey, task.id, editText, dueDate, newQuadrant);
+    editTaskAction(quadrantKey, task.id, editText, deadline, newQuadrant);
     setIsEditing(false);
   };
 

@@ -7,7 +7,7 @@ import { MATRIX_KEYS } from '@/shared/consts';
 import { useIsPhone } from '@/shared/hooks';
 import { useTaskStore } from '@/shared/stores/tasksStore';
 
-import { MatrixKey } from '@/shared/stores/tasksStore';
+import { Deadline, MatrixKey } from '@/shared/stores/tasksStore';
 import { addTaskAction } from '@/shared/stores/tasksStore';
 import {
   setRecentlyAddedQuadrantAction,
@@ -34,11 +34,11 @@ export const AddTask = () => {
 
   const handleSave = async (
     text: string,
-    dueDate: Date | null,
+    deadline: Deadline | null,
     quadrant?: MatrixKey,
   ) => {
     const finalQuadrant = quadrant || selectedCategory;
-    const taskId = await addTaskAction(finalQuadrant, text, dueDate);
+    const taskId = await addTaskAction(finalQuadrant, text, deadline);
 
     if (taskId) {
       setRecentlyAddedQuadrantAction(finalQuadrant);

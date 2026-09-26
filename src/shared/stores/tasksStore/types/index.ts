@@ -17,6 +17,13 @@ export interface Task {
   completedAt?: Date;
   quadrantKey?: MatrixKey;
 }
+
+/** A deadline as the task form sets it; without a time it is a whole day */
+export interface Deadline {
+  dueDate: Date;
+  hasDueTime: boolean;
+}
+
 export type Tasks = Record<MatrixKey, Task[]>;
 
 /** A quadrant of the Matrix, or Completed */

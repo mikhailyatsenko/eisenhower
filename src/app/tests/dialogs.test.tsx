@@ -96,24 +96,6 @@ describe('Edit dialog', () => {
     expectCurrentTask('Bravo');
   });
 
-  it('opens the deadline calendar inside the dialog, not behind it', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.keyboard('e');
-    const dialog = screen.getByRole('dialog', { name: 'Edit task' });
-    await user.click(within(dialog).getByRole('checkbox'));
-    await user.click(within(dialog).getByLabelText('Deadline date'));
-
-    // Outside a modal <dialog> the page is inert: the calendar can't be used there
-    expect(document.querySelector('.react-datepicker')).not.toBeNull();
-    expect(dialog).toContainElement(
-      document.querySelector<HTMLElement>('.react-datepicker'),
-    );
-  });
-
   it('leaves ? and the matrix keys in its text field to the field', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },

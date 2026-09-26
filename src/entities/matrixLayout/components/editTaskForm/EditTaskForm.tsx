@@ -1,24 +1,20 @@
-import { addHours, addDays, addWeeks, isValid as isValidDate } from 'date-fns';
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useId,
-  useState,
-  useRef,
-} from 'react';
-import DatePicker from 'react-datepicker';
-import { createPortal } from 'react-dom';
+import { useEffect, useId, useState, useRef } from 'react';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
-import { Task, MatrixKey } from '@/shared/stores/tasksStore';
+import { Deadline, Task, MatrixKey } from '@/shared/stores/tasksStore';
 import { BUTTON_CANCEL_TEXT, BUTTON_SAVE_TEXT } from '../../consts';
+import {
+  DeadlineFields,
+  DeadlineInput,
+  toDeadlineInput,
+  toDeadline,
+} from '../deadlineFields';
 
 interface EditFormProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   task: Task;
   handleSave: (
     editText: string,
-    dueDate: Date | null,
+    deadline: Deadline | null,
     newQuadrant?: MatrixKey,
   ) => void;
   onQuadrantChange?: (quadrant: MatrixKey) => void;
@@ -61,14 +57,12 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   onQuadrantChange,
 }) => {
   const [editText, setEditText] = useState(task.text);
-  const [hasDeadline, setHasDeadline] = useState(!!task.dueDate);
-  const [dueDate, setDueDate] = useState<Date | null>(
-    task.dueDate ? new Date(task.dueDate) : null,
+  const [deadlineInput, setDeadlineInput] = useState(() =>
+    toDeadlineInput(task),
   );
   const [selectedQuadrant, setSelectedQuadrant] = useState<MatrixKey>(
     task.quadrantKey || 'NotImportantNotUrgent',
   );
-  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isValid, setIsValid] = useState(true);
   // The length error waits for the first blur or save attempt
   const [isTextTouched, setIsTextTouched] = useState(false);
@@ -80,12 +74,11 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
   const textId = useId();
   const textErrorId = useId();
   const deadlineErrorId = useId();
-  const deadlineDateId = useId();
-  const deadlineTimeId = useId();
+  const deadlineRef = useRef<HTMLDivElement>(null);
 
   // Any change of the deadline clears the error shown for the old one
-  const changeDueDate = (date: Date | null) => {
-    setDueDate(date);
+  const changeDeadline = (input: DeadlineInput) => {
+    setDeadlineInput(input);
     setDeadlineInvalid(false);
   };
 
@@ -113,25 +106,6 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
     textareaRef.current?.focus();
   };
 
-  const toggleDeadline = (enabled: boolean) => {
-    setHasDeadline(enabled);
-    setDeadlineInvalid(false);
-    if (enabled && !dueDate) {
-      changeDueDate(new Date());
-    }
-    if (!enabled) {
-      setSelectedPreset(null);
-    }
-    textareaRef.current?.focus();
-  };
-
-  const setPreset = (date: Date, label: string) => {
-    setHasDeadline(true);
-    changeDueDate(date);
-    setSelectedPreset(label);
-    textareaRef.current?.focus();
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
@@ -143,33 +117,20 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
     setIsTextTouched(true);
     if (!isValid) return;
 
-    if (hasDeadline) {
-      if (!dueDate || !isValidDate(dueDate)) {
-        setDeadlineInvalid(true);
-        return;
-      }
-      handleSave(editText, dueDate, selectedQuadrant);
-    } else {
-      handleSave(editText, null, selectedQuadrant);
+    // A half-typed date or time reads as empty, only the browser knows it's there
+    const hasBadInput = [
+      ...(deadlineRef.current?.querySelectorAll('input') ?? []),
+    ].some((input) => input.validity.badInput);
+    const deadline = toDeadline(deadlineInput);
+    if (hasBadInput || deadline === undefined) {
+      setDeadlineInvalid(true);
+      return;
     }
+    handleSave(editText, deadline, selectedQuadrant);
   };
-
-  // Everything outside a modal <dialog> is inert, so the calendar opens
-  // inside the dialog, which doesn't clip it
-  const formRef = useRef<HTMLFormElement>(null);
-  const [pickerHost, setPickerHost] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    setPickerHost(formRef.current?.closest('dialog') ?? null);
-  }, []);
-  const PickerPopper = useCallback(
-    ({ children }: { children?: ReactNode }) =>
-      createPortal(children, pickerHost ?? document.body),
-    [pickerHost],
-  );
 
   return (
     <form
-      ref={formRef}
       className="flex flex-1 flex-col overflow-hidden"
       autoComplete="off"
       onSubmit={(e) => {
@@ -233,108 +194,20 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
           </div>
         </div>
 
-        <div className="mb-6 flex flex-col">
-          <label
-            onMouseDown={keepTextFocus}
-            className="mb-2 flex items-center justify-between border-b border-gray-500/10 pb-1"
-          >
-            <div className="text-[10px] font-bold tracking-wider text-gray-500 uppercase dark:text-gray-400">
-              Deadline (Optional)
-            </div>
-            <div className="relative inline-flex cursor-pointer items-center">
-              <input
-                type="checkbox"
-                className="peer sr-only"
-                checked={hasDeadline}
-                onChange={(e) => toggleDeadline(e.target.checked)}
-              />
-              <div className="peer h-5 w-9 rounded-full bg-gray-300 peer-checked:bg-indigo-600 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white dark:bg-gray-700"></div>
-            </div>
-          </label>
-
-          {hasDeadline && (
-            <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-              <div className="mb-2 flex flex-wrap gap-1">
-                <PresetButton
-                  onClick={() => setPreset(addHours(new Date(), 3), '+3h')}
-                  label="+3h"
-                  isActive={selectedPreset === '+3h'}
-                />
-                <PresetButton
-                  onClick={() => setPreset(addHours(new Date(), 24), '+24h')}
-                  label="+24h"
-                  isActive={selectedPreset === '+24h'}
-                />
-                <PresetButton
-                  onClick={() => setPreset(addDays(new Date(), 3), '+3d')}
-                  label="+3d"
-                  isActive={selectedPreset === '+3d'}
-                />
-                <PresetButton
-                  onClick={() => setPreset(addWeeks(new Date(), 1), '+1w')}
-                  label="+1w"
-                  isActive={selectedPreset === '+1w'}
-                />
-              </div>
-              <div className="flex gap-2">
-                <div className="w-[135px] shrink-0">
-                  <label htmlFor={deadlineDateId} className="sr-only">
-                    Deadline date
-                  </label>
-                  <DatePicker
-                    id={deadlineDateId}
-                    selected={dueDate}
-                    onChange={(date: Date | null) => {
-                      changeDueDate(date);
-                      setSelectedPreset(null);
-                    }}
-                    ariaInvalid={deadlineInvalid ? 'true' : undefined}
-                    ariaDescribedBy={
-                      deadlineInvalid ? deadlineErrorId : undefined
-                    }
-                    dateFormat="dd/MM/yyyy"
-                    popperContainer={PickerPopper}
-                    className="w-full rounded-md border border-gray-300 bg-white/50 px-2 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
-                    placeholderText="Select date"
-                  />
-                </div>
-                <div className="w-[85px] shrink-0">
-                  <label htmlFor={deadlineTimeId} className="sr-only">
-                    Deadline time
-                  </label>
-                  <DatePicker
-                    id={deadlineTimeId}
-                    selected={dueDate}
-                    onChange={(date: Date | null) => {
-                      changeDueDate(date);
-                      setSelectedPreset(null);
-                    }}
-                    ariaInvalid={deadlineInvalid ? 'true' : undefined}
-                    ariaDescribedBy={
-                      deadlineInvalid ? deadlineErrorId : undefined
-                    }
-                    showTimeSelect
-                    showTimeSelectOnly
-                    timeIntervals={15}
-                    timeCaption="Time"
-                    dateFormat="HH:mm"
-                    timeFormat="HH:mm"
-                    popperContainer={PickerPopper}
-                    className="w-full rounded-md border border-gray-300 bg-white/50 px-2 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100"
-                    placeholderText="Time"
-                  />
-                </div>
-              </div>
-              {deadlineInvalid && (
-                <p
-                  id={deadlineErrorId}
-                  role="alert"
-                  className="mt-1 text-[10px] font-medium text-red-600 dark:text-red-400"
-                >
-                  Please select a valid deadline date and time
-                </p>
-              )}
-            </div>
+        <div ref={deadlineRef} className="mb-6">
+          <DeadlineFields
+            value={deadlineInput}
+            onChange={changeDeadline}
+            errorId={deadlineInvalid ? deadlineErrorId : undefined}
+          />
+          {deadlineInvalid && (
+            <p
+              id={deadlineErrorId}
+              role="alert"
+              className="mt-1 text-[10px] font-medium text-red-600 dark:text-red-400"
+            >
+              Please select a valid deadline date and time
+            </p>
           )}
         </div>
       </div>
@@ -369,26 +242,3 @@ export const EditTaskForm: React.FC<EditFormProps> = ({
     </form>
   );
 };
-
-const PresetButton = ({
-  onClick,
-  label,
-  isActive,
-}: {
-  onClick: () => void;
-  label: string;
-  isActive?: boolean;
-}) => (
-  <button
-    type="button"
-    onMouseDown={keepTextFocus}
-    onClick={onClick}
-    className={`cursor-pointer rounded-md px-2 py-1 text-[10px] font-bold transition-all ${
-      isActive
-        ? 'bg-white/60 text-indigo-700 shadow-sm dark:bg-gray-600 dark:text-white'
-        : 'bg-white/30 text-gray-600 hover:bg-white/50 dark:bg-gray-800/30 dark:text-gray-300 dark:hover:bg-gray-800/50'
-    }`}
-  >
-    {label}
-  </button>
-);

@@ -3,6 +3,7 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { EditTaskDialog } from '@/entities/matrixLayout';
 import {
+  Deadline,
   MatrixKey,
   Tasks,
   editTaskAction,
@@ -133,12 +134,12 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
 
   const handleSave = (
     editText: string,
-    dueDate: Date | null,
+    deadline: Deadline | null,
     newQuadrant?: MatrixKey,
   ) => {
     if (!location) return;
     const { task, quadrantKey } = location;
-    editTaskAction(quadrantKey, task.id, editText, dueDate, newQuadrant);
+    editTaskAction(quadrantKey, task.id, editText, deadline, newQuadrant);
     setEditingTaskId(null);
   };
 

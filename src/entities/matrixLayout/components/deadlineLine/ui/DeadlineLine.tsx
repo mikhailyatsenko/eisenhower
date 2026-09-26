@@ -6,7 +6,7 @@ import { DeadlineStatus } from '../../../lib';
 import { STATUS_BADGE_CLASS, STATUS_LABEL } from '../consts';
 
 interface DeadlineLineProps {
-  task: Task;
+  task: Pick<Task, 'dueDate' | 'hasDueTime'>;
   status: DeadlineStatus | null;
   className?: string;
 }
