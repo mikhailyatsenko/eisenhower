@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
+import { SECTION_TOGGLE_ATTRIBUTE } from '../../../lib';
 import { QuadrantGlyph } from '../../quadrantGlyph';
 import { SECTION_HEADER_STYLES, SECTION_TITLE_COLOR } from '../consts';
 
@@ -73,6 +74,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
             aria-expanded={!isCollapsed}
             aria-controls={listId}
             onClick={() => onCollapsedChange(!isCollapsed)}
+            {...{ [SECTION_TOGGLE_ATTRIBUTE]: '' }}
             className={SECTION_HEADER_STYLES.TOGGLE}
           >
             {content}

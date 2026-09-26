@@ -10,7 +10,12 @@ import { AddTaskButton } from '../components/addTaskButton';
 import { QuadrantExamples } from '../components/quadrantExamples';
 import { SectionHeader } from '../components/sectionHeader';
 import { TaskItem } from '../components/taskItem';
-import { matrixTabStop } from '../lib';
+import {
+  MatrixStop,
+  isSameStop,
+  isSectionCollapsed,
+  listTabStop,
+} from '../lib';
 import { QuadrantSlots } from '../types';
 
 interface ListLayoutProps {
@@ -38,18 +43,17 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
   const idPrefix = useId();
 
   const isCollapsed = (quadrant: MatrixKey) =>
-    tasks[quadrant].length > 0 && collapsedSections.includes(quadrant);
+    isSectionCollapsed(tasks, collapsedSections, quadrant);
 
-  // The tasks on screen: a collapsed section's are gone from the Tab order
-  const shownTasks = Object.fromEntries(
-    MATRIX_KEYS.map((key) => [key, isCollapsed(key) ? [] : tasks[key]]),
-  ) as Record<MatrixKey, Task[]>;
-  const tabStop = matrixTabStop(
-    shownTasks,
+  const tabStop = listTabStop(
+    tasks,
+    collapsedSections,
     selectedTaskId,
     lastSelectedTaskId,
     addTaskTabStop,
   );
+  const isTabStop = (stop: MatrixStop) =>
+    tabStop !== null && isSameStop(tabStop, stop);
 
   const handleCollapsedChange = (quadrant: MatrixKey, collapse: boolean) => {
     // The Selected Task goes out of sight with its section
@@ -96,9 +100,7 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
                       task={task}
                       quadrantKey={quadrant}
                       index={index}
-                      isTabStop={
-                        'taskId' in tabStop && tabStop.taskId === task.id
-                      }
+                      isTabStop={isTabStop({ taskId: task.id })}
                       layout="row"
                     />
                   ))}
@@ -110,10 +112,7 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
                     <AddTaskButton
                       quadrant={quadrant}
                       titleId={titleId}
-                      isTabStop={
-                        'emptyQuadrant' in tabStop &&
-                        tabStop.emptyQuadrant === quadrant
-                      }
+                      isTabStop={isTabStop({ emptyQuadrant: quadrant })}
                       onClick={(button) => slots.openAddField(quadrant, button)}
                     />
                   </div>

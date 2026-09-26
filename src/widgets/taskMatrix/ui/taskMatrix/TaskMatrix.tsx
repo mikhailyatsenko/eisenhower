@@ -141,7 +141,7 @@ export const TaskMatrix: React.FC = () => {
             <TaskListView tasks={tasks} hasExamples={!isAccountAwaited} />
           )}
 
-          {/* In List view too: it keeps the keys that open the add form */}
+          {/* Both views select and act the same way */}
           <TaskActionPanel
             tasks={tasks}
             matrixRef={matrixRef}
@@ -152,8 +152,7 @@ export const TaskMatrix: React.FC = () => {
         </div>
       </ViewPanel>
 
-      {/* The keys come to List view later in slice N, the line with them */}
-      {viewMode === 'matrix' && <SelectionHint />}
+      <SelectionHint />
     </>
   );
 };
