@@ -33,12 +33,8 @@ export const setIsFormOpenedAction = (isOpened: boolean) => {
   });
 };
 
-export const openFormWithCategoryAction = (category: MatrixKey) => {
-  useUIStore.setState((state) => {
-    state.selectedCategory = category;
-    state.isFormOpened = true;
-  });
-};
+const withoutSection = (sections: MatrixKey[], quadrant: MatrixKey) =>
+  sections.filter((key) => key !== quadrant);
 
 // Where Esc from the inline add field puts the focus back, set by each open.
 // An element, so it stays out of the store's state: nothing renders from it.
@@ -54,7 +50,8 @@ export const getInlineAddReturnFocus = () =>
 /**
  * Opens the inline add field in the quadrant, or moves it there with its
  * text. The selection goes: no action panel while the field is open. Esc
- * puts the focus back on `returnFocus`, else on the quadrant's "+".
+ * puts the focus back on `returnFocus`, else on the quadrant's "+". A
+ * collapsed List view section expands for it, and stays expanded.
  */
 const openInlineAdd = (
   quadrant: MatrixKey,
@@ -70,6 +67,12 @@ const openInlineAdd = (
       openCount: (state.inlineAdd?.openCount ?? 0) + 1,
       isByEmptySpace,
     };
+    if (state.viewMode === 'list') {
+      state.collapsedSections = withoutSection(
+        state.collapsedSections,
+        quadrant,
+      );
+    }
   });
 };
 
@@ -116,14 +119,20 @@ export const setViewModeAction = (viewMode: ViewMode) => {
   });
 };
 
-/** Collapses or expands a List view section; remembered on the device */
+/**
+ * Collapses or expands a List view section; remembered on the device. The
+ * add field goes out of sight with its section, and closes.
+ */
 export const setSectionCollapsedAction = (
   quadrant: MatrixKey,
   isCollapsed: boolean,
 ) => {
   useUIStore.setState((state) => {
-    const others = state.collapsedSections.filter((key) => key !== quadrant);
+    const others = withoutSection(state.collapsedSections, quadrant);
     state.collapsedSections = isCollapsed ? [...others, quadrant] : others;
+    if (isCollapsed && state.inlineAdd?.quadrant === quadrant) {
+      state.inlineAdd = null;
+    }
   });
 };
 

@@ -10,6 +10,7 @@ import { AddTaskButton } from '../components/addTaskButton';
 import { QuadrantExamples } from '../components/quadrantExamples';
 import { SectionHeader } from '../components/sectionHeader';
 import { TaskItem } from '../components/taskItem';
+import { useEmptySpaceClick } from '../hooks';
 import {
   MatrixStop,
   isSameStop,
@@ -28,8 +29,9 @@ interface ListLayoutProps {
 /**
  * List view: the matrix read from top to bottom, one section per quadrant in
  * the matrix order, its tasks in the quadrant's order. A section collapses to
- * its header; an empty one always shows open. No drag: the list is mounted
- * outside a DndContext.
+ * its header; an empty one always shows open. A click on a section's empty
+ * space, between the tasks or after the last one, adds there as in a
+ * quadrant. No drag: the list is mounted outside a DndContext.
  */
 export const ListLayout: React.FC<ListLayoutProps> = ({
   tasks,
@@ -62,9 +64,10 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
     if (hidesSelection) selectTaskAction(null);
     setSectionCollapsedAction(quadrant, collapse);
   };
+  const handleEmptySpaceClick = useEmptySpaceClick();
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-1">
       {MATRIX_KEYS.map((quadrant) => {
         const quadrantTasks = tasks[quadrant];
         const taskCount = quadrantTasks.length;
@@ -87,7 +90,16 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
             />
 
             {!collapsed && (
-              <div className="motion-safe:animate-menu-fade-in">
+              // Its empty space: the gaps between the tasks and the room
+              // after the last one
+              <div
+                className="motion-safe:animate-menu-fade-in pb-6"
+                onClick={(event) =>
+                  handleEmptySpaceClick(event, () =>
+                    slots.openAddFieldByEmptySpace(quadrant),
+                  )
+                }
+              >
                 <ul
                   role="listbox"
                   id={listId}

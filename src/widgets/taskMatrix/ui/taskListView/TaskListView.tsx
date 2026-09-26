@@ -1,16 +1,21 @@
 'use client';
 
+import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { ListLayout, QuadrantSlots } from '@/entities/matrixLayout';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
-import { openFormWithCategoryAction } from '@/shared/stores/uiStore';
+import {
+  openInlineAddAction,
+  openInlineAddByEmptySpaceAction,
+} from '@/shared/stores/uiStore';
 
-// Adding in a section: "Add a task" opens the task form there, as 1–4 do in
-// List view. The inline field and "+" come to sections later in slice N.
+// Adding in a section, as in a quadrant: its "+", the inline field at the
+// end of the section, a click on empty space and "Add a task". The page
+// scrolls to the field: a section doesn't scroll by itself.
 const LIST_SLOTS: QuadrantSlots = {
-  headerAction: () => null,
-  listEnd: () => null,
-  openAddField: (quadrant) => openFormWithCategoryAction(quadrant),
-  openAddFieldByEmptySpace: () => {},
+  headerAction: (quadrant) => <QuadrantAddButton quadrant={quadrant} />,
+  listEnd: (quadrant) => <InlineAddField quadrant={quadrant} scrollsPage />,
+  openAddField: openInlineAddAction,
+  openAddFieldByEmptySpace: openInlineAddByEmptySpaceAction,
 };
 
 interface TaskListViewProps {

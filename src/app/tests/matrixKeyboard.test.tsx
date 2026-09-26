@@ -190,16 +190,6 @@ describe('Matrix keys without a selection', () => {
     expect(tasksIn('Delegate')).toEqual(['Answer emails']);
     expect(tasksIn('Do First')).toEqual(TASKS);
   });
-
-  it('opens the task form on 1–4 in List view', async () => {
-    const page = await renderHomePage({ tasks: { ImportantUrgent: TASKS } });
-    await page.user.click(screen.getByRole('tab', { name: 'List' }));
-
-    await page.user.keyboard('2');
-
-    expect(screen.getByRole('dialog', { name: 'New task' })).toBeVisible();
-    expect(screen.queryByRole('textbox', { name: /^Add task to/ })).toBeNull();
-  });
 });
 
 describe('Matrix keys with a selection', () => {

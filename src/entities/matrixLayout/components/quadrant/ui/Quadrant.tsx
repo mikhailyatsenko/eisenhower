@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { twMerge } from 'tailwind-merge';
 
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { selectTaskAction, useUIStore } from '@/shared/stores/uiStore';
+import { useEmptySpaceClick } from '../../../hooks';
 import { FullScreenMode, QuadrantHeader } from '../../quadrantHeader';
 import { DRAG_OVER_RING, QUADRANT_STYLES } from '../consts';
 import { quadrantStyles } from '../lib/quadrantStyles';
@@ -24,9 +24,6 @@ export interface QuadrantProps {
   /** A click on empty space with no task selected */
   onEmptySpaceClick: () => void;
 }
-
-// What isn't empty space: a card, a button (the header's, "+N below") or a field
-const NOT_EMPTY_SPACE = '[role="option"], button, input';
 
 export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
@@ -61,15 +58,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
       ? 'animate-recently-added-quadrant'
       : '';
 
-  const hasSelection = useUIStore((state) => state.selectedTaskId !== null);
-
-  // A click on empty space clears the selection, and only that: without a
-  // selection it's the quadrant's own
-  const handleQuadrantClick = (event: React.MouseEvent) => {
-    if ((event.target as HTMLElement).closest(NOT_EMPTY_SPACE)) return;
-    if (hasSelection) selectTaskAction(null);
-    else onEmptySpaceClick();
-  };
+  const handleEmptySpaceClick = useEmptySpaceClick();
 
   return (
     <div
@@ -83,7 +72,7 @@ export const Quadrant: React.FC<QuadrantProps> = ({
         QUADRANT_STYLES.CONTAINER,
         isFullScreen && QUADRANT_STYLES.FULL_SCREEN,
       )}
-      onClick={handleQuadrantClick}
+      onClick={(event) => handleEmptySpaceClick(event, onEmptySpaceClick)}
     >
       <QuadrantHeader
         quadrantKey={quadrantKey}

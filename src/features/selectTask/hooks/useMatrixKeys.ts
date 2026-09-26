@@ -10,9 +10,8 @@ import {
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { isDialogOpen } from '@/shared/lib/isDialogOpen';
 import { isTextField } from '@/shared/lib/isTextField';
-import { MatrixKey, Tasks } from '@/shared/stores/tasksStore';
+import { Tasks } from '@/shared/stores/tasksStore';
 import {
-  openFormWithCategoryAction,
   openInlineAddAction,
   requestAddTaskButtonFocusAction,
   requestTaskFocusAction,
@@ -34,7 +33,7 @@ interface MatrixKeysOptions extends TaskActionHandlers {
   tasks: Tasks;
   /** The Selected Task; null without one */
   location: TaskLocation | null;
-  /** List view walks its sections; adding there opens the task form for now */
+  /** List view walks its open sections, the matrix its 2×2 */
   isMatrixView: boolean;
   toolbarRef: RefObject<HTMLElement | null>;
   onShowShortcuts: () => void;
@@ -90,9 +89,8 @@ const firstShownTaskId = (tasks: Tasks, isMatrixView: boolean) => {
  * The matrix keyboard, one handler for the page and both views: arrows, 1–4,
  * C/Space, E/Enter, Del/Backspace, N, Esc and ? for the cheatsheet. Keys in
  * a text field or an open dialog are left alone, arrows on a List view
- * section's header too. In the matrix "add" opens the inline field, and Esc
- * from it comes back to where the key was pressed; in List view it opens
- * the task form.
+ * section's header too. "Add" opens the inline field in both views, and Esc
+ * from it comes back to where the key was pressed.
  */
 export const useMatrixKeys = (options: MatrixKeysOptions) => {
   const optionsRef = useRef(options);
@@ -132,10 +130,6 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
         action();
       };
 
-      const openAdd = (addTo: MatrixKey, returnFocus: HTMLElement | null) =>
-        isMatrixView
-          ? openInlineAddAction(addTo, returnFocus)
-          : openFormWithCategoryAction(addTo);
       const goToArrow = (from: MatrixStop, arrow: ArrowKey) => {
         const to = arrowStop(tasks, isMatrixView, from, arrow);
         if (to) goTo(to);
@@ -157,14 +151,14 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
         const buttonQuadrant = addTaskButtonQuadrant(target);
 
         if (quadrant) {
-          handle(() => openAdd(quadrant, returnFocus));
+          handle(() => openInlineAddAction(quadrant, returnFocus));
         } else if (letter === 'n') {
           const { lastSelectedTaskId } = useUIStore.getState();
           const addTo =
             buttonQuadrant ??
             locateTask(tasks, lastSelectedTaskId)?.quadrantKey ??
             MATRIX_KEYS[0];
-          handle(() => openAdd(addTo, returnFocus));
+          handle(() => openInlineAddAction(addTo, returnFocus));
         } else if (buttonQuadrant && isArrowKey(key)) {
           handle(() => goToArrow({ emptyQuadrant: buttonQuadrant }, key));
         } else if (key === 'ArrowDown') {
@@ -196,7 +190,9 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
         handle(onDelete);
       } else if (letter === 'n') {
         // Esc from the field comes back to the task, from the toolbar too
-        handle(() => openAdd(location.quadrantKey, taskCard(location.task.id)));
+        handle(() =>
+          openInlineAddAction(location.quadrantKey, taskCard(location.task.id)),
+        );
       } else if (key === 'Escape') {
         // From the toolbar back to the task, from the task out of the selection
         handle(() =>

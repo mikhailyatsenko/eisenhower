@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { SECTION_TOGGLE_ATTRIBUTE } from '../../../lib';
+import { EmptySpaceHint } from '../../emptySpaceHint';
 import { QuadrantGlyph } from '../../quadrantGlyph';
 import { SECTION_HEADER_STYLES, SECTION_TITLE_COLOR } from '../consts';
 
@@ -25,7 +26,8 @@ const tasksLabel = (count: number) => `${count} task${count === 1 ? '' : 's'}`;
  * A List view section's sticky header: the glyph, the title, the criteria
  * and the count. Its button collapses the section and is named "Do First,
  * 3 tasks", described by the criteria. An empty section can't collapse: its
- * header is the heading alone.
+ * header is the heading alone. An open section's header says a click on its
+ * empty space adds a task.
  */
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
   quadrant,
@@ -90,6 +92,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           </button>
         )}
       </h2>
+      {!isCollapsed && <EmptySpaceHint />}
       {headerAction}
     </div>
   );

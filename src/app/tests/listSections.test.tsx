@@ -137,20 +137,6 @@ describe('List view sections', () => {
     ).toHaveAccessibleDescription('Eliminate');
   });
 
-  it('opens the empty section\'s task form from "Click to add a task"', async () => {
-    const page = await openList(await renderHomePage({ tasks: TASKS }));
-
-    await page.user.click(
-      screen.getByRole('button', { name: 'Click to add a task' }),
-    );
-
-    const form = screen.getByRole('dialog', { name: 'New task' });
-    await page.user.keyboard('Tidy the desk{Enter}');
-
-    expect(form).not.toBeInTheDocument();
-    expect(tasksIn('Eliminate')).toEqual(['Tidy the desk']);
-  });
-
   it('says "Tap to add" in an empty section on a touch screen', async () => {
     await openList(
       await renderHomePage({

@@ -26,7 +26,16 @@ const getActiveTasks = () => selectTasks(useTaskStore.getState());
 
 interface InlineAddFieldProps {
   quadrant: MatrixKey;
+  /**
+   * In a List view section, which doesn't scroll by itself: the page
+   * scrolls to the field, clear of the sticky headers
+   */
+  scrollsPage?: boolean;
 }
+
+// Clear of the sticky header bars and the section's header above the field
+const PAGE_SCROLL_MARGIN =
+  'scroll-mt-[calc(var(--top-bars-height,56px)+3.5rem)] scroll-mb-4';
 
 /**
  * The inline add field at the end of the quadrant's list, while it's open
@@ -34,7 +43,10 @@ interface InlineAddFieldProps {
  * closes it and puts the focus back where the field was opened from. Focus
  * leaving closes an empty field; one with text stays open.
  */
-export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
+export const InlineAddField: React.FC<InlineAddFieldProps> = ({
+  quadrant,
+  scrollsPage = false,
+}) => {
   const inlineAdd = useUIStore((state) =>
     state.inlineAdd?.quadrant === quadrant ? state.inlineAdd : null,
   );
@@ -47,12 +59,14 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
     if (openCount) inputRef.current?.focus({ preventScroll: true });
   }, [openCount]);
 
-  // The field, and the task just added above it, stay in sight. Only the
-  // quadrant's list scrolls, not the page.
+  // The field, and the task just added above it, stay in sight. In the
+  // matrix only the quadrant's list scrolls, not the page.
   useEffect(() => {
     const input = inputRef.current;
-    if (openCount && input) scrollIntoArea(input);
-  }, [openCount, addedCount]);
+    if (!openCount || !input) return;
+    if (scrollsPage) input.scrollIntoView({ block: 'nearest' });
+    else scrollIntoArea(input);
+  }, [openCount, addedCount, scrollsPage]);
 
   if (!inlineAdd) return null;
 
@@ -107,7 +121,11 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
       onChange={(event) => setInlineAddTextAction(event.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
-      className={twMerge(FIELD_STYLES, FIELD_BORDER[quadrant])}
+      className={twMerge(
+        FIELD_STYLES,
+        FIELD_BORDER[quadrant],
+        scrollsPage && PAGE_SCROLL_MARGIN,
+      )}
     />
   );
 };
