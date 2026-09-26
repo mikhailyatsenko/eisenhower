@@ -16,6 +16,9 @@ export {
   reloadCloudMatrixAction,
   holdCloudSnapshotsAction,
   releaseCloudSnapshotsAction,
+  listenToCloudSnapshots,
+  listenToMatrixChanges,
+  moveToCloudAction,
 } from './cloudSync';
 
 // Actions change the current Matrix at once and don't wait for the cloud: the
@@ -414,5 +417,17 @@ export const clearAllCompletedTasksAction = async () => {
     } else {
       state.localCompletedTasks = [];
     }
+  });
+};
+
+/** Drops these tasks from the device's Matrix: the cloud has them now */
+export const removeFromDeviceAction = (taskIds: string[]) => {
+  const ids = new Set(taskIds);
+  const isKept = ({ id }: Task) => !ids.has(id);
+  useTaskStore.setState((state) => {
+    (Object.keys(state.localTasks) as MatrixKey[]).forEach((key) => {
+      state.localTasks[key] = state.localTasks[key].filter(isKept);
+    });
+    state.localCompletedTasks = state.localCompletedTasks.filter(isKept);
   });
 };

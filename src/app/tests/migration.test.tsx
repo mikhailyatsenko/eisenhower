@@ -1,0 +1,191 @@
+import { act, screen, within } from '@testing-library/react';
+import { axe } from './axe';
+import { list } from './drag';
+import { renderHomePage } from './renderHomePage';
+
+// Whole-page flows with axe run past the default 5 s on a cold pre-commit run
+jest.setTimeout(20_000);
+
+const ADA = { uid: 'u1', displayName: 'Ada' };
+
+const DEVICE_TASKS = {
+  ImportantUrgent: ['Pay rent', 'Call the bank'],
+  NotImportantUrgent: ['Book the flights'],
+};
+
+const MOVED = '3 tasks moved to your account';
+
+const toast = () => screen.getByRole('status', { name: 'Notifications' });
+
+const tasksIn = (title: string) =>
+  within(list(title))
+    .queryAllByRole('option')
+    .map((option) => option.textContent);
+
+const advance = (ms: number) =>
+  act(async () => {
+    jest.advanceTimersByTime(ms);
+  });
+
+type User = Awaited<ReturnType<typeof renderHomePage>>['user'];
+
+const signIn = async (user: User) => {
+  await user.click(screen.getByRole('button', { name: 'Sign in' }));
+  await user.click(
+    screen.getByRole('button', { name: /Continue with Google/ }),
+  );
+};
+
+// After signing in, the account panel is still open
+const signOut = async (user: User) => {
+  if (!screen.queryByRole('button', { name: 'Logout' })) {
+    await user.click(screen.getByRole('button', { name: 'Ada' }));
+  }
+  await user.click(screen.getByRole('button', { name: 'Logout' }));
+};
+
+const expectDeviceTasksShown = () => {
+  expect(tasksIn('Do First')).toEqual(['Pay rent', 'Call the bank']);
+  expect(tasksIn('Delegate')).toEqual(['Book the flights']);
+};
+
+describe('Migration into an empty account', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('moves the tasks to the account on sign-in, the matrix stays the same', async () => {
+    const { user, cloud } = await renderHomePage({ tasks: DEVICE_TASKS });
+
+    await signIn(user);
+
+    expectDeviceTasksShown();
+    expect(toast()).toHaveTextContent(MOVED);
+    expect(cloud.serverTasks()).toMatchObject({
+      ImportantUrgent: ['Pay rent', 'Call the bank'],
+      NotImportantUrgent: ['Book the flights'],
+    });
+    expect(await axe(document.body)).toHaveNoViolations();
+
+    await signOut(user);
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+  });
+
+  it('keeps the toast past 6 seconds until the matrix changes', async () => {
+    jest.useFakeTimers();
+    const { user } = await renderHomePage({ tasks: DEVICE_TASKS });
+
+    await signIn(user);
+    await advance(10_000);
+
+    expect(toast()).toHaveTextContent(MOVED);
+
+    // Selecting a task changes nothing
+    await user.click(screen.getByRole('option', { name: /Pay rent/ }));
+    expect(toast()).toHaveTextContent(MOVED);
+
+    await user.click(
+      within(screen.getByRole('toolbar')).getByRole('button', {
+        name: 'Complete',
+      }),
+    );
+
+    expect(toast()).not.toHaveTextContent(MOVED);
+  });
+
+  it('goes away with the first task added', async () => {
+    const { user } = await renderHomePage({ tasks: DEVICE_TASKS });
+
+    await signIn(user);
+    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.keyboard('Buy milk{Enter}');
+
+    expect(toast()).toBeEmptyDOMElement();
+  });
+
+  it('counts one task in the singular, a completed one too', async () => {
+    const { user, cloud } = await renderHomePage({
+      completedTasks: [
+        {
+          id: 'done-1',
+          text: 'Water the plants',
+          createdAt: new Date('2026-09-20T10:00:00Z'),
+          completed: true,
+          completedAt: new Date('2026-09-21T10:00:00Z'),
+          quadrantKey: 'ImportantNotUrgent',
+        },
+      ],
+    });
+
+    await signIn(user);
+
+    expect(toast()).toHaveTextContent('1 task moved to your account');
+    expect(cloud.serverTasks().completed).toEqual(['Water the plants']);
+  });
+
+  it('neither doubles nor asks when the page reloads before the server confirms', async () => {
+    const { user, cloud, reload } = await renderHomePage({
+      tasks: DEVICE_TASKS,
+    });
+
+    cloud.stallNextWrite();
+    await signIn(user);
+
+    expectDeviceTasksShown();
+    expect(toast()).toHaveTextContent(MOVED);
+
+    await reload();
+
+    expectDeviceTasksShown();
+    expect(toast()).toBeEmptyDOMElement();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    await cloud.goOnline();
+
+    expectDeviceTasksShown();
+    expect(cloud.serverTasks()).toMatchObject({
+      ImportantUrgent: ['Pay rent', 'Call the bank'],
+      NotImportantUrgent: ['Book the flights'],
+    });
+
+    await signOut(user);
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+  });
+
+  it('keeps the tasks on the device when the cloud refuses them', async () => {
+    const { user, cloud } = await renderHomePage({ tasks: DEVICE_TASKS });
+
+    cloud.rejectNextWrite();
+    await signIn(user);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      "Some changes couldn't be saved to your account.",
+    );
+    expect(toast()).not.toHaveTextContent(MOVED);
+    expect(cloud.serverTasks().ImportantUrgent).toEqual([]);
+
+    await signOut(user);
+
+    expectDeviceTasksShown();
+  });
+
+  it('moves the tasks of a user who was signed in before', async () => {
+    const { user, cloud } = await renderHomePage({
+      tasks: DEVICE_TASKS,
+      signedIn: ADA,
+      cloud: { tasks: {} },
+    });
+
+    expectDeviceTasksShown();
+    expect(toast()).toHaveTextContent(MOVED);
+    expect(cloud.serverTasks().NotImportantUrgent).toEqual([
+      'Book the flights',
+    ]);
+
+    await signOut(user);
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+  });
+});

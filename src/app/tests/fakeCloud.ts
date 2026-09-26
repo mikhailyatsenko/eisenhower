@@ -57,6 +57,7 @@ let isDeviceHeld = false;
 let queue: QueuedWrite[] = [];
 let network: Network = 'online';
 let nextRejectCode: string | undefined;
+let stallsAtNextWrite = false;
 let listeners = new Set<Listener>();
 let user: CloudUser | null = null;
 let lastUser: CloudUser | null = null;
@@ -226,6 +227,13 @@ export const fakeCloudMatrixClient = {
 
   write: (_uid: string, changes: TaskChange[]) =>
     new Promise<void>((resolve, reject) => {
+      if (stallsAtNextWrite) {
+        stallsAtNextWrite = false;
+        setNetwork('stalled');
+        listeners.forEach((listener) => {
+          listener.fromCache = true;
+        });
+      }
       queue.push({ changes, resolve, reject, rejectCode: nextRejectCode });
       nextRejectCode = undefined;
       emitAll();
@@ -348,6 +356,7 @@ export const resetFakeCloud = (
   cache = isCacheWarm ? copyDocs(server) : new Map();
   queue = [];
   nextRejectCode = undefined;
+  stallsAtNextWrite = false;
   listeners = new Set();
   userListeners = new Set();
   nextRemoteId = 0;
@@ -392,6 +401,10 @@ export const cloud = {
   /** The server refuses the next write with this Firestore code */
   rejectNextWrite: (code = 'permission-denied') => {
     nextRejectCode = code;
+  },
+  /** The server stops answering just as the next write goes out */
+  stallNextWrite: () => {
+    stallsAtNextWrite = true;
   },
   /** Fails the live subscription, as Firestore does on a lost permission */
   failSubscription: (code = 'permission-denied') =>

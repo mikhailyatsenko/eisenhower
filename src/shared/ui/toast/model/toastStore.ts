@@ -10,6 +10,8 @@ export interface ToastAction {
 export interface ToastContent {
   message: string;
   action?: ToastAction;
+  /** Doesn't go out after 6 s: stays until swiped away or replaced */
+  isPersistent?: boolean;
 }
 
 export interface Toast extends ToastContent {

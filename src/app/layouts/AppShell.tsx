@@ -1,5 +1,6 @@
 import { SyncBar } from '@/widgets/syncBar';
 import { Auth } from '@/features/auth';
+import { Migration } from '@/features/migration';
 import { ViewToggle } from '@/features/switchViewMode';
 import { ThemeToggle } from '@/features/toggleTheme';
 import { Footer } from '@/shared/ui/footer';
@@ -14,6 +15,7 @@ interface AppShellProps {
 export const AppShell = ({ children, serverThemeCookie }: AppShellProps) => (
   <>
     <CloudMatrixSync />
+    <Migration />
     <LeaveGuard />
     {/* Scroll mask for top buttons */}
     <div className="bg-background/60 pointer-events-none fixed top-0 left-0 z-10 h-12 w-full backdrop-blur-xl" />

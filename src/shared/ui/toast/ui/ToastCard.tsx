@@ -17,7 +17,7 @@ interface ToastCardProps {
 }
 
 export const ToastCard = ({ toast }: ToastCardProps) => {
-  const { id, message, action } = toast;
+  const { id, message, action, isPersistent = false } = toast;
   const dismiss = () => dismissToast(id);
 
   const [isHovered, setIsHovered] = useState(false);
@@ -30,7 +30,7 @@ export const ToastCard = ({ toast }: ToastCardProps) => {
 
   useCountdown(
     TOAST_DURATION_MS,
-    isHovered || hasFocus || isTouching || !isPageActive,
+    isPersistent || isHovered || hasFocus || isTouching || !isPageActive,
     dismiss,
   );
 
