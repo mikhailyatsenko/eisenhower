@@ -10,7 +10,7 @@ import {
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { isDialogOpen } from '@/shared/lib/isDialogOpen';
 import { isTextField } from '@/shared/lib/isTextField';
-import { Tasks } from '@/shared/stores/tasksStore';
+import { Task, Tasks } from '@/shared/stores/tasksStore';
 import {
   openInlineAddAction,
   requestAddTaskButtonFocusAction,
@@ -27,12 +27,22 @@ import {
   locateTask,
   taskCard,
 } from '../lib';
-import { ArrowKey, TaskActionHandlers, TaskLocation } from '../types';
+import {
+  ArrowKey,
+  CompletedLocation,
+  TaskActionHandlers,
+  TaskLocation,
+} from '../types';
 
 interface MatrixKeysOptions extends TaskActionHandlers {
   tasks: Tasks;
-  /** The Selected Task; null without one */
+  /** What Completed shows: none in the matrix or while it's collapsed */
+  shownCompleted: Task[];
+  /** The Selected Task; null without one or when it's completed */
   location: TaskLocation | null;
+  /** The Selected Task when it's completed */
+  completedLocation: CompletedLocation | null;
+  onDeleteCompleted: () => void;
   /** List view walks its open sections, the matrix its 2×2 */
   isMatrixView: boolean;
   toolbarRef: RefObject<HTMLElement | null>;
@@ -60,13 +70,18 @@ const goTo = (target: MatrixStop) => {
  */
 const arrowStop = (
   tasks: Tasks,
+  shownCompleted: Task[],
   isMatrixView: boolean,
   from: MatrixStop,
   key: ArrowKey,
 ) => {
   if (!isMatrixView) {
     const { collapsedSections } = useUIStore.getState();
-    return listArrowTarget(listSections(tasks, collapsedSections), from, key);
+    return listArrowTarget(
+      listSections(tasks, collapsedSections, shownCompleted),
+      from,
+      key,
+    );
   }
   const at =
     'taskId' in from
@@ -76,10 +91,14 @@ const arrowStop = (
 };
 
 /** The task ArrowDown selects with nothing selected: the first one on screen */
-const firstShownTaskId = (tasks: Tasks, isMatrixView: boolean) => {
+const firstShownTaskId = (
+  tasks: Tasks,
+  shownCompleted: Task[],
+  isMatrixView: boolean,
+) => {
   if (isMatrixView) return firstTaskId(tasks);
   const { collapsedSections } = useUIStore.getState();
-  const stop = listStops(tasks, collapsedSections).find(
+  const stop = listStops(tasks, collapsedSections, shownCompleted).find(
     (listStop) => 'taskId' in listStop,
   );
   return stop?.taskId ?? null;
@@ -90,7 +109,8 @@ const firstShownTaskId = (tasks: Tasks, isMatrixView: boolean) => {
  * C/Space, E/Enter, Del/Backspace, N, Esc and ? for the cheatsheet. Keys in
  * a text field or an open dialog are left alone, arrows on a List view
  * section's header too. "Add" opens the inline field in both views, and Esc
- * from it comes back to where the key was pressed.
+ * from it comes back to where the key was pressed. A completed task takes
+ * only the arrows, Delete/Backspace and Esc.
  */
 export const useMatrixKeys = (options: MatrixKeysOptions) => {
   const optionsRef = useRef(options);
@@ -112,7 +132,10 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
 
       const {
         tasks,
+        shownCompleted,
         location,
+        completedLocation,
+        onDeleteCompleted,
         isMatrixView,
         toolbarRef,
         onComplete,
@@ -131,13 +154,58 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       };
 
       const goToArrow = (from: MatrixStop, arrow: ArrowKey) => {
-        const to = arrowStop(tasks, isMatrixView, from, arrow);
+        const to = arrowStop(tasks, shownCompleted, isMatrixView, from, arrow);
         if (to) goTo(to);
       };
 
       // Shift with the ?/ key, whatever it types on the layout
       if (key === '?' || (event.code === 'Slash' && event.shiftKey)) {
         handle(onShowShortcuts);
+        return;
+      }
+
+      const isInToolbar = toolbarRef.current?.contains(target as Node);
+      const tabToToolbar = () => {
+        // The toolbar sits at the end of the page; Tab goes straight to it
+        const firstButton =
+          toolbarRef.current?.querySelector<HTMLElement>('button:enabled');
+        if (firstButton) handle(() => firstButton.focus());
+      };
+      const isTabFromTask =
+        key === 'Tab' &&
+        !event.shiftKey &&
+        target instanceof Element &&
+        target.closest('[role="option"]') !== null;
+
+      // A completed task, selected or left focused by Esc, has no Move and no add
+      const focusedCompletedId =
+        target instanceof HTMLElement &&
+        target.getAttribute('role') === 'option'
+          ? shownCompleted.find(({ id }) => id === target.dataset.taskId)?.id
+          : undefined;
+      if (!completedLocation && focusedCompletedId) {
+        if (quadrant || letter === 'n') return;
+        if (key === ' ') event.preventDefault(); // No Complete, and no scroll
+      }
+
+      if (completedLocation) {
+        const taskId = completedLocation.task.id;
+        if (isArrowKey(key)) {
+          handle(() => goToArrow({ taskId }, key));
+        } else if (key === 'Delete' || key === 'Backspace') {
+          handle(onDeleteCompleted);
+        } else if (key === 'Escape') {
+          handle(() =>
+            isInToolbar
+              ? requestTaskFocusAction(taskId)
+              : selectTaskAction(null),
+          );
+        } else if (isTabFromTask) {
+          tabToToolbar();
+        } else if (key === ' ' && !isControl(target)) {
+          event.preventDefault(); // No Complete, and no scroll
+        }
+        // Move, add, Complete and Edit aren't for a completed task
         return;
       }
 
@@ -168,13 +236,13 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
             target.getAttribute('role') === 'option'
               ? target.dataset.taskId
               : undefined;
-          const taskId = focusedTaskId ?? firstShownTaskId(tasks, isMatrixView);
+          const taskId =
+            focusedTaskId ??
+            firstShownTaskId(tasks, shownCompleted, isMatrixView);
           if (taskId) handle(() => selectAndFocus(taskId));
         }
         return;
       }
-
-      const isInToolbar = toolbarRef.current?.contains(target as Node);
 
       if (quadrant) {
         handle(() => {
@@ -200,16 +268,8 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
             ? requestTaskFocusAction(location.task.id)
             : selectTaskAction(null),
         );
-      } else if (
-        key === 'Tab' &&
-        !event.shiftKey &&
-        target instanceof Element &&
-        target.closest('[role="option"]')
-      ) {
-        // The toolbar sits at the end of the page; Tab goes straight to it
-        const firstButton =
-          toolbarRef.current?.querySelector<HTMLElement>('button:enabled');
-        if (firstButton) handle(() => firstButton.focus());
+      } else if (isTabFromTask) {
+        tabToToolbar();
       }
     };
 

@@ -68,8 +68,14 @@ describe('Quadrant vocabulary', () => {
       ],
     });
 
-    await user.click(screen.getByRole('button', { name: /completed tasks/i }));
-    await user.click(screen.getByRole('button', { name: 'Restore task' }));
+    await user.click(screen.getByRole('tab', { name: 'List' }));
+    await user.click(screen.getByRole('button', { name: 'Completed, 1 task' }));
+    await user.click(screen.getByRole('option', { name: /^Book the venue/ }));
+    await user.click(
+      within(screen.getByRole('toolbar')).getByRole('button', {
+        name: 'Restore',
+      }),
+    );
 
     expect(
       screen.getByRole('status', { name: 'Notifications' }),

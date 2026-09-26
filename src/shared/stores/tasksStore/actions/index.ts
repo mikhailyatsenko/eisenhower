@@ -225,11 +225,15 @@ export const moveTaskAction = async (
   };
 };
 
-/** Resolves to the revert, or undefined if the task isn't there */
+/**
+ * Completed shows the newest first: the task goes to its top. Undo of
+ * Restore puts it back where it was, with its completion time.
+ * Resolves to the revert, or undefined if the task isn't there.
+ */
 export const completeTaskAction = async (
   quadrantKey: MatrixKey,
   taskId: string,
-  index?: number,
+  placeBack?: { index: number; completedAt: Date | undefined },
 ): Promise<Revert | undefined> => {
   const inCloud = isInCloud();
   let completed = false;
@@ -246,14 +250,10 @@ export const completeTaskAction = async (
       originalIndex = taskIndex;
       const task = tasks[quadrantKey][taskIndex];
       task.completed = true;
-      task.completedAt = new Date();
+      task.completedAt = placeBack ? placeBack.completedAt : new Date();
       task.quadrantKey = quadrantKey; // Save original quadrant
 
-      if (typeof index === 'number') {
-        completedTasks.splice(index, 0, task);
-      } else {
-        completedTasks.push(task);
-      }
+      completedTasks.splice(placeBack?.index ?? 0, 0, task);
 
       tasks[quadrantKey].splice(taskIndex, 1);
       completed = true;
@@ -272,7 +272,11 @@ export const completeTaskAction = async (
   };
 };
 
-/** Resolves to the revert, or undefined if the task isn't completed */
+/**
+ * Restore puts the task at the top of its quadrant, where it's seen; Undo of
+ * Complete puts it back at its place. Resolves to the revert, or undefined if
+ * the task isn't completed.
+ */
 export const restoreTaskAction = async (
   taskId: string,
   index?: number,
@@ -280,6 +284,7 @@ export const restoreTaskAction = async (
   const inCloud = isInCloud();
   let restoredToQuadrant: MatrixKey | undefined;
   let originalIndexInCompleted: number | undefined;
+  let originalCompletedAt: Date | undefined;
 
   useTaskStore.setState((state) => {
     const tasks = selectTasks(state);
@@ -290,17 +295,13 @@ export const restoreTaskAction = async (
       originalIndexInCompleted = taskIndex;
       const task = { ...completedTasks[taskIndex] };
       const originalQuadrant = task.quadrantKey || RESTORE_FALLBACK_QUADRANT;
+      originalCompletedAt = task.completedAt;
 
       task.completed = false;
       delete task.completedAt;
       delete task.quadrantKey;
 
-      // Restore to original quadrant (or default) at specific index if provided
-      if (typeof index === 'number') {
-        tasks[originalQuadrant].splice(index, 0, task);
-      } else {
-        tasks[originalQuadrant].push(task);
-      }
+      tasks[originalQuadrant].splice(index ?? 0, 0, task);
 
       completedTasks.splice(taskIndex, 1);
       restoredToQuadrant = originalQuadrant;
@@ -314,9 +315,12 @@ export const restoreTaskAction = async (
   }
 
   const quadrantKey = restoredToQuadrant;
-  const indexToRestore = originalIndexInCompleted;
+  const placeBack = {
+    index: originalIndexInCompleted ?? 0,
+    completedAt: originalCompletedAt,
+  };
   return async () => {
-    await completeTaskAction(quadrantKey, taskId, indexToRestore);
+    await completeTaskAction(quadrantKey, taskId, placeBack);
   };
 };
 

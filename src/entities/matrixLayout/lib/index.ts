@@ -15,3 +15,4 @@ export { deadlineStatus } from './deadlineStatus';
 export type { DeadlineStatus } from './deadlineStatus';
 export { DEADLINE_CHIPS, deadlineChipDate } from './deadlineChipDate';
 export type { DeadlineChip } from './deadlineChipDate';
+export { tasksLabel } from './tasksLabel';

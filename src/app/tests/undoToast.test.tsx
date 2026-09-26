@@ -36,6 +36,22 @@ const actOnTask = async (user: User, text: string, action: string) => {
 const deleteTask = (user: User, text: string) =>
   actOnTask(user, text, 'Delete');
 
+/** List view with its Completed section expanded */
+const openCompleted = async (user: User) => {
+  await user.click(screen.getByRole('tab', { name: 'List' }));
+  await user.click(screen.getByRole('button', { name: /^Completed, / }));
+};
+
+/** Selects the completed task and presses an action in its toolbar */
+const actOnCompleted = async (user: User, text: string, action: string) => {
+  await user.click(
+    screen.getByRole('option', { name: new RegExp(`^${text}`) }),
+  );
+  await user.click(
+    within(screen.getByRole('toolbar')).getByRole('button', { name: action }),
+  );
+};
+
 describe('Undo toast', () => {
   let confirm: jest.SpyInstance;
 
@@ -100,12 +116,8 @@ describe('Undo toast', () => {
       ],
     });
 
-    await user.click(
-      screen.getByRole('button', { name: /completed tasks \(1\)/i }),
-    );
-    await user.click(
-      screen.getByRole('button', { name: 'Delete permanently' }),
-    );
+    await openCompleted(user);
+    await actOnCompleted(user, 'Old report', 'Delete');
 
     expect(screen.queryByText('Old report')).not.toBeInTheDocument();
     expect(toast()).toHaveTextContent('Task deleted');
@@ -116,6 +128,7 @@ describe('Undo toast', () => {
     expect(document.activeElement).toContainElement(
       screen.getByText('Old report'),
     );
+    expect(confirm).not.toHaveBeenCalled();
   });
 
   it('replaces the previous toast, and Undo reverts only the last action', async () => {
@@ -202,19 +215,10 @@ describe('Undo toast', () => {
   it('reaches Undo by Tab right after the matrix', async () => {
     const { user } = await renderHomePage({
       tasks: { NotImportantNotUrgent: ['Alpha', 'Bravo'] },
-      completedTasks: [
-        {
-          id: 'done-1',
-          text: 'Old report',
-          createdAt: new Date('2026-09-20T10:00:00.000Z'),
-          completed: true,
-        },
-      ],
     });
 
     await deleteTask(user, 'Alpha');
     const undo = undoButton();
-    const completed = screen.getByRole('button', { name: /completed tasks/i });
 
     // Bravo is selected now: start from its toolbar at the end of the matrix
     act(() => {
@@ -222,10 +226,9 @@ describe('Undo toast', () => {
         .getByRole('button', { name: 'Delete' })
         .focus();
     });
-    // Past the rest of the matrix, Undo comes before the Completed section
+    // Past the rest of the matrix
     for (let i = 0; i < 10; i += 1) {
       if (undo === document.activeElement) break;
-      expect(completed).not.toHaveFocus();
       await user.tab();
     }
 
@@ -437,13 +440,8 @@ describe('Undo for Move and Restore', () => {
       ],
     });
 
-    await user.click(
-      screen.getByRole('button', { name: /completed tasks \(3\)/i }),
-    );
-    const bravo = screen.getByText('Bravo').closest('li')!;
-    await user.click(
-      within(bravo).getByRole('button', { name: 'Restore task' }),
-    );
+    await openCompleted(user);
+    await actOnCompleted(user, 'Bravo', 'Restore');
 
     expect(toast()).toHaveTextContent('Restored to Schedule');
     expect(tasksIn('Schedule')).toEqual(['Bravo']);
@@ -451,7 +449,7 @@ describe('Undo for Move and Restore', () => {
     await user.click(undoButton());
 
     expect(tasksIn('Schedule')).toEqual([]);
-    const completedList = screen.getByText('Alpha').closest('ul')!;
+    const completedList = screen.getByRole('listbox', { name: 'Completed' });
     expect(
       within(completedList)
         .getAllByText(/^(Alpha|Bravo|Charlie)$/)

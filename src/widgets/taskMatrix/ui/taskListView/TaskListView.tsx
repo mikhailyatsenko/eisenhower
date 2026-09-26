@@ -20,11 +20,21 @@ const LIST_SLOTS: QuadrantSlots = {
 
 interface TaskListViewProps {
   tasks: Record<MatrixKey, Task[]>;
+  /** Newest first */
+  completedTasks: Task[];
   /** Empty sections show their example tasks */
   hasExamples: boolean;
 }
 
 export const TaskListView: React.FC<TaskListViewProps> = ({
   tasks,
+  completedTasks,
   hasExamples,
-}) => <ListLayout tasks={tasks} slots={LIST_SLOTS} hasExamples={hasExamples} />;
+}) => (
+  <ListLayout
+    tasks={tasks}
+    completedTasks={completedTasks}
+    slots={LIST_SLOTS}
+    hasExamples={hasExamples}
+  />
+);

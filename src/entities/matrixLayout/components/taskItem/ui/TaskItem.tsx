@@ -1,16 +1,14 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 import {
-  selectTaskAction,
-  useTaskFocusRequest,
-  useUIStore,
-} from '@/shared/stores/uiStore';
-import { TASK_CARD_CLASS, colors } from '../../../consts';
-import { useDeadlineStatus } from '../../../hooks';
+  OPTION_SELECTION_CLASS,
+  TASK_CARD_CLASS,
+  colors,
+} from '../../../consts';
+import { useDeadlineStatus, useSelectableTask } from '../../../hooks';
 import { OVERDUE_STRIPE_CLASS } from '../../deadlineLine';
 import {
   CARD_LAYOUT_CLASS,
@@ -38,7 +36,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   isTabStop,
   layout,
 }) => {
-  const isSelected = useUIStore((state) => state.selectedTaskId === task.id);
+  const { isSelected, itemRef, handlers } = useSelectableTask(task.id);
   const status = useDeadlineStatus(task);
 
   // No dnd-kit attributes: the card is an option, not a sortable button
@@ -48,8 +46,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       data: { quadrantKey, index },
     });
 
-  const itemRef = useRef<HTMLLIElement | null>(null);
-  useTaskFocusRequest(task.id, itemRef);
   const setItemRef = (node: HTMLLIElement | null) => {
     itemRef.current = node;
     setNodeRef(node);
@@ -61,34 +57,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     zIndex: isDragging ? 50 : 'auto',
   };
 
-  // A press focuses the card before its click: the click decides then
-  const isPointerFocus = useRef(false);
-
-  const handleClick = (event: React.MouseEvent) => {
-    // A click on the quadrant's empty space clears the selection
-    event.stopPropagation();
-    isPointerFocus.current = false;
-    selectTaskAction(isSelected ? null : task.id);
-  };
-
-  const handlePointerDown = () => {
-    isPointerFocus.current = true;
-  };
-
-  // A press that became a drag never clicks
-  const handleBlur = () => {
-    isPointerFocus.current = false;
-  };
-
-  // Focus and selection coincide: Tab or the keys select the focused task
-  const handleFocus = () => {
-    if (isPointerFocus.current) {
-      isPointerFocus.current = false;
-      return;
-    }
-    if (!isSelected) selectTaskAction(task.id);
-  };
-
   return (
     <li
       ref={setItemRef}
@@ -97,10 +65,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       aria-selected={isSelected}
       tabIndex={isTabStop ? 0 : -1}
       {...listeners}
-      onPointerDown={handlePointerDown}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onClick={handleClick}
+      {...handlers}
       style={style}
       className={twMerge(
         TASK_CARD_CLASS,
@@ -110,9 +75,8 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         CARD_LAYOUT_CLASS[layout].card,
         isDragging && 'opacity-50',
         isSelected
-          ? 'ring-2 ring-indigo-700 ring-offset-2 dark:ring-indigo-300 dark:ring-offset-gray-950'
-          : // Focused, not selected (after Esc or "×"): dashed, unlike the selection
-            'hover:ring-1 hover:ring-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700 focus-visible:outline-dashed dark:focus-visible:outline-indigo-300',
+          ? OPTION_SELECTION_CLASS.selected
+          : OPTION_SELECTION_CLASS.idle,
       )}
     >
       <TaskCardContent task={task} status={status} layout={layout} />

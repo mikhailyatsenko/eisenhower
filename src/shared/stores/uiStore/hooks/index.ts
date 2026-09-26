@@ -11,6 +11,7 @@ const initialState: UIState = {
   isFormOpened: false,
   viewMode: 'matrix',
   collapsedSections: [],
+  isCompletedExpanded: false,
   taskToFocus: null,
   selectedTaskId: null,
   lastSelectedTaskId: null,
@@ -29,6 +30,7 @@ export const useUIStore = create<UIState>()(
       partialize: (state) => ({
         viewMode: state.viewMode,
         collapsedSections: state.collapsedSections,
+        isCompletedExpanded: state.isCompletedExpanded,
         hasAddedByEmptySpace: state.hasAddedByEmptySpace,
       }),
     },

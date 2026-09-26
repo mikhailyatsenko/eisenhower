@@ -36,19 +36,19 @@ describe('Delete all completed tasks', () => {
     });
     cloud.rejectNextWrite('permission-denied');
 
-    const toggle = screen.getByRole('button', { name: /Completed Tasks/ });
-    await user.click(toggle);
-    await user.click(screen.getByRole('button', { name: /delete all/i }));
+    await user.click(screen.getByRole('tab', { name: 'List' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Completed, 2 tasks' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Delete all' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       "Some changes couldn't be saved to your account.",
     );
     // The refused delete is rolled back: Completed comes back with both
-    const block = (
-      await screen.findByRole('button', { name: 'Completed Tasks (2)' })
-    ).parentElement!;
-    expect(within(block).getByText('Filed taxes')).toBeInTheDocument();
-    expect(within(block).getByText('Booked flights')).toBeInTheDocument();
+    const section = await screen.findByRole('listbox', { name: 'Completed' });
+    expect(within(section).getByText('Filed taxes')).toBeInTheDocument();
+    expect(within(section).getByText('Booked flights')).toBeInTheDocument();
     expect(
       screen.getByRole('status', { name: 'Notifications' }),
     ).toBeEmptyDOMElement();

@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { QUADRANTS } from '@/shared/consts';
 import { MatrixKey } from '@/shared/stores/tasksStore';
-import { SECTION_TOGGLE_ATTRIBUTE } from '../../../lib';
+import { SECTION_TOGGLE_ATTRIBUTE, tasksLabel } from '../../../lib';
 import { EmptySpaceHint } from '../../emptySpaceHint';
 import { QuadrantGlyph } from '../../quadrantGlyph';
 import { SECTION_HEADER_STYLES, SECTION_TITLE_COLOR } from '../consts';
@@ -19,8 +19,6 @@ interface SectionHeaderProps {
   /** A button after the toggle, like the quadrant's "+" */
   headerAction?: React.ReactNode;
 }
-
-const tasksLabel = (count: number) => `${count} task${count === 1 ? '' : 's'}`;
 
 /**
  * A List view section's sticky header: the glyph, the title, the criteria

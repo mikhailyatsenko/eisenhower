@@ -136,6 +136,13 @@ export const setSectionCollapsedAction = (
   });
 };
 
+/** Expands or collapses the Completed section; remembered on the device */
+export const setCompletedExpandedAction = (isExpanded: boolean) => {
+  useUIStore.setState((state) => {
+    state.isCompletedExpanded = isExpanded;
+  });
+};
+
 export const requestTaskFocusAction = (taskId: string | null) => {
   useUIStore.setState((state) => {
     state.taskToFocus = taskId;

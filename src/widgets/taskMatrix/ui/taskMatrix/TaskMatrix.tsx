@@ -1,18 +1,27 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
 import { ViewPanel } from '@/features/switchViewMode';
-import { completeTask, deleteTask, moveTask } from '@/features/undo';
+import {
+  completeTask,
+  deleteCompletedTask,
+  deleteTask,
+  moveTask,
+  restoreTask,
+} from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { forgetSignOut, useIsSignedOut } from '@/shared/api/cloudMatrix';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import {
+  newestCompletedFirst,
+  selectCompletedTasks,
   selectTasks,
+  Task,
   useIsTaskStoreRestored,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
@@ -37,10 +46,21 @@ const QUADRANT_SLOTS: QuadrantSlots = {
   openAddFieldByEmptySpace: openInlineAddByEmptySpaceAction,
 };
 
+const NO_TASKS: Task[] = [];
+
 export const TaskMatrix: React.FC = () => {
   const { isLoading, user, handleGoogleSignIn } = useAuth();
   const tasks = useTaskStore(selectTasks);
+  const storedCompleted = useTaskStore(selectCompletedTasks);
+  const completedTasks = useMemo(
+    () => newestCompletedFirst(storedCompleted),
+    [storedCompleted],
+  );
   const viewMode = useUIStore((state) => state.viewMode);
+  const isCompletedExpanded = useUIStore((state) => state.isCompletedExpanded);
+  // Only List view shows Completed, and only while it's expanded
+  const shownCompleted =
+    viewMode === 'list' && isCompletedExpanded ? completedTasks : NO_TASKS;
   // The server's HTML doesn't know the stored view: neither view flashes
   const isUIStoreRestored = useIsUIStoreRestored();
   const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
@@ -141,16 +161,23 @@ export const TaskMatrix: React.FC = () => {
               />
             </>
           ) : (
-            <TaskListView tasks={tasks} hasExamples={!isAccountAwaited} />
+            <TaskListView
+              tasks={tasks}
+              completedTasks={completedTasks}
+              hasExamples={!isAccountAwaited}
+            />
           )}
 
           {/* Both views select and act the same way */}
           <TaskActionPanel
             tasks={tasks}
+            shownCompleted={shownCompleted}
             matrixRef={matrixRef}
             completeTask={completeTask}
             deleteTask={deleteTask}
             moveTask={moveTask}
+            restoreTask={restoreTask}
+            deleteCompletedTask={deleteCompletedTask}
           />
         </div>
       </ViewPanel>
