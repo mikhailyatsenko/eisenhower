@@ -12,6 +12,7 @@ const taskFromDoc = ({ id, data }: TaskDoc): Task => ({
   text: data.text,
   createdAt: new Date(data.createdAt),
   dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+  hasDueTime: data.dueDate ? (data.hasDueTime ?? true) : undefined,
   order: data.order,
   completed: data.completed,
   completedAt: data.completedAt ? new Date(data.completedAt) : undefined,

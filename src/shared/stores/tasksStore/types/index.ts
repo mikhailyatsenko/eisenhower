@@ -7,6 +7,11 @@ export interface Task {
   text: string;
   createdAt: Date;
   dueDate?: Date;
+  /**
+   * False: the deadline is a whole day, stored as its local midnight and due
+   * by the end of it. Missing, as on every deadline set before R4: it has a time.
+   */
+  hasDueTime?: boolean;
   order?: number;
   completed?: boolean;
   completedAt?: Date;

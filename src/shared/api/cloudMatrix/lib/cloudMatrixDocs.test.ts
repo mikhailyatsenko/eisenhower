@@ -94,10 +94,29 @@ describe('toCloudSnapshot', () => {
     expect(due.createdAt).toEqual(new Date(CREATED));
     expect(due.dueDate).toEqual(new Date(DUE));
     expect(none.dueDate).toBeUndefined();
+    expect(none.hasDueTime).toBeUndefined();
     expect(snapshot.completedTasks[0].completedAt).toEqual(
       new Date(DONE_LATER),
     );
     expect(snapshot.completedTasks[0].quadrantKey).toBe('ImportantUrgent');
+  });
+
+  it.each([
+    { name: 'a deadline with a time', hasDueTime: true, expected: true },
+    { name: 'a deadline without a time', hasDueTime: false, expected: false },
+    // Written before R4: every deadline then had a time
+    {
+      name: 'a deadline without the field',
+      hasDueTime: undefined,
+      expected: true,
+    },
+  ])('reads $name', ({ hasDueTime, expected }) => {
+    const snapshot = toCloudSnapshot(
+      [activeDoc('due', { dueDate: DUE, hasDueTime })],
+      metadata,
+    );
+
+    expect(snapshot.tasks.ImportantUrgent[0].hasDueTime).toBe(expected);
   });
 
   it('passes on where the data came from', () => {
@@ -132,6 +151,7 @@ describe('taskToDocData', () => {
         userId: 'u1',
         createdAt: CREATED,
         dueDate: null,
+        hasDueTime: null,
         order: 2,
         completed: false,
       },
@@ -150,6 +170,26 @@ describe('taskToDocData', () => {
         userId: 'u1',
         createdAt: CREATED,
         dueDate: DUE,
+        hasDueTime: true,
+        order: 0,
+        completed: false,
+      },
+    },
+    {
+      name: 'an active task with a deadline without a time',
+      change: {
+        task: { ...task, dueDate: new Date(DUE), hasDueTime: false },
+        quadrantKey: 'ImportantUrgent',
+        order: 0,
+        completed: false,
+      },
+      data: {
+        text: 'Pay rent',
+        quadrantKey: 'ImportantUrgent',
+        userId: 'u1',
+        createdAt: CREATED,
+        dueDate: DUE,
+        hasDueTime: false,
         order: 0,
         completed: false,
       },
@@ -168,6 +208,7 @@ describe('taskToDocData', () => {
         userId: 'u1',
         createdAt: CREATED,
         dueDate: null,
+        hasDueTime: null,
         order: 1,
         completed: true,
         completedAt: DONE_LATER,
@@ -177,18 +218,21 @@ describe('taskToDocData', () => {
     expect(taskToDocData({ type: 'set', ...change }, 'u1')).toEqual(data);
   });
 
-  it('round-trips through toCloudSnapshot', () => {
-    const change = {
-      type: 'set' as const,
-      task: { ...task, dueDate: new Date(DUE) },
-      quadrantKey: 'ImportantUrgent' as const,
-      order: 0,
-      completed: false,
-    };
-    const data = taskToDocData(change, 'u1') as unknown as FirestoreTaskData;
+  it.each([true, false])(
+    'round-trips through toCloudSnapshot, time set: %s',
+    (hasDueTime) => {
+      const change = {
+        type: 'set' as const,
+        task: { ...task, dueDate: new Date(DUE), hasDueTime },
+        quadrantKey: 'ImportantUrgent' as const,
+        order: 0,
+        completed: false,
+      };
+      const data = taskToDocData(change, 'u1') as unknown as FirestoreTaskData;
 
-    const [parsed] = toCloudSnapshot([{ id: 't1', data }], metadata).tasks
-      .ImportantUrgent;
-    expect(parsed).toMatchObject(change.task);
-  });
+      const [parsed] = toCloudSnapshot([{ id: 't1', data }], metadata).tasks
+        .ImportantUrgent;
+      expect(parsed).toMatchObject(change.task);
+    },
+  );
 });

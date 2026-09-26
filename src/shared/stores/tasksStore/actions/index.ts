@@ -108,6 +108,8 @@ export const editTaskAction = async (
         task.text = newText;
         task.dueDate =
           newDueDate === null ? undefined : newDueDate || task.dueDate;
+        // A new deadline from the form has a time
+        if (dateChanged && newDueDate !== undefined) delete task.hasDueTime;
 
         if (quadrantChanged && newQuadrantKey) {
           const [movedTask] = tasks[quadrantKey].splice(taskIndex, 1);

@@ -10,6 +10,7 @@ export const taskToDocData = (
   userId,
   createdAt: task.createdAt.toISOString(),
   dueDate: task.dueDate?.toISOString() ?? null,
+  hasDueTime: task.dueDate ? (task.hasDueTime ?? true) : null,
   order,
   completed,
   ...(completed && {
