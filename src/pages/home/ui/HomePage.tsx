@@ -1,6 +1,5 @@
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
-import { SwitchTaskSource } from '@/features/switchTaskSource';
 import { ToastRegion } from '@/shared/ui/toast';
 import { CompletedTasks } from './CompletedTasks';
 import { SyncGlow } from './SyncGlow';
@@ -9,7 +8,6 @@ import { SyncGlow } from './SyncGlow';
 export const HomePage = () => (
   <>
     <SyncGlow />
-    <SwitchTaskSource />
     <div className="relative top-6 z-[1] mx-auto w-[calc(100%-48px)] py-6 md:top-0 lg:w-5/6">
       {/* w-[calc(100%-48px)] because we have names of lines at the left with absolute position */}
 

@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import { getAccountSignIn } from './account';
 import { renderHomePage } from './renderHomePage';
 
 // Whole-page flows run past the default 5 s on a cold pre-commit run
@@ -19,7 +20,7 @@ const signOut = async (user: User) => {
 };
 
 const signIn = async (user: User) => {
-  await user.click(screen.getByRole('button', { name: 'Sign in' }));
+  await user.click(getAccountSignIn());
   await user.click(
     screen.getByRole('button', { name: /continue with google/i }),
   );
@@ -50,7 +51,7 @@ describe('Signing out on a shared device', () => {
 
     await reload();
 
-    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    expect(getAccountSignIn()).toBeInTheDocument();
     expect(screen.queryByText('Pay rent')).not.toBeInTheDocument();
     expect(cloud.deviceTasks()).toEqual([]);
   });

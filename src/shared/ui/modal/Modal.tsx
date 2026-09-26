@@ -19,6 +19,8 @@ interface ModalProps {
   restoreFocus?: () => void;
   className?: string;
   width?: 'lg' | 'xl' | '2xl';
+  /** A click on the backdrop closes it; off for a question that needs an answer */
+  closesOnBackdropClick?: boolean;
 }
 
 const widthClasses = {
@@ -39,6 +41,7 @@ export const Modal = ({
   restoreFocus,
   className,
   width = 'lg',
+  closesOnBackdropClick = true,
 }: ModalProps) => {
   useScrollLock();
   const [mounted, setMounted] = useState(false);
@@ -100,7 +103,11 @@ export const Modal = ({
       onClick={(event) => {
         // Clicks stay in the dialog, like before the portal
         event.stopPropagation();
-        if (isBackdropPressed.current && event.target === event.currentTarget) {
+        if (
+          closesOnBackdropClick &&
+          isBackdropPressed.current &&
+          event.target === event.currentTarget
+        ) {
           onClose();
         }
       }}

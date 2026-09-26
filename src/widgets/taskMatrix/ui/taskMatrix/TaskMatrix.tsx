@@ -1,16 +1,17 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
-import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
+import { forgetSignOut, useIsSignedOut } from '@/shared/api/cloudMatrix';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import {
+  selectTasks,
   useIsTaskStoreRestored,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
@@ -21,6 +22,7 @@ import {
 } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { NoSignUpLine } from '../../components/NoSignUpLine';
+import { SignedOutLine } from '../../components/SignedOutLine';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
@@ -34,10 +36,8 @@ const QUADRANT_SLOTS: QuadrantSlots = {
 };
 
 export const TaskMatrix: React.FC = () => {
-  const { isLoading, user } = useAuth();
-  const tasks = useTaskStore((state) =>
-    state.activeState === 'local' ? state.localTasks : state.firebaseTasks,
-  );
+  const { isLoading, user, handleGoogleSignIn } = useAuth();
+  const tasks = useTaskStore(selectTasks);
   const viewMode = useUIStore((state) => state.viewMode);
   const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
   const matrixRef = useRef<HTMLDivElement>(null);
@@ -45,31 +45,43 @@ export const TaskMatrix: React.FC = () => {
   // Use specific selector to prevent unnecessary re-renders
   const taskInputText = useUIStore((state) => state.taskInputText);
 
-  // Until the cloud Matrix arrives; an error doesn't hide the Matrix
-  const isWaitingForCloud = useTaskStore(
-    (state) => state.activeState === 'firebase' && !state.isCloudLoaded,
-  );
+  // Until the cloud Matrix arrives, from the moment the user is known: the
+  // device's tasks never flash in between. An error doesn't hide the Matrix.
+  const isCloudLoaded = useTaskStore((state) => state.isCloudLoaded);
 
-  const isInCloudStorage = useTaskStore(
-    (state) => state.activeState === 'firebase',
-  );
+  const isInCloudStorage = useTaskStore((state) => state.isInCloud);
   const isAwaitingServer = useSyncStore((state) => state.isAwaitingServer);
 
   // The account's tasks haven't come yet: examples would make it look empty
   const isAccountAwaited = !!user && isInCloudStorage && isAwaitingServer;
 
   // Not before the device's tasks are read: a returning user would see it
-  // flash. The device's tasks, not the active ones: on sign-out the user is
-  // gone a render before the Matrix switches back to them.
+  // flash. The device's tasks, not the Matrix's: on sign-out the user is
+  // gone a render before the cloud subscription ends.
   const isTaskStoreRestored = useIsTaskStoreRestored();
   const isDeviceMatrixEmpty = useTaskStore((state) =>
     Object.values(state.localTasks).every(
       (quadrantTasks) => quadrantTasks.length === 0,
     ),
   );
-  const hasNoSignUpLine = !user && isTaskStoreRestored && isDeviceMatrixEmpty;
+  const isAnonymousRestored = !user && isTaskStoreRestored;
+  const isEmptyForAnonymous = isAnonymousRestored && isDeviceMatrixEmpty;
 
-  if (isLoading || (user && isWaitingForCloud)) {
+  // After Sign out the empty matrix isn't a first visit: the tasks are in
+  // the account. The first task added to it ends that for good; tasks left
+  // on the device by "Don't add" or Undo don't.
+  const isSignedOut = useIsSignedOut();
+  const wasEmptyForAnonymous = useRef(false);
+  useEffect(() => {
+    const isTaskAdded =
+      wasEmptyForAnonymous.current &&
+      isAnonymousRestored &&
+      !isDeviceMatrixEmpty;
+    if (isTaskAdded) forgetSignOut();
+    wasEmptyForAnonymous.current = isEmptyForAnonymous;
+  }, [isAnonymousRestored, isDeviceMatrixEmpty, isEmptyForAnonymous]);
+
+  if (isLoading || (user && !isCloudLoaded)) {
     return <LoaderFullScreen />;
   }
 
@@ -82,7 +94,12 @@ export const TaskMatrix: React.FC = () => {
           back online.
         </p>
       )}
-      {hasNoSignUpLine && <NoSignUpLine />}
+      {isEmptyForAnonymous &&
+        (isSignedOut ? (
+          <SignedOutLine signIn={handleGoogleSignIn} />
+        ) : (
+          <NoSignUpLine />
+        ))}
 
       {/* Focus lands here, not on <body>, when the matrix has no task left */}
       <div
@@ -128,8 +145,6 @@ export const TaskMatrix: React.FC = () => {
 
       {/* Selection comes to List view in slice N, the line with it */}
       {viewMode === 'matrix' && <SelectionHint />}
-
-      <CopyLocalToCloudButton />
     </>
   );
 };

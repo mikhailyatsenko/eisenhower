@@ -31,6 +31,10 @@ let heldSnapshot: CloudSnapshot | null = null;
 let isCacheEmpty = false;
 let stopWatchingSync: (() => void) | null = null;
 
+type SnapshotListener = (snapshot: CloudSnapshot, isKnown: boolean) => void;
+const snapshotListeners = new Set<SnapshotListener>();
+const matrixChangeListeners = new Set<() => void>();
+
 const hasTasks = ({ tasks, completedTasks }: CloudSnapshot) =>
   completedTasks.length > 0 ||
   Object.values(tasks).some((quadrant) => quadrant.length > 0);
@@ -58,20 +62,25 @@ const showWithoutServer = () => {
   }
 };
 
+/**
+ * The server answered, or the device cache had the Matrix. Once the cache
+ * came up empty, cached tasks are the ones added meanwhile: still waiting.
+ */
+const isKnownSnapshot = (snapshot: CloudSnapshot) =>
+  !snapshot.fromCache || (!isCacheEmpty && hasTasks(snapshot));
+
 const applySnapshot = (snapshot: CloudSnapshot) => {
   const { selectedTaskId } = useUIStore.getState();
-  const { activeState, firebaseTasks } = useTaskStore.getState();
+  const { isInCloud, firebaseTasks } = useTaskStore.getState();
   // Still on screen, gone from the cloud: removed on another device or tab.
   // A task this device removed has left the store already.
   const isSelectionRemoved =
-    activeState === 'firebase' &&
+    isInCloud &&
     selectedTaskId !== null &&
     hasTask(firebaseTasks, selectedTaskId) &&
     !hasTask(snapshot.tasks, selectedTaskId);
 
-  // The server answered, or the device cache had the Matrix. Once the cache
-  // came up empty, cached tasks are the ones added meanwhile: still waiting.
-  const isKnown = !snapshot.fromCache || (!isCacheEmpty && hasTasks(snapshot));
+  const isKnown = isKnownSnapshot(snapshot);
 
   useTaskStore.setState((state) => {
     state.firebaseTasks = snapshot.tasks;
@@ -88,11 +97,13 @@ const applySnapshot = (snapshot: CloudSnapshot) => {
   if (isSelectionRemoved) selectTaskAction(null);
 };
 
-const resetCloudMatrix = () =>
+/** The Matrix's Storage becomes the cloud while subscribed, the device after */
+const resetCloudMatrix = (isInCloud: boolean) =>
   useTaskStore.setState((state) => {
     state.firebaseTasks = getEmptyTasksState();
     state.firebaseCompletedTasks = [];
     state.isCloudLoaded = false;
+    state.isInCloud = isInCloud;
   });
 
 /** Starts a live subscription; a reload's first server snapshot ends the Sync error */
@@ -108,6 +119,8 @@ const listen = (userId: string, isReload: boolean) => {
       }
       if (isHolding) heldSnapshot = snapshot;
       else applySnapshot(snapshot);
+      const isKnown = isKnownSnapshot(snapshot);
+      snapshotListeners.forEach((listener) => listener(snapshot, isKnown));
     },
     () => {
       // Show what there is rather than a loader forever
@@ -121,7 +134,7 @@ const listen = (userId: string, isReload: boolean) => {
 /** Keeps the store in step with the user's cloud Matrix; returns the unsubscribe */
 export const subscribeToCloudMatrix = (userId: string) => {
   uid = userId;
-  resetCloudMatrix();
+  resetCloudMatrix(true);
   isCacheEmpty = false;
   startSyncAction();
   setAwaitingServerAction(true);
@@ -137,7 +150,7 @@ export const subscribeToCloudMatrix = (userId: string) => {
     isCacheEmpty = false;
     stopWatchingSync?.();
     stopWatchingSync = null;
-    resetCloudMatrix();
+    resetCloudMatrix(false);
     resetSyncAction();
   };
 };
@@ -166,13 +179,52 @@ export const releaseCloudSnapshotsAction = () => {
 };
 
 /**
- * Sends the changes to the signed-in user's cloud Matrix without waiting for
- * the server: the device has them at once, the sync model tracks the rest.
- * Does nothing when no one is signed in.
+ * Hears every snapshot of the cloud Matrix, as it comes, with whether the
+ * cloud is known by then: the server answered or the device cache had it
+ */
+export const listenToCloudSnapshots = (listener: SnapshotListener) => {
+  snapshotListeners.add(listener);
+  return () => {
+    snapshotListeners.delete(listener);
+  };
+};
+
+/** Hears the user change the cloud Matrix: add, edit, Complete, Delete, Move, Restore */
+export const listenToMatrixChanges = (listener: () => void) => {
+  matrixChangeListeners.add(listener);
+  return () => {
+    matrixChangeListeners.delete(listener);
+  };
+};
+
+/** Tracks the write in the sync model; resolves or rejects with the server */
+const trackWrite = (userId: string, changes: TaskChange[]) => {
+  const write = cloudMatrix.write(userId, changes);
+  trackCloudWriteAction(write);
+  return write;
+};
+
+/**
+ * Sends the user's changes to the signed-in user's cloud Matrix without
+ * waiting for the server: the device has them at once, the sync model tracks
+ * the rest. Does nothing when no one is signed in.
  */
 export const writeToCloud = (changes: TaskChange[]) => {
   if (!uid || changes.length === 0) return;
-  trackCloudWriteAction(cloudMatrix.write(uid, changes));
+  trackWrite(uid, changes);
+  matrixChangeListeners.forEach((listener) => listener());
 };
 
-export const isSignedInToCloud = () => uid !== null;
+/** One write that is no change of the user's; rejects if the server refuses it */
+const writeForMigration = async (changes: TaskChange[]) => {
+  if (!uid || changes.length === 0) return;
+  await trackWrite(uid, changes);
+};
+
+/** Writes the device's tasks to the cloud Matrix as one write */
+export const moveToCloudAction = (changes: TaskChange[]) =>
+  writeForMigration(changes);
+
+/** Takes these tasks out of the cloud Matrix as one write: Undo of the move */
+export const removeFromCloudAction = (taskIds: string[]) =>
+  writeForMigration(taskIds.map((id) => ({ type: 'delete', id })));

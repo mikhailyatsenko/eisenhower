@@ -1,5 +1,4 @@
 import type { MatrixKey } from '@/shared/consts';
-import { LOCAL_STATE_KEY, CLOUD_STATE_KEY } from '../consts';
 
 export type { MatrixKey };
 
@@ -18,14 +17,16 @@ export type Tasks = Record<MatrixKey, Task[]>;
 /** A quadrant of the Matrix, or Completed */
 export type TaskArea = MatrixKey | 'completed';
 
-export type StateKey = typeof LOCAL_STATE_KEY | typeof CLOUD_STATE_KEY;
-
 export interface TaskState {
   localTasks: Tasks;
   firebaseTasks: Tasks;
   localCompletedTasks: Task[];
   firebaseCompletedTasks: Task[];
-  activeState: StateKey;
+  /**
+   * The Matrix's Storage is the cloud: a user is signed in and the cloud
+   * subscription knows them. Otherwise it is the device.
+   */
+  isInCloud: boolean;
   /** The signed-in user's cloud Matrix has arrived, from the server or the device cache */
   isCloudLoaded: boolean;
 }

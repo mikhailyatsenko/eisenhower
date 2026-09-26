@@ -69,7 +69,8 @@ describe('The line above an empty matrix', () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: ['On this device'] },
       signedIn: ADA,
-      cloud: { tasks: {} },
+      // An account with tasks of its own: the device's aren't moved there
+      cloud: { tasks: { ImportantNotUrgent: ['In the account'] } },
     });
 
     await user.click(screen.getByRole('button', { name: 'Ada' }));

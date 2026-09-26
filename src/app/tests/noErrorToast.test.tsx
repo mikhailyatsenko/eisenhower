@@ -1,5 +1,5 @@
-import { act, screen, within } from '@testing-library/react';
-import { Task, useTaskStore } from '@/shared/stores/tasksStore';
+import { screen, within } from '@testing-library/react';
+import { Task } from '@/shared/stores/tasksStore';
 import { axe } from './axe';
 import { renderHomePage } from './renderHomePage';
 
@@ -18,35 +18,35 @@ const completed = (id: string, text: string): Task => ({
 describe('Delete all completed tasks', () => {
   beforeEach(() => {
     jest.spyOn(window, 'confirm').mockReturnValue(true);
-    // The failure is logged on purpose
-    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('shows the failure in the Completed block, not in a toast', async () => {
-    const { user } = await renderHomePage();
-    // Cloud storage without a signed-in user: clearing the cloud fails
-    act(() =>
-      useTaskStore.setState({
-        activeState: 'firebase',
-        firebaseCompletedTasks: [
+  it('shows a refused Delete all in the sync bar, not in a toast', async () => {
+    const { user, cloud } = await renderHomePage({
+      signedIn: { uid: 'u1', displayName: 'Ada' },
+      cloud: {
+        completedTasks: [
           completed('done-1', 'Filed taxes'),
           completed('done-2', 'Booked flights'),
         ],
-      }),
-    );
+      },
+    });
+    cloud.rejectNextWrite('permission-denied');
 
     const toggle = screen.getByRole('button', { name: /Completed Tasks/ });
     await user.click(toggle);
     await user.click(screen.getByRole('button', { name: /delete all/i }));
 
-    const block = toggle.parentElement!;
-    expect(within(block).getByRole('alert')).toHaveTextContent(
-      "Couldn't delete. Try again",
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Some changes couldn't be saved to your account.",
     );
+    // The refused delete is rolled back: Completed comes back with both
+    const block = (
+      await screen.findByRole('button', { name: 'Completed Tasks (2)' })
+    ).parentElement!;
     expect(within(block).getByText('Filed taxes')).toBeInTheDocument();
     expect(within(block).getByText('Booked flights')).toBeInTheDocument();
     expect(

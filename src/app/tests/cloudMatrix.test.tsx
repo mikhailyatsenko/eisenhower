@@ -113,19 +113,6 @@ describe('Cloud Matrix of a signed-in user', () => {
     expect(tasksIn('Do First')).toEqual(['Pay rent', 'Call the bank']);
   });
 
-  it('shows the Local matrix while the cloud one is still loading', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: ['Local only'] },
-      signedIn: ADA,
-      cloud: { tasks: SERVER_TASKS, deviceCache: 'empty', network: 'stalled' },
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Ada' }));
-    await user.click(screen.getByText('Local Matrix'));
-
-    expect(tasksIn('Do First')).toEqual(['Local only']);
-  });
-
   it('keeps the Matrix on screen when the subscription fails', async () => {
     const { cloud } = await renderHomePage({
       signedIn: ADA,

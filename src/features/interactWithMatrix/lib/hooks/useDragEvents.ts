@@ -1,7 +1,11 @@
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useRef, useState } from 'react';
-import { MatrixKey, useTaskStore } from '@/shared/stores/tasksStore';
+import {
+  MatrixKey,
+  selectTasks,
+  useTaskStore,
+} from '@/shared/stores/tasksStore';
 import {
   dragEndAction,
   dragOverQuadrantAction,
@@ -19,10 +23,7 @@ interface DragOrigin {
 
 // The preview moves the task in the store between renders, so handlers read
 // the store itself rather than the tasks of the last render
-const currentTasks = () => {
-  const state = useTaskStore.getState();
-  return state.activeState === 'local' ? state.localTasks : state.firebaseTasks;
-};
+const currentTasks = () => selectTasks(useTaskStore.getState());
 
 export const useDragEvents = (moveTask: MoveTask) => {
   const [dragOverQuadrant, setDragOverQuadrant] = useState<MatrixKey | null>(

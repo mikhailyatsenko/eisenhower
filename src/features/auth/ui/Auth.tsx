@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { AuthIndicator } from '@/entities/authIndicator';
 import { useAuth } from '@/shared/api/auth';
 import {
@@ -11,18 +11,18 @@ import {
   selectPendingChangesCount,
   useSyncStore,
 } from '@/shared/stores/syncStore';
-import { useTaskStore } from '@/shared/stores/tasksStore';
 import { SignOutDialog } from '../components/SignOutDialog';
 
-export const Auth: React.FC = () => {
-  const { user, handleGoogleSignIn, handleLogout, isLoading } = useAuth();
+interface AuthProps {
+  /** The account button, shown while the menu is closed */
+  accountButtonRef: React.RefObject<HTMLButtonElement | null>;
+}
 
-  const { localTasks } = useTaskStore();
-  const { firebaseTasks } = useTaskStore();
+export const Auth: React.FC<AuthProps> = ({ accountButtonRef }) => {
+  const { user, handleGoogleSignIn, handleLogout, isLoading } = useAuth();
 
   // Pending changes when Sign out was pressed; undefined while not asking
   const [pendingChanges, setPendingChanges] = useState<number | null>();
-  const accountButtonRef = useRef<HTMLButtonElement>(null);
 
   // Signed out meanwhile (the session ended, another tab): nothing to ask.
   // Signing out now would clear the queue an expired session keeps.
@@ -49,8 +49,6 @@ export const Auth: React.FC = () => {
       className={`${isLoading ? 'opacity-20' : 'opacity-100'} relative z-50`}
     >
       <AuthIndicator
-        localTasks={localTasks}
-        cloudTasks={firebaseTasks}
         photoURL={user?.photoURL || undefined}
         displayName={user?.displayName || undefined}
         isSignedIn={!!user}

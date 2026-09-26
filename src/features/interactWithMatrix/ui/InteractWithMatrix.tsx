@@ -16,8 +16,12 @@ import {
   QuadrantSlots,
   TaskDragPreview,
 } from '@/entities/matrixLayout';
-import { useTaskStore } from '@/shared/stores/tasksStore';
-import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import {
+  MatrixKey,
+  Task,
+  selectTasks,
+  useTaskStore,
+} from '@/shared/stores/tasksStore';
 
 import { useDragEvents } from '../lib/hooks';
 import { useQuadrantOrder } from '../lib/hooks';
@@ -39,8 +43,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   quadrantSlots,
   hasExamples,
 }) => {
-  const { activeState, localTasks, firebaseTasks } = useTaskStore();
-  const tasks = activeState === 'local' ? localTasks : firebaseTasks;
+  const tasks = useTaskStore(selectTasks);
 
   const {
     dragOverQuadrant,
