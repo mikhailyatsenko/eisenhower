@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   ADD_HINT,
   DRAG_HINT,
@@ -10,7 +11,10 @@ interface ShortcutsDialogProps {
   onClose: () => void;
 }
 
-/** The cheatsheet that ? opens: adding, every matrix key, Undo and drag */
+/**
+ * The cheatsheet that ? opens: adding, every matrix key, Undo and drag, and
+ * last the way to the method page
+ */
 export const ShortcutsDialog: React.FC<ShortcutsDialogProps> = ({
   onClose,
 }) => (
@@ -33,6 +37,12 @@ export const ShortcutsDialog: React.FC<ShortcutsDialogProps> = ({
       <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
         {DRAG_HINT}
       </p>
+      <Link
+        href="/eisenhower-matrix"
+        className="mt-4 self-start rounded text-sm font-medium text-indigo-700 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700 dark:text-indigo-300 dark:focus-visible:outline-indigo-300"
+      >
+        How the Eisenhower Matrix works →
+      </Link>
     </div>
   </Modal>
 );

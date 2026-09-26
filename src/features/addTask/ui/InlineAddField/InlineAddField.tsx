@@ -13,6 +13,7 @@ import {
 import {
   closeInlineAddAction,
   getInlineAddReturnFocus,
+  recordInlineTaskAddAction,
   requestTaskFocusAction,
   setInlineAddTextAction,
   useUIStore,
@@ -68,7 +69,7 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({ quadrant }) => {
       if (!text) return;
       // Silently, no toast, and the new task isn't selected
       addTaskAction(quadrant, text);
-      setInlineAddTextAction('');
+      recordInlineTaskAddAction();
       setAddedCount((count) => count + 1);
     } else if (event.key === 'Escape') {
       event.preventDefault();

@@ -29,12 +29,15 @@ interface InteractWithMatrixProps {
   moveTask: MoveTask;
   /** What the quadrants hold besides tasks, from the matrix widget */
   quadrantSlots: QuadrantSlots;
+  /** Empty quadrants show their example tasks */
+  hasExamples: boolean;
 }
 
 export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
   taskInputText,
   moveTask,
   quadrantSlots,
+  hasExamples,
 }) => {
   const { activeState, localTasks, firebaseTasks } = useTaskStore();
   const tasks = activeState === 'local' ? localTasks : firebaseTasks;
@@ -82,6 +85,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
         dragOverQuadrant={dragOverQuadrant}
         taskInputText={taskInputText}
         slots={quadrantSlots}
+        hasExamples={hasExamples}
       />
 
       <DragOverlay dropAnimation={dropAnimation}>

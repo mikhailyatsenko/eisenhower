@@ -1,7 +1,7 @@
 import { RefObject, useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
-import { useIsPhone, useMediaQuery } from '@/shared/hooks';
+import { useIsPhone, useIsTouchScreen } from '@/shared/hooks';
 import { useToastClearance } from '@/shared/ui/toast';
 import { TaskActionHandlers, TaskLocation } from '../../../types';
 import { PANEL_STYLES, QUADRANT_DOT } from '../consts';
@@ -45,7 +45,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({
   useToastClearance(toolbarRef);
   const moveToLabelId = useId();
   // Judged by the primary pointer, like the toast: no key hints on touch
-  const isTouchScreen = useMediaQuery('(hover: none) and (pointer: coarse)');
+  const isTouchScreen = useIsTouchScreen();
   const isPhone = useIsPhone();
   const hint = (label: string) => !isTouchScreen && <KeyHint label={label} />;
   const styles = isPhone ? PANEL_STYLES.phone : PANEL_STYLES.desktop;

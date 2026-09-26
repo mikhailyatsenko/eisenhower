@@ -5,14 +5,22 @@ import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { CopyLocalToCloudButton } from '@/features/copyTasksToCloud';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
-import { TaskActionPanel } from '@/features/selectTask';
+import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { useSyncStore } from '@/shared/stores/syncStore';
-import { useTaskStore } from '@/shared/stores/tasksStore';
-import { openInlineAddAction, useUIStore } from '@/shared/stores/uiStore';
+import {
+  useIsTaskStoreRestored,
+  useTaskStore,
+} from '@/shared/stores/tasksStore';
+import {
+  openInlineAddAction,
+  openInlineAddByEmptySpaceAction,
+  useUIStore,
+} from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
+import { NoSignUpLine } from '../../components/NoSignUpLine';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
@@ -22,6 +30,7 @@ const QUADRANT_SLOTS: QuadrantSlots = {
   headerAction: (quadrant) => <QuadrantAddButton quadrant={quadrant} />,
   listEnd: (quadrant) => <InlineAddField quadrant={quadrant} />,
   openAddField: openInlineAddAction,
+  openAddFieldByEmptySpace: openInlineAddByEmptySpaceAction,
 };
 
 export const TaskMatrix: React.FC = () => {
@@ -46,6 +55,20 @@ export const TaskMatrix: React.FC = () => {
   );
   const isAwaitingServer = useSyncStore((state) => state.isAwaitingServer);
 
+  // The account's tasks haven't come yet: examples would make it look empty
+  const isAccountAwaited = !!user && isInCloudStorage && isAwaitingServer;
+
+  // Not before the device's tasks are read: a returning user would see it
+  // flash. The device's tasks, not the active ones: on sign-out the user is
+  // gone a render before the Matrix switches back to them.
+  const isTaskStoreRestored = useIsTaskStoreRestored();
+  const isDeviceMatrixEmpty = useTaskStore((state) =>
+    Object.values(state.localTasks).every(
+      (quadrantTasks) => quadrantTasks.length === 0,
+    ),
+  );
+  const hasNoSignUpLine = !user && isTaskStoreRestored && isDeviceMatrixEmpty;
+
   if (isLoading || (user && isWaitingForCloud)) {
     return <LoaderFullScreen />;
   }
@@ -53,12 +76,13 @@ export const TaskMatrix: React.FC = () => {
   return (
     <>
       {/* The Matrix is on screen without the server: the tasks aren't lost */}
-      {user && isInCloudStorage && isAwaitingServer && (
+      {isAccountAwaited && (
         <p className="mt-6 text-center text-sm text-gray-700 dark:text-gray-300">
           Your tasks are in your account. They&apos;ll appear when you&apos;re
           back online.
         </p>
       )}
+      {hasNoSignUpLine && <NoSignUpLine />}
 
       {/* Focus lands here, not on <body>, when the matrix has no task left */}
       <div
@@ -85,6 +109,7 @@ export const TaskMatrix: React.FC = () => {
               taskInputText={taskInputText}
               moveTask={moveTask}
               quadrantSlots={QUADRANT_SLOTS}
+              hasExamples={!isAccountAwaited}
             />
           </>
         ) : (
@@ -100,6 +125,9 @@ export const TaskMatrix: React.FC = () => {
           moveTask={moveTask}
         />
       </div>
+
+      {/* Selection comes to List view in slice N, the line with it */}
+      {viewMode === 'matrix' && <SelectionHint />}
 
       <CopyLocalToCloudButton />
     </>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+import { useIsTouchScreen } from '@/shared/hooks';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import {
   setAddTaskTabStopAction,
@@ -20,9 +21,11 @@ interface AddTaskButtonProps {
 }
 
 /**
- * "Add a task" in an empty quadrant. The keyboard reaches it like a task:
- * the arrows, Tab into an empty matrix, the focus after the quadrant's last
- * task is gone. With the focus on it no task is selected.
+ * "Add a task" in an empty quadrant: its text says a click adds a task. It is
+ * named by that text (WCAG 2.5.3) and described by the quadrant's title. The
+ * keyboard reaches it like a task: the arrows, Tab into an empty matrix, the
+ * focus after the quadrant's last task is gone. With the focus on it no task
+ * is selected.
  */
 export const AddTaskButton: React.FC<AddTaskButtonProps> = ({
   quadrant,
@@ -30,6 +33,7 @@ export const AddTaskButton: React.FC<AddTaskButtonProps> = ({
   isTabStop,
   onClick,
 }) => {
+  const isTouchScreen = useIsTouchScreen();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const isFocusRequested = useUIStore(
     (state) => state.addTaskButtonToFocus === quadrant,
@@ -52,7 +56,7 @@ export const AddTaskButton: React.FC<AddTaskButtonProps> = ({
       onClick={(event) => onClick(event.currentTarget)}
       className={ADD_TASK_BUTTON_STYLES}
     >
-      Add a task
+      {isTouchScreen ? 'Tap to add' : 'Click to add a task'}
     </button>
   );
 };

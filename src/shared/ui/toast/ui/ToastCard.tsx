@@ -1,7 +1,7 @@
 'use client';
 
 import { FocusEvent, PointerEvent, useState } from 'react';
-import { useMediaQuery } from '@/shared/hooks';
+import { useIsTouchScreen } from '@/shared/hooks';
 import { TOAST_DURATION_MS } from '../consts';
 import {
   useActionShortcut,
@@ -25,7 +25,7 @@ export const ToastCard = ({ toast }: ToastCardProps) => {
   const isPageActive = useIsPageActive();
   const { offset, isTouching, handlers } = useSwipeToDismiss(dismiss);
   // Judged by the primary pointer, not the width: no key hint on touch
-  const isTouchScreen = useMediaQuery('(hover: none) and (pointer: coarse)');
+  const isTouchScreen = useIsTouchScreen();
   useActionShortcut(action);
 
   useCountdown(

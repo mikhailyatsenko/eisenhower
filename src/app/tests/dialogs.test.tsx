@@ -234,6 +234,30 @@ describe('Shortcuts cheatsheet', () => {
     expectCurrentTask('Bravo');
   });
 
+  it('ends with a link to how the method works, reachable by Tab', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await user.keyboard('?');
+    const link = within(cheatsheet()).getByRole('link', {
+      name: 'How the Eisenhower Matrix works →',
+    });
+
+    expect(link).toHaveAttribute('href', '/eisenhower-matrix');
+    // The next Tab stop after Close, the dialog's only other control
+    act(() => {
+      within(cheatsheet()).getByRole('button', { name: 'Close' }).focus();
+    });
+    await user.tab();
+    expect(link).toHaveFocus();
+    // At the end of the dialog, after the drag hint
+    expect(
+      screen.getByText(/^Drag a task/).compareDocumentPosition(link) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it('opens on the physical ? key of a Cyrillic layout', async () => {
     await renderHomePage({ tasks: { ImportantUrgent: TASKS } });
 
