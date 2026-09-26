@@ -5,6 +5,7 @@ export {
   isDeviceClearRequested,
   clearDeviceIfRequested,
 } from './device';
+export { forgetSignOut, useIsSignedOut } from './signedOut';
 export type {
   CloudSnapshot,
   SyncFailure,

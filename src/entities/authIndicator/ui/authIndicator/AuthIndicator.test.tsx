@@ -21,7 +21,11 @@ describe('AuthIndicator', () => {
     render(<AuthIndicator {...defaultProps} isSignedIn={false} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
-    expect(screen.getByText(/sign in with Google/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/keep your tasks in your account/),
+    ).toHaveTextContent(
+      'Saved only on this device. Sign in with Google to keep your tasks in your account and use them on other devices.',
+    );
 
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
@@ -38,7 +42,9 @@ describe('AuthIndicator', () => {
     render(<AuthIndicator {...defaultProps} isSignedIn={false} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
-    fireEvent.click(screen.getByText(/sign in with Google/i));
+    fireEvent.click(
+      screen.getByRole('button', { name: /continue with google/i }),
+    );
     expect(defaultProps.handleGoogleSignIn).toHaveBeenCalled();
   });
 

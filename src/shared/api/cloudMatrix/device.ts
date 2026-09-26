@@ -1,4 +1,5 @@
 import { clearDevice } from './client';
+import { setSignedOut } from './signedOut';
 
 // Signing out always leaves the device without the user's Matrix. The request
 // is kept in localStorage, shared by all tabs: every tab that sees the user
@@ -32,14 +33,24 @@ const setClearRequested = (isRequested: boolean) => {
   }
 };
 
-/** Call right before signing out: the device is cleared once the user is gone */
-export const requestDeviceClear = () => setClearRequested(true);
+/**
+ * Call right before signing out: the device is cleared once the user is gone,
+ * and remembers the user signed out
+ */
+export const requestDeviceClear = () => {
+  setClearRequested(true);
+  setSignedOut(true);
+};
 
 /**
- * Call on sign-in: the device now holds this user's queue, which a lost
- * session must not clear. The next Sign out clears the device again.
+ * Call on sign-in, or when signing out failed: the device now holds this
+ * user's queue, which a lost session must not clear. The next Sign out
+ * clears the device again.
  */
-export const cancelDeviceClear = () => setClearRequested(false);
+export const cancelDeviceClear = () => {
+  setClearRequested(false);
+  setSignedOut(false);
+};
 
 /** Call when no one is signed in and nothing is subscribed any more */
 export const clearDeviceIfRequested = () => {

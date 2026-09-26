@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import { getAccountSignIn } from './account';
 import { axe } from './axe';
 import { renderHomePage } from './renderHomePage';
 
@@ -117,7 +118,7 @@ describe('The hint "click empty space to add"', () => {
     await signOut(user);
     await reload();
 
-    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    expect(getAccountSignIn()).toBeInTheDocument();
     expect(hints()).toHaveLength(0);
   });
 

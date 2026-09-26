@@ -82,13 +82,9 @@ export const AuthIndicator: React.FC<AuthIndicatorProps> = ({
         </div>
       ) : (
         <div className="flex h-full flex-col gap-2">
-          <p className="mb-2 w-full">
-            Your matrix is currently stored{' '}
-            <strong>only on this device.</strong>{' '}
-          </p>
           <p className="mb-4 w-[98%]">
-            To create a cloud matrix accessible from different devices,{' '}
-            <strong onClick={handleGoogleSignIn}>sign in with Google</strong>
+            <strong>Saved only on this device.</strong> Sign in with Google to
+            keep your tasks in your account and use them on other devices.
           </p>
           <div className="flex w-[85%]">
             <SignWihGoogleButton

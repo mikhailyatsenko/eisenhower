@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
@@ -8,6 +8,7 @@ import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
+import { forgetSignOut, useIsSignedOut } from '@/shared/api/cloudMatrix';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import {
   selectTasks,
@@ -21,6 +22,7 @@ import {
 } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { NoSignUpLine } from '../../components/NoSignUpLine';
+import { SignedOutLine } from '../../components/SignedOutLine';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
@@ -34,7 +36,7 @@ const QUADRANT_SLOTS: QuadrantSlots = {
 };
 
 export const TaskMatrix: React.FC = () => {
-  const { isLoading, user } = useAuth();
+  const { isLoading, user, handleGoogleSignIn } = useAuth();
   const tasks = useTaskStore(selectTasks);
   const viewMode = useUIStore((state) => state.viewMode);
   const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
@@ -62,7 +64,22 @@ export const TaskMatrix: React.FC = () => {
       (quadrantTasks) => quadrantTasks.length === 0,
     ),
   );
-  const hasNoSignUpLine = !user && isTaskStoreRestored && isDeviceMatrixEmpty;
+  const isAnonymousRestored = !user && isTaskStoreRestored;
+  const isEmptyForAnonymous = isAnonymousRestored && isDeviceMatrixEmpty;
+
+  // After Sign out the empty matrix isn't a first visit: the tasks are in
+  // the account. The first task added to it ends that for good; tasks left
+  // on the device by "Don't add" or Undo don't.
+  const isSignedOut = useIsSignedOut();
+  const wasEmptyForAnonymous = useRef(false);
+  useEffect(() => {
+    const isTaskAdded =
+      wasEmptyForAnonymous.current &&
+      isAnonymousRestored &&
+      !isDeviceMatrixEmpty;
+    if (isTaskAdded) forgetSignOut();
+    wasEmptyForAnonymous.current = isEmptyForAnonymous;
+  }, [isAnonymousRestored, isDeviceMatrixEmpty, isEmptyForAnonymous]);
 
   if (isLoading || (user && !isCloudLoaded)) {
     return <LoaderFullScreen />;
@@ -77,7 +94,12 @@ export const TaskMatrix: React.FC = () => {
           back online.
         </p>
       )}
-      {hasNoSignUpLine && <NoSignUpLine />}
+      {isEmptyForAnonymous &&
+        (isSignedOut ? (
+          <SignedOutLine signIn={handleGoogleSignIn} />
+        ) : (
+          <NoSignUpLine />
+        ))}
 
       {/* Focus lands here, not on <body>, when the matrix has no task left */}
       <div

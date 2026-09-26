@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import { getAccountSignIn } from './account';
 import { axe } from './axe';
 import { renderHomePage } from './renderHomePage';
 
@@ -105,7 +106,7 @@ describe('Signing out with unsaved changes', () => {
     await user.click(screen.getByRole('button', { name: 'Sign out anyway' }));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    expect(getAccountSignIn()).toBeInTheDocument();
     expect(screen.queryByText('Buy milk')).not.toBeInTheDocument();
     expect(cloud.deviceTasks()).toEqual([]);
   });
@@ -119,7 +120,7 @@ describe('Signing out with unsaved changes', () => {
     await signOut(user);
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    expect(getAccountSignIn()).toBeInTheDocument();
     expect(cloud.deviceTasks()).toEqual([]);
   });
 
