@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { ViewToggle } from '@/features/switchViewMode';
 import { ThemeToggle } from '@/features/toggleTheme';
+import { HomeViewTabs } from '../components/HomeViewTabs';
 import { Logo } from '../components/Logo';
 
 interface HeaderProps {
@@ -11,8 +11,8 @@ interface HeaderProps {
 
 /**
  * The banner of every page: the app's name as a link to the matrix, then the
- * view, the theme and the account. Its place on the page, sticky with the
- * sync bar under it, is the app's.
+ * view tabs on the matrix page, the theme and the account. Its place on the
+ * page, sticky with the sync bar under it, is the app's.
  */
 export const Header = ({ account, serverThemeCookie }: HeaderProps) => (
   // 56px with the line at the bottom
@@ -26,7 +26,7 @@ export const Header = ({ account, serverThemeCookie }: HeaderProps) => (
       <span className="sr-only md:not-sr-only">Eisenhower Matrix</span>
     </Link>
     <div className="ml-auto flex items-center gap-1">
-      <ViewToggle />
+      <HomeViewTabs />
       <ThemeToggle serverThemeCookie={serverThemeCookie} />
       {account}
     </div>

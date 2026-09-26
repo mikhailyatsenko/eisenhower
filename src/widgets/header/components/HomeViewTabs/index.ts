@@ -1,0 +1,1 @@
+export { HomeViewTabs } from './HomeViewTabs';

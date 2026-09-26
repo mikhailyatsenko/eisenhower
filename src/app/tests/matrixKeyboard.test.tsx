@@ -193,7 +193,7 @@ describe('Matrix keys without a selection', () => {
 
   it('keeps only 1–4 in List view', async () => {
     const page = await renderHomePage({ tasks: { ImportantUrgent: TASKS } });
-    await page.user.click(screen.getByRole('button', { name: /list view/i }));
+    await page.user.click(screen.getByRole('tab', { name: 'List' }));
 
     await page.user.keyboard('n{ArrowDown}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

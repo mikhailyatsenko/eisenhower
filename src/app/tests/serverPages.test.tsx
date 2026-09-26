@@ -14,10 +14,11 @@ import { axe } from './axe';
 jest.mock('@/shared/config/firebaseConfig', () => ({ app: {} }));
 
 // External boundary: the Next app router isn't mounted outside Next
+let mockPathname = '/';
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: jest.fn(), push: jest.fn() }),
   useSearchParams: () => new URLSearchParams(),
-  usePathname: () => '/',
+  usePathname: () => mockPathname,
 }));
 
 const renderServerHtml = (page: React.ReactElement) => {
@@ -29,6 +30,10 @@ const renderServerHtml = (page: React.ReactElement) => {
 };
 
 describe('Server pages', () => {
+  afterEach(() => {
+    mockPathname = '/';
+  });
+
   it('home page has the h1 in its server HTML', () => {
     const page = renderServerHtml(<HomePage />);
 
@@ -139,7 +144,8 @@ describe('Server pages', () => {
       ).toHaveAttribute('href', '/');
     });
 
-    it('has the header with a link back to the matrix', () => {
+    it('has the header with a link back to the matrix, without the view tabs', () => {
+      mockPathname = '/eisenhower-matrix';
       const page = renderServerHtml(
         <AppShell>
           <EisenhowerMatrixPage />
@@ -150,6 +156,7 @@ describe('Server pages', () => {
       expect(
         within(header).getByRole('link', { name: 'Eisenhower Matrix' }),
       ).toHaveAttribute('href', '/');
+      expect(within(header).queryByRole('tablist')).not.toBeInTheDocument();
     });
 
     it('has no axe violations', async () => {

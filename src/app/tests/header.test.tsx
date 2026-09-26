@@ -24,14 +24,14 @@ describe('Header', () => {
     );
   });
 
-  it('holds the theme button, the view toggle and the account', async () => {
+  it('holds the view tabs, the theme button and the account', async () => {
     await renderHomePage();
 
     expect(
       within(banner()).getByRole('button', { name: 'Switch to dark theme' }),
     ).toBeInTheDocument();
     expect(
-      within(banner()).getByRole('button', { name: 'Switch to List View' }),
+      within(banner()).getByRole('tablist', { name: 'View' }),
     ).toBeInTheDocument();
     expect(
       within(banner()).getByRole('button', { name: 'Sign in' }),

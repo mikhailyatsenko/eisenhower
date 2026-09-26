@@ -297,7 +297,7 @@ describe('List view', () => {
 
   const openListView = async () => {
     const page = await renderHomePage({ tasks: { ImportantUrgent: TASKS } });
-    await page.user.click(screen.getByRole('button', { name: /list view/i }));
+    await page.user.click(screen.getByRole('tab', { name: 'List' }));
     return page;
   };
 

@@ -1,1 +1,1 @@
-export { ViewToggle } from './ui/ViewToggle';
+export { ViewPanel, ViewTabs } from './ui';

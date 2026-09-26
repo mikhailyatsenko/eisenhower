@@ -1,5 +1,6 @@
 import { MatrixKey } from '@/shared/stores/tasksStore';
 import { useUIStore } from '../hooks';
+import type { ViewMode } from '../types';
 
 export const setSelectedCategoryAction = (category: MatrixKey) => {
   useUIStore.setState((state) => {
@@ -106,7 +107,7 @@ export const closeInlineAddAction = () => {
   });
 };
 
-export const setViewModeAction = (viewMode: 'matrix' | 'list') => {
+export const setViewModeAction = (viewMode: ViewMode) => {
   useUIStore.setState((state) => {
     state.viewMode = viewMode;
     // Selection and the inline add field live in the matrix only, until List
