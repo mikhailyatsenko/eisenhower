@@ -1,0 +1,1 @@
+export { switchView } from './switchView';

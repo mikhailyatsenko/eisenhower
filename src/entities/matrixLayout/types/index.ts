@@ -1,4 +1,5 @@
 import { MatrixKey } from '@/shared/stores/tasksStore';
+import { MatrixStop } from '../lib/matrixTabStop';
 
 /**
  * What a quadrant holds besides its tasks. The matrix widget fills these in
@@ -13,4 +14,11 @@ export interface QuadrantSlots {
   openAddField: (quadrant: MatrixKey, returnFocus: HTMLElement) => void;
   /** Opens the add field on a click on empty space with no task selected */
   openAddFieldByEmptySpace: (quadrant: MatrixKey) => void;
+}
+
+/** A List view section on screen and where the keyboard stands in it */
+export interface ListSection {
+  quadrantKey: MatrixKey;
+  /** Its tasks, or the "Add a task" of an empty section */
+  stops: MatrixStop[];
 }

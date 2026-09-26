@@ -204,7 +204,9 @@ describe('Deadline on the card', () => {
 
     await user.click(screen.getByRole('tab', { name: 'List' }));
 
-    const item = screen.getByText('Pay rent').closest('li')!;
+    const item = within(
+      screen.getByRole('listbox', { name: 'Do First' }),
+    ).getByRole('option', { name: /Pay rent/ });
     expect(item).toHaveTextContent('Pay rent');
     expect(item).toHaveTextContent('OVERDUE');
     expect(item).toHaveTextContent(shown(day(24), false));

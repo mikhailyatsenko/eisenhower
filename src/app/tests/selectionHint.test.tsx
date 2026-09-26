@@ -46,13 +46,12 @@ describe('The line under the matrix', () => {
     expect(queryHint(MOUSE_HINT)).toBeVisible();
   });
 
-  it('is not in List view', async () => {
+  it('is under List view too', async () => {
     const { user } = await renderHomePage({ tasks: TASKS });
 
     await user.click(screen.getByRole('tab', { name: 'List' }));
 
-    expect(queryHint(MOUSE_HINT)).not.toBeInTheDocument();
-    expect(queryHint(TOUCH_HINT)).not.toBeInTheDocument();
+    expect(queryHint(MOUSE_HINT)).toBeVisible();
   });
 
   it('leaves Undo the next Tab stop after the matrix', async () => {

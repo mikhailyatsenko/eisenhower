@@ -3,6 +3,12 @@ export {
   addTaskButtonQuadrant,
 } from './addTaskButtonQuadrant';
 export { firstTaskId } from './firstTaskId';
+export { isSameStop } from './isSameStop';
+export { SECTION_TOGGLE_ATTRIBUTE, isSectionToggle } from './isSectionToggle';
+export { isSectionCollapsed } from './isSectionCollapsed';
+export { listSections } from './listSections';
+export { listStops } from './listStops';
+export { listTabStop } from './listTabStop';
 export { matrixTabStop } from './matrixTabStop';
 export type { MatrixStop } from './matrixTabStop';
 export { deadlineStatus } from './deadlineStatus';

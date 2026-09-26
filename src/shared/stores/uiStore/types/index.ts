@@ -19,8 +19,11 @@ export interface UIState {
   recentlyAddedQuadrant: MatrixKey | null;
   isFormOpened: boolean;
   viewMode: ViewMode;
-  sortField: 'createdAt' | 'importance';
-  sortDirection: 'asc' | 'desc';
+  /**
+   * List view sections the user has collapsed. Stored on the device, not
+   * synced; an empty section shows open whatever is stored here.
+   */
+  collapsedSections: MatrixKey[];
   /** Task whose card takes focus once it's rendered, e.g. after Undo */
   taskToFocus: string | null;
   /** The Selected Task in the matrix: at most one, none when null */
