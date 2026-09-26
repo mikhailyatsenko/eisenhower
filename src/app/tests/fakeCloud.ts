@@ -442,6 +442,12 @@ export const cloud = {
   },
   /** Every task text the device keeps: its cache and the queue on top */
   deviceTasks: () => [...localDocs().values()].map(({ task }) => task.text),
+  /** The task the server holds with this text, as the app reads it */
+  serverTask: (text: string) => {
+    const doc = [...server.values()].find(({ task }) => task.text === text);
+    if (!doc) throw new Error(`serverTask: no task "${text}" on the server`);
+    return { ...doc.task };
+  },
   /** What the server holds now, by task text */
   serverTasks: () => {
     const { tasks, completedTasks } = toSnapshot(server, false);

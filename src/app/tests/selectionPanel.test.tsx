@@ -154,7 +154,9 @@ describe('Selected Task', () => {
     expect(within(card).queryByRole('button')).not.toBeInTheDocument();
     expect(within(card).queryByRole('link')).not.toBeInTheDocument();
     expect(card).toHaveTextContent('Read https://example.com');
-    expect(card).toHaveTextContent(/in \d+ years/);
+    // The date with its year, too far off for a status
+    expect(card).toHaveTextContent('2099');
+    expect(card).not.toHaveTextContent(/OVERDUE|DUE/);
     // No creation date on the card
     expect(card).not.toHaveTextContent('20/09/2026');
   });

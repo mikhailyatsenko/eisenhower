@@ -7,11 +7,23 @@ export interface Task {
   text: string;
   createdAt: Date;
   dueDate?: Date;
+  /**
+   * False: the deadline is a whole day, stored as its local midnight and due
+   * by the end of it. Missing, as on every deadline set before R4: it has a time.
+   */
+  hasDueTime?: boolean;
   order?: number;
   completed?: boolean;
   completedAt?: Date;
   quadrantKey?: MatrixKey;
 }
+
+/** A deadline as the task form sets it; without a time it is a whole day */
+export interface Deadline {
+  dueDate: Date;
+  hasDueTime: boolean;
+}
+
 export type Tasks = Record<MatrixKey, Task[]>;
 
 /** A quadrant of the Matrix, or Completed */

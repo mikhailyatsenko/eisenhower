@@ -10,6 +10,8 @@ import {
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { TASK_CARD_CLASS, colors } from '../../../consts';
+import { useDeadlineStatus } from '../../../hooks';
+import { OVERDUE_STRIPE_CLASS } from '../../deadlineLine';
 import { TaskCardContent } from '../../taskCardContent';
 
 interface TaskItemProps {
@@ -31,6 +33,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   isFullText,
 }) => {
   const isSelected = useUIStore((state) => state.selectedTaskId === task.id);
+  const status = useDeadlineStatus(task);
 
   // No dnd-kit attributes: the card is an option, not a sortable button
   const { listeners, setNodeRef, transform, transition, isDragging } =
@@ -96,6 +99,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
       className={twMerge(
         TASK_CARD_CLASS,
         colors[quadrantKey],
+        status === 'overdue' && OVERDUE_STRIPE_CLASS,
         'cursor-pointer outline-none',
         isDragging && 'opacity-50',
         isSelected
@@ -104,7 +108,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             'hover:ring-1 hover:ring-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700 focus-visible:outline-dashed dark:focus-visible:outline-indigo-300',
       )}
     >
-      <TaskCardContent task={task} isFullText={isFullText} />
+      <TaskCardContent task={task} status={status} isFullText={isFullText} />
     </li>
   );
 };

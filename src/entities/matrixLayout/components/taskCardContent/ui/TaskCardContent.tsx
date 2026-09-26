@@ -1,15 +1,21 @@
 import { twMerge } from 'tailwind-merge';
 import { Task } from '@/shared/stores/tasksStore';
-import { DeadlineBadge } from '../../deadlineBadge';
+import { DeadlineStatus } from '../../../lib';
+import { DeadlineLine } from '../../deadlineLine';
 
 interface TaskCardContentProps {
   task: Task;
+  status: DeadlineStatus | null;
   /** In a quadrant open full screen the text isn't cut */
   isFullText?: boolean;
 }
 
 /** Text and deadline only: nothing on a matrix card is interactive */
-export const TaskCardContent = ({ task, isFullText }: TaskCardContentProps) => (
+export const TaskCardContent = ({
+  task,
+  status,
+  isFullText,
+}: TaskCardContentProps) => (
   <>
     {/* On a phone 12px and two lines at most; the full text is its name */}
     <div
@@ -20,10 +26,6 @@ export const TaskCardContent = ({ task, isFullText }: TaskCardContentProps) => (
     >
       {task.text}
     </div>
-    {task.dueDate && (
-      <div className="mt-0.5">
-        <DeadlineBadge task={task} />
-      </div>
-    )}
+    <DeadlineLine task={task} status={status} />
   </>
 );

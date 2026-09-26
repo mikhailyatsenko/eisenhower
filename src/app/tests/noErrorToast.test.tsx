@@ -75,16 +75,18 @@ describe('Invalid deadline', () => {
     await user.click(
       within(screen.getByRole('toolbar')).getByRole('button', { name: 'Edit' }),
     );
-    await user.clear(screen.getByPlaceholderText('Select date'));
+    // A half-typed date: the field's value is empty, the browser knows better
+    const date = screen.getByLabelText<HTMLInputElement>('Date');
+    Object.defineProperty(date, 'validity', {
+      value: { ...date.validity, badInput: true, valid: false },
+    });
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     const error = screen.getByRole('alert');
     expect(error).toHaveTextContent(
       'Please select a valid deadline date and time',
     );
-    expect(
-      screen.getByPlaceholderText('Select date'),
-    ).toHaveAccessibleDescription(
+    expect(screen.getByLabelText('Date')).toHaveAccessibleDescription(
       'Please select a valid deadline date and time',
     );
     expect(

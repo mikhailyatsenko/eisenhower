@@ -1,15 +1,15 @@
-import { format } from 'date-fns';
 import { useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import CheckIcon from '@/shared/icons/check-icon.svg';
 import DeleteIcon from '@/shared/icons/delete-icon.svg';
 import EditIcon from '@/shared/icons/edit-icon.svg';
-import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import { Deadline, MatrixKey, Task } from '@/shared/stores/tasksStore';
 import { useTaskFocusRequest } from '@/shared/stores/uiStore';
 import { Linkify } from '@/shared/ui/linkify';
-import { DeadlineBadge } from '../components/deadlineBadge';
+import { DeadlineLine, OVERDUE_STRIPE_CLASS } from '../components/deadlineLine';
 import { colors } from '../consts';
+import { useDeadlineStatus } from '../hooks';
 import { EditTaskDialog } from './EditTaskDialog';
 
 interface ListTaskItemProps {
@@ -20,7 +20,7 @@ interface ListTaskItemProps {
     quadrantKey: MatrixKey,
     taskId: string,
     newText: string,
-    newDueDate?: Date | null,
+    newDeadline?: Deadline | null,
     newQuadrantKey?: MatrixKey,
   ) => void;
   completeTaskAction: (quadrantKey: MatrixKey, taskId: string) => void;
@@ -41,16 +41,17 @@ export const ListTaskItem: React.FC<ListTaskItemProps> = ({
   completeTaskAction,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const status = useDeadlineStatus(task);
 
   const itemRef = useRef<HTMLLIElement | null>(null);
   useTaskFocusRequest(task.id, itemRef);
 
   const handleSave = (
     editText: string,
-    dueDate: Date | null,
+    deadline: Deadline | null,
     newQuadrant?: MatrixKey,
   ) => {
-    editTaskAction(quadrantKey, task.id, editText, dueDate, newQuadrant);
+    editTaskAction(quadrantKey, task.id, editText, deadline, newQuadrant);
     setIsEditing(false);
   };
 
@@ -62,22 +63,20 @@ export const ListTaskItem: React.FC<ListTaskItemProps> = ({
         className={twMerge(
           'relative my-1 min-h-10 shrink-0 list-none rounded-md p-1',
           colors[quadrantKey],
+          status === 'overdue' && OVERDUE_STRIPE_CLASS,
         )}
       >
         <div className="w-full p-2 text-center leading-5 text-black dark:text-gray-200">
           <Linkify text={task.text} />
         </div>
 
-        {task.dueDate && (
-          <div className="mb-1 text-center">
-            <DeadlineBadge task={task} />
-          </div>
-        )}
+        <DeadlineLine
+          task={task}
+          status={status}
+          className="mt-0 mb-1 justify-center px-2"
+        />
 
-        <div className="flex items-center justify-between border-t border-gray-500/30 px-1.5 pt-1 text-gray-600 dark:text-gray-400">
-          <p className="text-[0.7rem] font-bold italic opacity-60 sm:text-xs">
-            {format(task.createdAt, 'dd/MM/yyyy HH:mm')}
-          </p>
+        <div className="flex items-center justify-end border-t border-gray-500/30 px-1.5 pt-1 text-gray-600 dark:text-gray-400">
           <div className="flex items-center gap-2">
             <button
               onClick={() => completeTaskAction(quadrantKey, task.id)}

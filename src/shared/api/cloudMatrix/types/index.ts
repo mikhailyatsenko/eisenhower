@@ -6,6 +6,8 @@ export interface FirestoreTaskData {
   text: string;
   createdAt: string;
   dueDate?: string;
+  /** Missing on documents written before R4: the deadline has a time */
+  hasDueTime?: boolean;
   quadrantKey?: MatrixKey;
   userId: string;
   order: number;

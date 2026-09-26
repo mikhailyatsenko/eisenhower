@@ -186,14 +186,16 @@ describe('migrationPlan', () => {
     expect(written(device, cloud)).toEqual(expected);
   });
 
-  it('writes the tasks with the same id, text, dates and completion', () => {
+  it('writes the tasks with the same id, text, dates, deadline time and completion', () => {
     const due = new Date('2026-10-01T09:00:00Z');
     const completed = done('z', '2026-09-21T10:00:00Z', 'ImportantUrgent');
     const { changes } = migrationPlan(
       {
         tasks: {
           ...EMPTY,
-          ImportantNotUrgent: [{ ...task('a'), dueDate: due }],
+          ImportantNotUrgent: [
+            { ...task('a'), dueDate: due, hasDueTime: false },
+          ],
         },
         completedTasks: [completed],
       },
@@ -203,7 +205,7 @@ describe('migrationPlan', () => {
     expect(changes).toEqual([
       {
         type: 'set',
-        task: { ...task('a'), dueDate: due },
+        task: { ...task('a'), dueDate: due, hasDueTime: false },
         quadrantKey: 'ImportantNotUrgent',
         order: 0,
         completed: false,

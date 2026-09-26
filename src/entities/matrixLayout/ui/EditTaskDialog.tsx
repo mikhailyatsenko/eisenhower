@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import { Deadline, MatrixKey, Task } from '@/shared/stores/tasksStore';
 import { Modal } from '@/shared/ui/modal';
 import { EditTaskForm } from '../components/editTaskForm';
 import { colors } from '../consts';
@@ -11,7 +11,7 @@ interface EditTaskDialogProps {
   quadrantKey: MatrixKey;
   onSave: (
     editText: string,
-    dueDate: Date | null,
+    deadline: Deadline | null,
     newQuadrant?: MatrixKey,
   ) => void;
   onClose: () => void;

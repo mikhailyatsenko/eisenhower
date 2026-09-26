@@ -69,8 +69,8 @@ describe('Task description validation', () => {
     await user.click(screen.getByRole('button', { name: /new task/i }));
     const dialog = screen.getByRole('dialog', { name: 'New task' });
     await user.click(within(dialog).getByRole('button', { name: 'Schedule' }));
-    await user.click(within(dialog).getByRole('checkbox'));
-    await user.click(within(dialog).getByRole('button', { name: '+3h' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Tomorrow' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Today' }));
 
     expect(description()).toHaveFocus();
     expectNoError();
