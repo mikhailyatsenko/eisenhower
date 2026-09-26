@@ -19,6 +19,7 @@ import {
 import {
   openInlineAddAction,
   openInlineAddByEmptySpaceAction,
+  useIsUIStoreRestored,
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { LoaderFullScreen } from '@/shared/ui/loader';
@@ -40,6 +41,8 @@ export const TaskMatrix: React.FC = () => {
   const { isLoading, user, handleGoogleSignIn } = useAuth();
   const tasks = useTaskStore(selectTasks);
   const viewMode = useUIStore((state) => state.viewMode);
+  // The server's HTML doesn't know the stored view: neither view flashes
+  const isUIStoreRestored = useIsUIStoreRestored();
   const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
   const matrixRef = useRef<HTMLDivElement>(null);
 
@@ -82,7 +85,7 @@ export const TaskMatrix: React.FC = () => {
     wasEmptyForAnonymous.current = isEmptyForAnonymous;
   }, [isAnonymousRestored, isDeviceMatrixEmpty, isEmptyForAnonymous]);
 
-  if (isLoading || (user && !isCloudLoaded)) {
+  if (isLoading || !isUIStoreRestored || (user && !isCloudLoaded)) {
     // The view tabs are already in the header: their panel is here too
     return (
       <ViewPanel>

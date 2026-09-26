@@ -1,5 +1,6 @@
 import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderToString } from 'react-dom/server.node';
 import { HomePage } from '@/pages/home';
 import {
   MatrixKey,
@@ -239,6 +240,29 @@ export const renderHomePage = async ({
   let result = render(page);
   await settle();
 
+  // Closes the page: the stores read the device's storage again
+  const reopen = async () => {
+    result.unmount();
+    forgetFakeCloudListeners();
+    // Resetting persists the empty state: the device's storage goes back
+    // as it was before the stores read it again
+    const stored = Object.fromEntries(
+      Array.from({ length: localStorage.length }, (_, index) => {
+        const key = localStorage.key(index)!;
+        return [key, localStorage.getItem(key)!];
+      }),
+    );
+    useTaskStore.setState(useTaskStore.getInitialState(), true);
+    useUIStore.setState(useUIStore.getInitialState(), true);
+    dismissToast();
+    localStorage.clear();
+    Object.entries(stored).forEach(([key, value]) =>
+      localStorage.setItem(key, value),
+    );
+    await useTaskStore.persist.rehydrate();
+    await useUIStore.persist.rehydrate();
+  };
+
   return {
     ...result,
     get container() {
@@ -251,27 +275,25 @@ export const renderHomePage = async ({
      * localStorage, the fake cloud keeps its device cache and queue
      */
     reload: async () => {
-      result.unmount();
-      forgetFakeCloudListeners();
-      // Resetting persists the empty state: the device's storage goes back
-      // as it was before the stores read it again
-      const stored = Object.fromEntries(
-        Array.from({ length: localStorage.length }, (_, index) => {
-          const key = localStorage.key(index)!;
-          return [key, localStorage.getItem(key)!];
-        }),
-      );
-      useTaskStore.setState(useTaskStore.getInitialState(), true);
-      useUIStore.setState(useUIStore.getInitialState(), true);
-      dismissToast();
-      localStorage.clear();
-      Object.entries(stored).forEach(([key, value]) =>
-        localStorage.setItem(key, value),
-      );
-      await useTaskStore.persist.rehydrate();
-      await useUIStore.persist.rehydrate();
+      await reopen();
       result = render(page);
       await settle();
+    },
+    /**
+     * Opens the page again as the browser does: the server's HTML first,
+     * then hydration. Returns a copy of the server's HTML.
+     */
+    reloadFromServer: async () => {
+      await reopen();
+      const container = document.body.appendChild(
+        document.createElement('div'),
+      );
+      // The server has no localStorage: its HTML knows nothing stored
+      container.innerHTML = renderToString(page);
+      const serverHtml = container.cloneNode(true) as HTMLElement;
+      result = render(page, { container, hydrate: true });
+      await settle();
+      return serverHtml;
     },
     /** Switches pointer and width mid-test, firing matchMedia and resize */
     setViewport: (next: Partial<Viewport>) =>

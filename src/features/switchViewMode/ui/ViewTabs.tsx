@@ -2,17 +2,20 @@
 
 import { useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { setViewModeAction, useUIStore } from '@/shared/stores/uiStore';
+import { useIsUIStoreRestored, useUIStore } from '@/shared/stores/uiStore';
 import { ViewIcon } from '../components/ViewIcon';
 import { VIEW_PANEL_ID, VIEWS } from '../consts';
 import { viewTabId } from '../lib';
+import { switchView } from '../model';
 
 /**
  * "Matrix | List" as WAI-ARIA tabs with automatic activation: only the
- * selected tab is in the Tab order, ←→ switch the view at once.
+ * selected tab is in the Tab order, ←→ switch the view at once. No tab is
+ * selected until the stored view is read, in the server's HTML too.
  */
 export const ViewTabs = () => {
   const viewMode = useUIStore((state) => state.viewMode);
+  const isRestored = useIsUIStoreRestored();
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
@@ -21,7 +24,7 @@ export const ViewTabs = () => {
     if (!step) return;
     event.preventDefault();
     const next = (index + step + VIEWS.length) % VIEWS.length;
-    setViewModeAction(VIEWS[next].mode);
+    switchView(VIEWS[next].mode);
     tabsRef.current[next]?.focus();
   };
 
@@ -32,7 +35,9 @@ export const ViewTabs = () => {
       className="flex shrink-0 gap-0.5 rounded-xl bg-gray-100 p-0.5 dark:bg-gray-800"
     >
       {VIEWS.map(({ mode, label }, index) => {
-        const isSelected = mode === viewMode;
+        const isSelected = isRestored && mode === viewMode;
+        // Before the view is read the first tab keeps the tablist in reach
+        const isTabStop = isRestored ? isSelected : index === 0;
         return (
           <button
             key={mode}
@@ -44,8 +49,8 @@ export const ViewTabs = () => {
             id={viewTabId(mode)}
             aria-selected={isSelected}
             aria-controls={VIEW_PANEL_ID}
-            tabIndex={isSelected ? 0 : -1}
-            onClick={() => setViewModeAction(mode)}
+            tabIndex={isTabStop ? 0 : -1}
+            onClick={() => switchView(mode)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             className={twMerge(
               'flex h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 focus-visible:ring-2 focus-visible:ring-indigo-700 focus-visible:outline-none dark:text-gray-300 dark:hover:text-white dark:focus-visible:ring-indigo-300',
