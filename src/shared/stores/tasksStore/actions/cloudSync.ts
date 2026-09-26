@@ -215,11 +215,16 @@ export const writeToCloud = (changes: TaskChange[]) => {
   matrixChangeListeners.forEach((listener) => listener());
 };
 
-/**
- * Writes the device's tasks to the cloud Matrix as one write, which is no
- * change of the user's. Rejects if the server refuses it.
- */
-export const moveToCloudAction = async (changes: TaskChange[]) => {
+/** One write that is no change of the user's; rejects if the server refuses it */
+const writeForMigration = async (changes: TaskChange[]) => {
   if (!uid || changes.length === 0) return;
   await trackWrite(uid, changes);
 };
+
+/** Writes the device's tasks to the cloud Matrix as one write */
+export const moveToCloudAction = (changes: TaskChange[]) =>
+  writeForMigration(changes);
+
+/** Takes these tasks out of the cloud Matrix as one write: Undo of the move */
+export const removeFromCloudAction = (taskIds: string[]) =>
+  writeForMigration(taskIds.map((id) => ({ type: 'delete', id })));

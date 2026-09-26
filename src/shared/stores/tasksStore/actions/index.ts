@@ -19,6 +19,7 @@ export {
   listenToCloudSnapshots,
   listenToMatrixChanges,
   moveToCloudAction,
+  removeFromCloudAction,
 } from './cloudSync';
 
 // Actions change the current Matrix at once and don't wait for the cloud: the
@@ -429,5 +430,19 @@ export const removeFromDeviceAction = (taskIds: string[]) => {
       state.localTasks[key] = state.localTasks[key].filter(isKept);
     });
     state.localCompletedTasks = state.localCompletedTasks.filter(isKept);
+  });
+};
+
+/** Puts the device's Matrix back as it was: Undo of the move to the cloud */
+export const restoreDeviceAction = ({
+  tasks,
+  completedTasks,
+}: {
+  tasks: Tasks;
+  completedTasks: Task[];
+}) => {
+  useTaskStore.setState((state) => {
+    state.localTasks = tasks;
+    state.localCompletedTasks = completedTasks;
   });
 };

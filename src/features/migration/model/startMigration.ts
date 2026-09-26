@@ -4,16 +4,23 @@ import {
   listenToCloudSnapshots,
   listenToMatrixChanges,
   moveToCloudAction,
+  removeFromCloudAction,
   removeFromDeviceAction,
+  restoreDeviceAction,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
 import { dismissToast, showToast } from '@/shared/ui/toast';
 import { migrationPlan } from '../lib';
+import type { MatrixTasks } from '../types';
+import { isMigrationRefused, refuseMigration } from './refusal';
 
 const movedMessage = (count: number) =>
   `${count} ${count === 1 ? 'task' : 'tasks'} moved to your account`;
 
 const snapshotIds = ({ tasks, completedTasks }: CloudSnapshot) =>
+  [...Object.values(tasks).flat(), ...completedTasks].map(({ id }) => id);
+
+const matrixIds = ({ tasks, completedTasks }: MatrixTasks) =>
   [...Object.values(tasks).flat(), ...completedTasks].map(({ id }) => id);
 
 /**
@@ -22,9 +29,11 @@ const snapshotIds = ({ tasks, completedTasks }: CloudSnapshot) =>
  * until the user changes the Matrix. The device lets go of a task only once
  * the server has it, so a lost network, a closed tab or a refusal loses
  * nothing: the next start finds the tasks in the cloud and just clears them.
- * Returns the stop, for sign-out and page close.
+ * Undo takes them out of the cloud, back to the device, and no move is
+ * offered again while the user stays signed in. Returns the stop, for
+ * sign-out and page close.
  */
-export const startMigration = () => {
+export const startMigration = (uid: string) => {
   let isStopped = false;
   let isDecided = false;
   let lastSnapshot: CloudSnapshot | null = null;
@@ -54,15 +63,45 @@ export const startMigration = () => {
     removeFromDeviceAction(snapshotIds(confirmed));
   };
 
-  const showMoved = (count: number, write: Promise<void>) => {
+  const stopWatching = () => {
+    stopWatchingMatrix?.();
+    stopWatchingMatrix = null;
+  };
+
+  /**
+   * The account without the device's tasks, those a move cut short had left
+   * there too, and the device as before the move
+   */
+  const undo = (device: MatrixTasks) => {
+    isStopped = true;
+    stopWatching();
+    refuseMigration(uid);
+    restoreDeviceAction(device);
+    // A refused write is the Sync error's to tell
+    removeFromCloudAction(matrixIds(device)).catch(() => {});
+  };
+
+  const showMoved = (
+    device: MatrixTasks,
+    count: number,
+    write: Promise<void>,
+  ) => {
     const toastId = showToast({
       message: movedMessage(count),
       isPersistent: true,
+      action: {
+        label: 'Undo',
+        shortcutKey: 'z',
+        onClick: () => {
+          // No toast for the Undo itself
+          dismissToast(toastId);
+          undo(device);
+        },
+      },
     });
     stopWatchingMatrix = listenToMatrixChanges(() => {
       dismissToast(toastId);
-      stopWatchingMatrix?.();
-      stopWatchingMatrix = null;
+      stopWatching();
     });
     // The tasks didn't move: the Sync error says so
     write.catch((failure: SyncFailure) => {
@@ -71,15 +110,14 @@ export const startMigration = () => {
   };
 
   const decide = (cloud: CloudSnapshot) => {
+    if (isMigrationRefused(uid)) return;
     const { localTasks, localCompletedTasks } = useTaskStore.getState();
-    const plan = migrationPlan(
-      { tasks: localTasks, completedTasks: localCompletedTasks },
-      cloud,
-    );
+    const device = { tasks: localTasks, completedTasks: localCompletedTasks };
+    const plan = migrationPlan(device, cloud);
     // Asking whether to add to a cloud with its own tasks comes later
     if (plan.decision === 'ask') return;
     if (plan.decision === 'move') {
-      showMoved(plan.count, moveToCloudAction(plan.changes));
+      showMoved(device, plan.count, moveToCloudAction(plan.changes));
     }
     // Firestore rejects the wait when the user changes: the tasks stay, the
     // next start clears them
@@ -97,6 +135,6 @@ export const startMigration = () => {
   return () => {
     isStopped = true;
     stopListening();
-    stopWatchingMatrix?.();
+    stopWatching();
   };
 };

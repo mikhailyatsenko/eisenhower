@@ -189,3 +189,107 @@ describe('Migration into an empty account', () => {
     expect(screen.queryAllByRole('option')).toHaveLength(0);
   });
 });
+
+describe('Undo Migration', () => {
+  const undo = (user: User) =>
+    user.click(screen.getByRole('button', { name: 'Undo' }));
+
+  it('puts the account back as before sign-in and stops offering the move', async () => {
+    const { user, cloud, reload } = await renderHomePage({
+      tasks: DEVICE_TASKS,
+    });
+
+    await signIn(user);
+    await undo(user);
+
+    expect(cloud.serverTasks()).toMatchObject({
+      ImportantUrgent: [],
+      NotImportantUrgent: [],
+    });
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    expect(toast()).toBeEmptyDOMElement();
+
+    await reload();
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    expect(toast()).toBeEmptyDOMElement();
+    expect(cloud.serverTasks().ImportantUrgent).toEqual([]);
+
+    await signOut(user);
+
+    expectDeviceTasksShown();
+
+    await signIn(user);
+
+    expectDeviceTasksShown();
+    expect(toast()).toHaveTextContent(MOVED);
+    expect(cloud.serverTasks().ImportantUrgent).toEqual([
+      'Pay rent',
+      'Call the bank',
+    ]);
+  });
+
+  it('undoes the move with Ctrl+Z while the toast is shown', async () => {
+    const { user, cloud } = await renderHomePage({ tasks: DEVICE_TASKS });
+
+    await signIn(user);
+    await user.keyboard('{Control>}z{/Control}');
+
+    expect(cloud.serverTasks().ImportantUrgent).toEqual([]);
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    expect(toast()).toBeEmptyDOMElement();
+
+    await signOut(user);
+
+    expectDeviceTasksShown();
+  });
+
+  it('undoes offline, and the server gets none of the tasks once back online', async () => {
+    const { user, cloud } = await renderHomePage({ tasks: DEVICE_TASKS });
+
+    await signIn(user);
+    await cloud.goOffline();
+    await undo(user);
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    expect(toast()).toBeEmptyDOMElement();
+
+    await cloud.goOnline();
+
+    expect(cloud.serverTasks()).toMatchObject({
+      ImportantUrgent: [],
+      NotImportantUrgent: [],
+    });
+
+    await signOut(user);
+
+    expectDeviceTasksShown();
+  });
+
+  it('takes out of the account the tasks a move cut short had left there', async () => {
+    const { user, cloud } = await renderHomePage({
+      tasks: DEVICE_TASKS,
+      cloud: {
+        tasks: {
+          ImportantUrgent: [
+            {
+              id: 'ImportantUrgent-0',
+              text: 'Pay rent',
+              createdAt: new Date('2026-09-20T10:00:00.000Z'),
+            },
+          ],
+        },
+      },
+    });
+
+    await signIn(user);
+    await undo(user);
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+    expect(cloud.serverTasks().ImportantUrgent).toEqual([]);
+
+    await signOut(user);
+
+    expectDeviceTasksShown();
+  });
+});
