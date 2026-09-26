@@ -12,7 +12,11 @@ import {
 import { TASK_CARD_CLASS, colors } from '../../../consts';
 import { useDeadlineStatus } from '../../../hooks';
 import { OVERDUE_STRIPE_CLASS } from '../../deadlineLine';
-import { TaskCardContent } from '../../taskCardContent';
+import {
+  CARD_LAYOUT_CLASS,
+  CardLayout,
+  TaskCardContent,
+} from '../../taskCardContent';
 
 interface TaskItemProps {
   task: Task;
@@ -20,17 +24,19 @@ interface TaskItemProps {
   index: number;
   /** The matrix's one Tab stop */
   isTabStop: boolean;
-  /** In a quadrant open full screen the text isn't cut */
-  isFullText: boolean;
+  layout: CardLayout;
 }
 
-/** A task in the matrix: click or tap selects it, a drag moves it */
+/**
+ * A task in the matrix or List view: click or tap selects it, a drag moves it
+ * where the list is in a DndContext
+ */
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   quadrantKey,
   index,
   isTabStop,
-  isFullText,
+  layout,
 }) => {
   const isSelected = useUIStore((state) => state.selectedTaskId === task.id);
   const status = useDeadlineStatus(task);
@@ -101,6 +107,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         colors[quadrantKey],
         status === 'overdue' && OVERDUE_STRIPE_CLASS,
         'cursor-pointer outline-none',
+        CARD_LAYOUT_CLASS[layout].card,
         isDragging && 'opacity-50',
         isSelected
           ? 'ring-2 ring-indigo-700 ring-offset-2 dark:ring-indigo-300 dark:ring-offset-gray-950'
@@ -108,7 +115,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
             'hover:ring-1 hover:ring-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700 focus-visible:outline-dashed dark:focus-visible:outline-indigo-300',
       )}
     >
-      <TaskCardContent task={task} status={status} isFullText={isFullText} />
+      <TaskCardContent task={task} status={status} layout={layout} />
     </li>
   );
 };

@@ -1,6 +1,6 @@
 export {
   EditTaskDialog,
-  ListTaskItem,
+  ListLayout,
   MatrixLayout,
   TaskDragPreview,
 } from './ui';

@@ -123,7 +123,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
                     isTabStop={
                       'taskId' in tabStop && tabStop.taskId === task.id
                     }
-                    isFullText={isFullScreen}
+                    layout={isFullScreen ? 'fullScreen' : 'cell'}
                   />
                 ))}
               </QuadrantTaskList>

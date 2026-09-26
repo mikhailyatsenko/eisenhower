@@ -110,22 +110,20 @@ export const closeInlineAddAction = () => {
 export const setViewModeAction = (viewMode: ViewMode) => {
   useUIStore.setState((state) => {
     state.viewMode = viewMode;
-    // Selection and the inline add field live in the matrix only, until List
-    // view gets them (slice N)
+    // Another view starts without a selection and the inline add field
     state.selectedTaskId = null;
     state.inlineAdd = null;
   });
 };
 
-export const setSortFieldAction = (field: 'createdAt' | 'importance') => {
+/** Collapses or expands a List view section; remembered on the device */
+export const setSectionCollapsedAction = (
+  quadrant: MatrixKey,
+  isCollapsed: boolean,
+) => {
   useUIStore.setState((state) => {
-    state.sortField = field;
-  });
-};
-
-export const setSortDirectionAction = (direction: 'asc' | 'desc') => {
-  useUIStore.setState((state) => {
-    state.sortDirection = direction;
+    const others = state.collapsedSections.filter((key) => key !== quadrant);
+    state.collapsedSections = isCollapsed ? [...others, quadrant] : others;
   });
 };
 

@@ -30,7 +30,7 @@ interface MatrixKeysOptions extends TaskActionHandlers {
   tasks: Tasks;
   /** The Selected Task; null without one */
   location: TaskLocation | null;
-  /** List view has no selection yet (slice N): only the add keys work there */
+  /** List view selects by click only for now (slice N): only the add keys work there */
   isMatrixView: boolean;
   toolbarRef: RefObject<HTMLElement | null>;
   onShowShortcuts: () => void;

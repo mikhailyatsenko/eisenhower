@@ -303,42 +303,29 @@ describe('List view', () => {
     return page;
   };
 
-  const listCard = (text: string) => screen.getByText(text).closest('li')!;
-
-  it('still deletes a task with Undo from its card', async () => {
+  it('deletes a task with Undo from the panel', async () => {
     const { user } = await openListView();
 
-    await user.click(
-      within(listCard('Bravo')).getByRole('button', { name: 'Delete task' }),
-    );
+    await user.click(task('Bravo'));
+    await user.click(within(toolbar()).getByRole('button', { name: /Delete/ }));
 
-    expect(screen.queryByText('Bravo')).not.toBeInTheDocument();
+    expect(tasksIn('Do First')).toEqual(['Alpha', 'Charlie']);
     expect(toast()).toHaveTextContent('Task deleted');
 
     await user.click(screen.getByRole('button', { name: 'Undo' }));
-    expect(screen.getByText('Bravo')).toBeInTheDocument();
+    expect(tasksIn('Do First')).toEqual(TASKS);
   });
 
-  it('still completes a task with Undo from its card', async () => {
+  it('completes a task with Undo from the panel', async () => {
     const { user } = await openListView();
 
+    await user.click(task('Alpha'));
     await user.click(
-      within(listCard('Alpha')).getByRole('button', {
-        name: 'Mark as completed',
-      }),
+      within(toolbar()).getByRole('button', { name: /Complete/ }),
     );
 
-    expect(screen.queryByText('Alpha')).not.toBeInTheDocument();
+    expect(tasksIn('Do First')).toEqual(['Bravo', 'Charlie']);
     expect(toast()).toHaveTextContent('Task completed');
-  });
-
-  it('keeps the card buttons visible without hover', async () => {
-    await openListView();
-
-    const buttons = within(listCard('Alpha')).getAllByRole('button');
-    buttons.forEach((button) => {
-      expect(button.parentElement!.className).not.toMatch(/opacity-0/);
-    });
   });
 });
 

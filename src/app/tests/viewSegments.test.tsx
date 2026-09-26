@@ -46,10 +46,12 @@ describe('View segments', () => {
     expect(tab('List')).toHaveAttribute('aria-selected', 'true');
     expect(tab('List')).toHaveFocus();
     expect(viewPanel()).toHaveAccessibleName('List');
-    expect(within(viewPanel()).queryByRole('listbox')).not.toBeInTheDocument();
-    expect(within(viewPanel()).getByRole('listitem')).toHaveTextContent(
-      'Pay rent',
-    );
+    expect(
+      within(viewPanel()).getByRole('button', { name: 'Do First, 1 task' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      within(viewPanel()).getByRole('option', { name: 'Pay rent' }),
+    ).toBeInTheDocument();
 
     await user.keyboard('{ArrowLeft}');
 
@@ -59,6 +61,9 @@ describe('View segments', () => {
     expect(within(viewPanel()).getAllByRole('listbox').length).toBeGreaterThan(
       0,
     );
+    expect(
+      within(viewPanel()).queryByRole('button', { name: 'Do First, 1 task' }),
+    ).not.toBeInTheDocument();
   });
 
   it('wrap around with the arrows', async () => {

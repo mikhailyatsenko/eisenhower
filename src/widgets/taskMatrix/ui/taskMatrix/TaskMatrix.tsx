@@ -115,9 +115,9 @@ export const TaskMatrix: React.FC = () => {
           role="group"
           aria-label="Task matrix"
           tabIndex={-1}
-          // The phone grid's axis labels are small: less room above it
+          // Room above for the axis labels, small on a phone; List view has none
           className={twMerge(
-            'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
+            'relative mt-4 flex w-full flex-wrap justify-center rounded-lg outline-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
             viewMode === 'matrix' && 'mt-5 sm:mt-14',
           )}
         >
@@ -138,7 +138,7 @@ export const TaskMatrix: React.FC = () => {
               />
             </>
           ) : (
-            <TaskListView tasks={tasks} />
+            <TaskListView tasks={tasks} hasExamples={!isAccountAwaited} />
           )}
 
           {/* In List view too: it keeps the keys that open the add form */}
@@ -152,7 +152,7 @@ export const TaskMatrix: React.FC = () => {
         </div>
       </ViewPanel>
 
-      {/* Selection comes to List view in slice N, the line with it */}
+      {/* The keys come to List view later in slice N, the line with them */}
       {viewMode === 'matrix' && <SelectionHint />}
     </>
   );
