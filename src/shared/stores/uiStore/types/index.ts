@@ -11,12 +11,14 @@ export interface InlineAdd {
   isByEmptySpace: boolean;
 }
 
+export type ViewMode = 'matrix' | 'list';
+
 export interface UIState {
   selectedCategory: MatrixKey;
   taskInputText: string;
   recentlyAddedQuadrant: MatrixKey | null;
   isFormOpened: boolean;
-  viewMode: 'matrix' | 'list';
+  viewMode: ViewMode;
   sortField: 'createdAt' | 'importance';
   sortDirection: 'asc' | 'desc';
   /** Task whose card takes focus once it's rendered, e.g. after Undo */

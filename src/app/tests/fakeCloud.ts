@@ -290,7 +290,12 @@ export const fakeAuthClient = {
     };
   },
   signInWithGoogle: async () => {
-    user = lastUser ?? { uid: 'u1', displayName: 'Ada', photoURL: null };
+    user = lastUser ?? {
+      uid: 'u1',
+      displayName: 'Ada',
+      email: 'ada@example.com',
+      photoURL: null,
+    };
     notifyUser();
     return user;
   },
@@ -304,6 +309,8 @@ export const fakeAuthClient = {
 export interface SignedInUser {
   uid: string;
   displayName: string;
+  /** By default the name in lower case at example.com */
+  email?: string;
 }
 
 export interface CloudOptions {
@@ -362,7 +369,13 @@ export const resetFakeCloud = (
   nextRemoteId = 0;
   network = startNetwork;
   setNavigatorOnLine(startNetwork !== 'offline');
-  user = signedIn ? { ...signedIn, photoURL: null } : null;
+  user = signedIn
+    ? {
+        email: `${signedIn.displayName.toLowerCase()}@example.com`,
+        ...signedIn,
+        photoURL: null,
+      }
+    : null;
   lastUser = user;
 };
 

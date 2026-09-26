@@ -1,0 +1,1 @@
+export { ViewIcon } from './ViewIcon';

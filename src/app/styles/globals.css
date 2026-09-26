@@ -178,6 +178,7 @@ body {
 
   --animate-toast-slide-in: toast-slide-in 0.2s ease-out;
   --animate-toast-fade-in: toast-fade-in 0.2s ease-out;
+  --animate-menu-fade-in: toast-fade-in 0.15s ease-out;
 
   --animate-recently-added-quadrant: recently-added-quadrant 0.5s forwards;
 

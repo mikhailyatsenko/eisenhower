@@ -1,1 +1,1 @@
-export { ThemeToggle } from './ui/themeToggle/ThemeToggle';
+export { ThemeToggle } from './ui';

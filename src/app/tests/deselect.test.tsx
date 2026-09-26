@@ -52,8 +52,9 @@ describe('Clearing the selection', () => {
     const { user } = await renderHomePage({ tasks: TASKS });
 
     await user.click(task('Bravo'));
-    // The toggle has no name until slice L (X1)
-    await user.click(screen.getByRole('button', { name: '' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Switch to dark theme' }),
+    );
 
     expect(task('Bravo')).toHaveAttribute('aria-selected', 'true');
     expect(toolbar()).toBeInTheDocument();

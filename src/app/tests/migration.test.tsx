@@ -1,4 +1,5 @@
 import { act, screen, within } from '@testing-library/react';
+import { getAccountSignIn } from './account';
 import { axe } from './axe';
 import { list } from './drag';
 import { renderHomePage } from './renderHomePage';
@@ -30,18 +31,12 @@ const advance = (ms: number) =>
 type User = Awaited<ReturnType<typeof renderHomePage>>['user'];
 
 const signIn = async (user: User) => {
-  await user.click(screen.getByRole('button', { name: 'Sign in' }));
-  await user.click(
-    screen.getByRole('button', { name: /Continue with Google/ }),
-  );
+  await user.click(getAccountSignIn());
 };
 
-// After signing in, the account panel is still open
 const signOut = async (user: User) => {
-  if (!screen.queryByRole('button', { name: 'Logout' })) {
-    await user.click(screen.getByRole('button', { name: 'Ada' }));
-  }
-  await user.click(screen.getByRole('button', { name: 'Logout' }));
+  await user.click(screen.getByRole('button', { name: 'Ada' }));
+  await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 };
 
 const expectDeviceTasksShown = () => {

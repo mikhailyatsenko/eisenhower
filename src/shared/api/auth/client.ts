@@ -18,10 +18,12 @@ const getAuthInstance = () => (auth ??= getAuth(app));
 const toCloudUser = (user: {
   uid: string;
   displayName: string | null;
+  email: string | null;
   photoURL: string | null;
 }): CloudUser => ({
   uid: user.uid,
   displayName: user.displayName,
+  email: user.email,
   photoURL: user.photoURL,
 });
 

@@ -1,8 +1,9 @@
 import { MatrixKey } from '@/shared/stores/tasksStore';
 
 // On a phone the 2×2 fills the screen under the header: each row is half of
-// what's left after the header, the title, the axis labels and the gaps
-const PHONE_HEIGHT = 'h-[calc(50dvh-88px)]';
+// what's left after the header with the sync bar (--top-bars-height, set by
+// the app), the title, the axis labels and the gaps (140px)
+const PHONE_HEIGHT = 'h-[calc(50dvh_-_var(--top-bars-height,56px)/2_-_70px)]';
 
 export const QUADRANT_STYLES = {
   TYPING_NEW_TASK_ACTIVE: `animate-from-bottom-appear w-[calc(55%-8px)] ${PHONE_HEIGHT} sm:h-[calc(100vh/2)] transition-[width] duration-300`,
@@ -10,9 +11,11 @@ export const QUADRANT_STYLES = {
   DEFAULT: `w-[calc(50%-8px)] ${PHONE_HEIGHT} sm:h-[calc(100vh/2-64px)] min-h-40`,
   CONTAINER:
     'relative m-1 flex cursor-pointer flex-col overflow-hidden rounded-md p-1 ease-in-out sm:p-6 dark:border dark:bg-gray-950',
-  // Alone in the grid's box: two rows of PHONE_HEIGHT (100dvh - 176px) and
-  // their m-1 margins (16px), less its own margin (8px). Change with PHONE_HEIGHT.
-  FULL_SCREEN: 'h-[calc(100dvh-168px)] w-[calc(100%-8px)]',
+  // Alone in the grid's box: two rows of PHONE_HEIGHT (100dvh - top bars -
+  // 140px) and their m-1 margins (16px), less its own margin (8px). Change
+  // with PHONE_HEIGHT.
+  FULL_SCREEN:
+    'h-[calc(100dvh_-_var(--top-bars-height,56px)_-_132px)] w-[calc(100%-8px)]',
   // The cell's m-1 leaves room for the ring. Its colour: DRAG_OVER_RING
   DRAG_OVER: 'ring-4',
 } as const;

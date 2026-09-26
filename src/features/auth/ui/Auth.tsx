@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { AuthIndicator } from '@/entities/authIndicator';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/shared/api/auth';
 import {
   cancelDeviceClear,
@@ -11,10 +10,12 @@ import {
   selectPendingChangesCount,
   useSyncStore,
 } from '@/shared/stores/syncStore';
+import { AccountMenu } from '../components/AccountMenu';
+import { SignedOutAccount } from '../components/SignedOutAccount';
 import { SignOutDialog } from '../components/SignOutDialog';
 
 interface AuthProps {
-  /** The account button, shown while the menu is closed */
+  /** The signed-in account's avatar button */
   accountButtonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
@@ -27,6 +28,20 @@ export const Auth: React.FC<AuthProps> = ({ accountButtonRef }) => {
   // Signed out meanwhile (the session ended, another tab): nothing to ask.
   // Signing out now would clear the queue an expired session keeps.
   if (!user && pendingChanges !== undefined) setPendingChanges(undefined);
+
+  // Signing in unmounts the button that had the focus ("Sign in" in the
+  // header or over the empty matrix): it goes on to the avatar instead of
+  // the page. Not on a page opened signed in, nor past a dialog that has it.
+  const wasSignedOut = useRef(false);
+  useEffect(() => {
+    if (
+      user &&
+      wasSignedOut.current &&
+      document.activeElement === document.body
+    )
+      accountButtonRef.current?.focus();
+    wasSignedOut.current = !user && !isLoading;
+  }, [user, isLoading, accountButtonRef]);
 
   // Signing out leaves none of the user's tasks on the device
   const signOut = () => {
@@ -45,17 +60,18 @@ export const Auth: React.FC<AuthProps> = ({ accountButtonRef }) => {
   };
 
   return (
-    <div
-      className={`${isLoading ? 'opacity-20' : 'opacity-100'} relative z-50`}
-    >
-      <AuthIndicator
-        photoURL={user?.photoURL || undefined}
-        displayName={user?.displayName || undefined}
-        isSignedIn={!!user}
-        handleGoogleSignIn={handleGoogleSignIn}
-        handleLogout={handleSignOut}
-        accountButtonRef={accountButtonRef}
-      />
+    <div className={isLoading ? 'opacity-20' : 'opacity-100'}>
+      {user ? (
+        <AccountMenu
+          displayName={user.displayName}
+          email={user.email}
+          photoURL={user.photoURL}
+          onSignOut={handleSignOut}
+          avatarRef={accountButtonRef}
+        />
+      ) : (
+        <SignedOutAccount onSignIn={handleGoogleSignIn} />
+      )}
       {pendingChanges !== undefined && (
         <SignOutDialog
           pendingChanges={pendingChanges}
@@ -64,7 +80,6 @@ export const Auth: React.FC<AuthProps> = ({ accountButtonRef }) => {
             setPendingChanges(undefined);
             signOut();
           }}
-          // The menu closes behind the dialog, taking Sign out with it
           restoreFocus={() => accountButtonRef.current?.focus()}
         />
       )}

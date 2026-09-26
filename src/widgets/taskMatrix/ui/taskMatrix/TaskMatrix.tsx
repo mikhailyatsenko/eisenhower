@@ -5,6 +5,7 @@ import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
+import { ViewPanel } from '@/features/switchViewMode';
 import { completeTask, deleteTask, moveTask } from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
@@ -82,7 +83,12 @@ export const TaskMatrix: React.FC = () => {
   }, [isAnonymousRestored, isDeviceMatrixEmpty, isEmptyForAnonymous]);
 
   if (isLoading || (user && !isCloudLoaded)) {
-    return <LoaderFullScreen />;
+    // The view tabs are already in the header: their panel is here too
+    return (
+      <ViewPanel>
+        <LoaderFullScreen />
+      </ViewPanel>
+    );
   }
 
   return (
@@ -101,47 +107,50 @@ export const TaskMatrix: React.FC = () => {
           <NoSignUpLine />
         ))}
 
-      {/* Focus lands here, not on <body>, when the matrix has no task left */}
-      <div
-        ref={matrixRef}
-        role="group"
-        aria-label="Task matrix"
-        tabIndex={-1}
-        // The phone grid's axis labels are small: less room above it
-        className={twMerge(
-          'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
-          viewMode === 'matrix' && 'mt-5 sm:mt-14',
-        )}
-      >
-        {viewMode === 'matrix' ? (
-          <>
-            {/* The stored quadrant opens on a phone only, hence max-sm */}
-            {!taskInputText && (
-              <TaskMatrixHeaders
-                isHiddenOnPhone={fullScreenQuadrant !== null}
+      {/* The area the view tabs in the header switch */}
+      <ViewPanel>
+        {/* Focus lands here, not on <body>, when the matrix has no task left */}
+        <div
+          ref={matrixRef}
+          role="group"
+          aria-label="Task matrix"
+          tabIndex={-1}
+          // The phone grid's axis labels are small: less room above it
+          className={twMerge(
+            'relative mt-14 flex w-full flex-wrap justify-center rounded-lg outline-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300',
+            viewMode === 'matrix' && 'mt-5 sm:mt-14',
+          )}
+        >
+          {viewMode === 'matrix' ? (
+            <>
+              {/* The stored quadrant opens on a phone only, hence max-sm */}
+              {!taskInputText && (
+                <TaskMatrixHeaders
+                  isHiddenOnPhone={fullScreenQuadrant !== null}
+                />
+              )}
+
+              <InteractWithMatrix
+                taskInputText={taskInputText}
+                moveTask={moveTask}
+                quadrantSlots={QUADRANT_SLOTS}
+                hasExamples={!isAccountAwaited}
               />
-            )}
+            </>
+          ) : (
+            <TaskListView tasks={tasks} />
+          )}
 
-            <InteractWithMatrix
-              taskInputText={taskInputText}
-              moveTask={moveTask}
-              quadrantSlots={QUADRANT_SLOTS}
-              hasExamples={!isAccountAwaited}
-            />
-          </>
-        ) : (
-          <TaskListView tasks={tasks} />
-        )}
-
-        {/* In List view too: it keeps the keys that open the add form */}
-        <TaskActionPanel
-          tasks={tasks}
-          matrixRef={matrixRef}
-          completeTask={completeTask}
-          deleteTask={deleteTask}
-          moveTask={moveTask}
-        />
-      </div>
+          {/* In List view too: it keeps the keys that open the add form */}
+          <TaskActionPanel
+            tasks={tasks}
+            matrixRef={matrixRef}
+            completeTask={completeTask}
+            deleteTask={deleteTask}
+            moveTask={moveTask}
+          />
+        </div>
+      </ViewPanel>
 
       {/* Selection comes to List view in slice N, the line with it */}
       {viewMode === 'matrix' && <SelectionHint />}

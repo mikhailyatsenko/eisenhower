@@ -49,7 +49,7 @@ describe('The line under the matrix', () => {
   it('is not in List view', async () => {
     const { user } = await renderHomePage({ tasks: TASKS });
 
-    await user.click(screen.getByRole('button', { name: /list view/i }));
+    await user.click(screen.getByRole('tab', { name: 'List' }));
 
     expect(queryHint(MOUSE_HINT)).not.toBeInTheDocument();
     expect(queryHint(TOUCH_HINT)).not.toBeInTheDocument();

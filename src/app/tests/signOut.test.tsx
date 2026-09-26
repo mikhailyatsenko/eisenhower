@@ -16,14 +16,11 @@ type User = Awaited<ReturnType<typeof renderHomePage>>['user'];
 
 const signOut = async (user: User) => {
   await user.click(screen.getByRole('button', { name: 'Ada' }));
-  await user.click(screen.getByRole('button', { name: 'Logout' }));
+  await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
 };
 
 const signIn = async (user: User) => {
   await user.click(getAccountSignIn());
-  await user.click(
-    screen.getByRole('button', { name: /continue with google/i }),
-  );
 };
 
 describe('Signing out on a shared device', () => {
