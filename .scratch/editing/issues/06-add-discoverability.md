@@ -1,7 +1,7 @@
 # Как новичок находит добавление без New task
 
 Type: prototype
-Status: open
+Status: claimed
 Blocked by: 04, 05
 
 ## Question
