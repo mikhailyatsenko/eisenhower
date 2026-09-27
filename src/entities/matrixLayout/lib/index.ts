@@ -3,6 +3,7 @@ export {
   addTaskButtonQuadrant,
 } from './addTaskButtonQuadrant';
 export { firstTaskId } from './firstTaskId';
+export { isInCompletedSection } from './isInCompletedSection';
 export { isSameStop } from './isSameStop';
 export { SECTION_TOGGLE_ATTRIBUTE, isSectionToggle } from './isSectionToggle';
 export { isSectionCollapsed } from './isSectionCollapsed';

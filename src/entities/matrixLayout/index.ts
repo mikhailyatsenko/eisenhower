@@ -9,6 +9,7 @@ export { colors } from './consts';
 export {
   addTaskButtonQuadrant,
   firstTaskId,
+  isInCompletedSection,
   isSameStop,
   isSectionToggle,
   listSections,

@@ -72,6 +72,10 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   const lastLocation = useRef<TaskLocation | CompletedLocation | null>(null);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
+  // Where the focus goes once Completed has emptied
+  const lastListTaskId = () =>
+    lastShownTaskId(tasks, useUIStore.getState().collapsedSections);
+
   const found = locateTask(tasks, selectedTaskId);
   const foundCompleted = locateCompleted(shownCompleted, selectedTaskId);
   // The selected task has left its place (Complete, Delete, Restore): its
@@ -101,10 +105,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
       (shownCompleted[index] ?? shownCompleted[index - 1])?.id ?? null,
     );
     if (!completedLocation) {
-      location = locateTask(
-        tasks,
-        lastShownTaskId(tasks, useUIStore.getState().collapsedSections),
-      );
+      location = locateTask(tasks, lastListTaskId());
     }
   } else {
     location = found;
@@ -125,7 +126,12 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     if (isSelectionStale) selectTaskAction(locatedTaskId);
   }, [isSelectionStale, locatedTaskId]);
 
-  useFocusAfterAction(matrixRef, locatedTaskId, emptiedQuadrant);
+  useFocusAfterAction(
+    matrixRef,
+    locatedTaskId,
+    emptiedQuadrant,
+    lastListTaskId,
+  );
   useDeselectOnPageClick();
 
   const handleMove = async (toQuadrant: MatrixKey) => {

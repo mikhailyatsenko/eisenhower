@@ -185,12 +185,16 @@ describe('Changes of a signed-in user without a network', () => {
   });
 
   it('clears Completed on the server once back online', async () => {
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
     const { user, cloud } = await offlinePage();
     await actOnTask(user, 'Pay rent', 'Complete');
 
     await openCompleted(user);
     await user.click(screen.getByRole('button', { name: 'Delete all' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete all',
+      }),
+    );
 
     expect(
       screen.queryByRole('button', { name: /^Completed, / }),

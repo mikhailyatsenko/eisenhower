@@ -8,6 +8,7 @@ import {
   tasksLabel,
 } from '../../../lib';
 import { CompletedTaskItem } from '../../completedTaskItem';
+import { DeleteAllDialog } from '../../deleteAllDialog';
 import { SECTION_HEADER_STYLES } from '../../sectionHeader';
 import { COMPLETED_SECTION_STYLES } from '../consts';
 
@@ -27,8 +28,9 @@ interface CompletedSectionProps {
 /**
  * List view's last section: the completed tasks, collapsed by default. Its
  * sticky header has no glyph and no "+", and while expanded offers "Delete
- * all". Its tasks select as the others do; the action panel restores them.
- * A long list shows in parts, "Show more" adds the next one.
+ * all", which asks in a dialog first. Its tasks select as the others do;
+ * the action panel restores them. A long list shows in parts, "Show more"
+ * adds the next one.
  */
 export const CompletedSection: React.FC<CompletedSectionProps> = ({
   tasks,
@@ -41,8 +43,11 @@ export const CompletedSection: React.FC<CompletedSectionProps> = ({
   const idPrefix = useId();
   const titleId = `${idPrefix}-title`;
   const listId = `${idPrefix}-list`;
+  const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [clearFailed, setClearFailed] = useState(false);
+  const [deleteFailed, setDeleteFailed] = useState(false);
+  // Not a ref prop: React clears that before the dialog closes with the section
+  const deleteAllButton = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   // "Show more" moves the focus to the first of the tasks it adds
   const firstAddedIndex = useRef<number | null>(null);
@@ -61,32 +66,27 @@ export const CompletedSection: React.FC<CompletedSectionProps> = ({
     onShowMore?.();
   };
 
-  const handleDeleteAll = async () => {
-    if (isDeleting) return;
+  const openDeleteAll = (event: React.MouseEvent<HTMLButtonElement>) => {
+    deleteAllButton.current = event.currentTarget;
+    setDeleteFailed(false);
+    setIsDeleteAllOpen(true);
+  };
 
-    // Until ticket 09 brings its dialog, the only window.confirm left
-    if (
-      !window.confirm(
-        'Are you sure you want to permanently delete all completed tasks?',
-      )
-    ) {
-      return;
-    }
+  // No Undo: the dialog has said it can't be undone. Done, the section goes
+  // and the dialog with it.
+  const handleConfirmDeleteAll = async () => {
+    if (isDeleting) return;
     try {
       setIsDeleting(true);
-      setClearFailed(false);
+      setDeleteFailed(false);
       await clearAllCompletedTasksAction();
+      setIsDeleteAllOpen(false);
     } catch (error) {
       console.error('Failed to clear completed tasks:', error);
-      setClearFailed(true);
+      setDeleteFailed(true);
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const handleToggle = () => {
-    setClearFailed(false);
-    onExpandedChange(!isExpanded);
   };
 
   return (
@@ -102,7 +102,7 @@ export const CompletedSection: React.FC<CompletedSectionProps> = ({
             aria-label={`Completed, ${tasksLabel(count)}`}
             aria-expanded={isExpanded}
             aria-controls={listId}
-            onClick={handleToggle}
+            onClick={() => onExpandedChange(!isExpanded)}
             // Arrows on it aren't the list's, as on the other sections' headers
             {...{ [SECTION_TOGGLE_ATTRIBUTE]: '' }}
             className={SECTION_HEADER_STYLES.TOGGLE}
@@ -128,8 +128,7 @@ export const CompletedSection: React.FC<CompletedSectionProps> = ({
         {isExpanded && (
           <button
             type="button"
-            onClick={handleDeleteAll}
-            disabled={isDeleting}
+            onClick={openDeleteAll}
             className={twMerge(
               COMPLETED_SECTION_STYLES.DELETE_ALL,
               HEADER_FOCUS_RING,
@@ -142,11 +141,6 @@ export const CompletedSection: React.FC<CompletedSectionProps> = ({
 
       {isExpanded && (
         <div className="motion-safe:animate-menu-fade-in pb-6">
-          {clearFailed && (
-            <p role="alert" className={COMPLETED_SECTION_STYLES.ERROR}>
-              Couldn&apos;t delete. Try again
-            </p>
-          )}
           <ul
             ref={listRef}
             role="listbox"
@@ -175,6 +169,20 @@ export const CompletedSection: React.FC<CompletedSectionProps> = ({
             </button>
           )}
         </div>
+      )}
+
+      {/* In the section's tree, though portaled: when the section goes, the
+          dialog closes while "Delete all" is still on the page to take the
+          focus, and useFocusAfterAction hands it on from there */}
+      {isDeleteAllOpen && (
+        <DeleteAllDialog
+          count={count}
+          isDeleting={isDeleting}
+          hasFailed={deleteFailed}
+          onConfirm={handleConfirmDeleteAll}
+          onCancel={() => setIsDeleteAllOpen(false)}
+          restoreFocus={() => deleteAllButton.current?.focus()}
+        />
       )}
     </div>
   );

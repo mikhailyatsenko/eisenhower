@@ -4,8 +4,31 @@ import type { MatrixKey, Task } from '@/shared/stores/tasksStore';
 import { axe } from './axe';
 import { renderHomePage } from './renderHomePage';
 
+// Nothing on the page can make clearing fail: the store action is the real
+// one unless a test has it reject. Taken with requireMock in the test: an
+// import here would load the store before renderHomePage mocks Firebase.
+jest.mock('@/shared/stores/tasksStore', () => {
+  const actual = jest.requireActual('@/shared/stores/tasksStore');
+  return {
+    ...actual,
+    clearAllCompletedTasksAction: jest.fn(actual.clearAllCompletedTasksAction),
+  };
+});
+
 // Whole-page flows run past the default 5 s on a cold pre-commit run
 jest.setTimeout(20_000);
+
+// No scenario of Completed asks through the system confirm window
+let confirm: jest.SpyInstance;
+
+beforeEach(() => {
+  confirm = jest.spyOn(window, 'confirm');
+});
+
+afterEach(() => {
+  expect(confirm).not.toHaveBeenCalled();
+  confirm.mockRestore();
+});
 
 const ADA = { uid: 'u1', displayName: 'Ada' };
 
@@ -84,6 +107,15 @@ const toolbar = () => screen.getByRole('toolbar');
 const toast = () => screen.getByRole('status', { name: 'Notifications' });
 
 const undoButton = () => screen.getByRole('button', { name: 'Undo' });
+
+/** The header's "Delete all", not the dialog's */
+const deleteAllButton = () =>
+  within(
+    screen.getByRole('button', { name: /^Completed, / }).closest('div')!,
+  ).getByRole('button', { name: 'Delete all' });
+
+const deleteAllDialog = (count: number) =>
+  screen.getByRole('dialog', { name: `Delete all ${count} completed tasks?` });
 
 describe('Completed section', () => {
   it('is not there without completed tasks', async () => {
@@ -261,7 +293,6 @@ describe('Completed section', () => {
   });
 
   it('deletes with the Delete key, and Undo brings it back in place', async () => {
-    const confirm = jest.spyOn(window, 'confirm');
     const page = await listPage();
     await expandCompleted(page);
 
@@ -280,8 +311,6 @@ describe('Completed section', () => {
       startingWith(['Book dentist', 'Renew passport', 'File taxes']),
     );
     expect(document.activeElement).toBe(row('Renew passport'));
-    expect(confirm).not.toHaveBeenCalled();
-    confirm.mockRestore();
   });
 
   it('ignores the keys of the actions it has not', async () => {
@@ -416,6 +445,144 @@ describe('Completed section', () => {
 
     await expandCompleted(page);
     expect(screen.getByRole('button', { name: 'Delete all' })).toBeVisible();
+  });
+
+  it('asks in a dialog before deleting all, with the focus on Cancel', async () => {
+    const page = await listPage();
+    await expandCompleted(page);
+
+    await page.user.click(deleteAllButton());
+
+    const dialog = deleteAllDialog(3);
+    expect(dialog.tagName).toBe('DIALOG');
+    expect(dialog).toHaveAttribute('open');
+    expect(dialog).toHaveAccessibleDescription("This can't be undone.");
+    expect(
+      within(dialog).getByRole('button', { name: 'Delete all' }),
+    ).toBeVisible();
+    expect(
+      within(dialog).getByRole('button', { name: 'Cancel' }),
+    ).toHaveFocus();
+  });
+
+  it('names a single completed task', async () => {
+    const page = await listPage({ completedTasks: [DONE[0]] });
+    await expandCompleted(page);
+
+    await page.user.click(deleteAllButton());
+
+    expect(
+      screen.getByRole('dialog', { name: 'Delete 1 completed task?' }),
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    ['Escape', ({ user }: Page) => user.keyboard('{Escape}')],
+    [
+      'Cancel',
+      ({ user }: Page) =>
+        user.click(screen.getByRole('button', { name: 'Cancel' })),
+    ],
+  ])(
+    'keeps them all on %s, with the focus back on Delete all',
+    async (_, dismiss) => {
+      const page = await listPage();
+      await expandCompleted(page);
+      await page.user.click(deleteAllButton());
+
+      await dismiss(page);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(completedRows()).toEqual(
+        startingWith(['Book dentist', 'Renew passport', 'File taxes']),
+      );
+      expect(deleteAllButton()).toHaveFocus();
+    },
+  );
+
+  it('deletes them all on Delete all, and the focus goes to the last task of the open sections', async () => {
+    const page = await listPage();
+    await expandCompleted(page);
+    await page.user.click(deleteAllButton());
+
+    await page.user.click(
+      within(deleteAllDialog(3)).getByRole('button', { name: 'Delete all' }),
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^Completed/ }),
+    ).not.toBeInTheDocument();
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toBe(
+      screen.getByRole('option', { name: 'Sort old photos' }),
+    );
+    // No Undo: the dialog has said so
+    expect(toast()).toBeEmptyDOMElement();
+
+    // Gone for good
+    await page.reload();
+    expect(
+      screen.queryByRole('button', { name: /^Completed/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the focus on the List view when Delete all leaves no task', async () => {
+    const page = await listPage({ tasks: {} });
+    await expandCompleted(page);
+    await page.user.click(deleteAllButton());
+
+    await page.user.click(
+      within(deleteAllDialog(3)).getByRole('button', { name: 'Delete all' }),
+    );
+
+    expect(document.activeElement).toBe(
+      screen.getByRole('group', { name: 'Task matrix' }),
+    );
+  });
+
+  it('says so inside the dialog when deleting all fails, and lets it try again', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { clearAllCompletedTasksAction } = jest.requireMock<
+      typeof import('@/shared/stores/tasksStore')
+    >('@/shared/stores/tasksStore');
+    jest
+      .mocked(clearAllCompletedTasksAction)
+      .mockRejectedValueOnce(new Error('Storage is full'));
+    const page = await listPage();
+    await expandCompleted(page);
+    await page.user.click(deleteAllButton());
+    const dialog = deleteAllDialog(3);
+
+    await page.user.click(
+      within(dialog).getByRole('button', { name: 'Delete all' }),
+    );
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      "Couldn't delete. Try again",
+    );
+    expect(dialog).toHaveAttribute('open');
+    expect(completedRows()).toHaveLength(3);
+    expect(await axe(document.body)).toHaveNoViolations();
+
+    await page.user.click(
+      within(dialog).getByRole('button', { name: 'Delete all' }),
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^Completed/ }),
+    ).not.toBeInTheDocument();
+    jest.mocked(console.error).mockRestore();
+  });
+
+  it('has no axe violations with the Delete all dialog open', async () => {
+    const page = await listPage();
+    await expandCompleted(page);
+    await page.user.click(deleteAllButton());
+
+    expect(deleteAllDialog(3)).toBeInTheDocument();
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 
   it('has no axe violations with Completed expanded and its panel', async () => {

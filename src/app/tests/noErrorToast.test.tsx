@@ -16,14 +16,6 @@ const completed = (id: string, text: string): Task => ({
 });
 
 describe('Delete all completed tasks', () => {
-  beforeEach(() => {
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('shows a refused Delete all in the sync bar, not in a toast', async () => {
     const { user, cloud } = await renderHomePage({
       signedIn: { uid: 'u1', displayName: 'Ada' },
@@ -41,6 +33,11 @@ describe('Delete all completed tasks', () => {
       screen.getByRole('button', { name: 'Completed, 2 tasks' }),
     );
     await user.click(screen.getByRole('button', { name: 'Delete all' }));
+    await user.click(
+      within(
+        screen.getByRole('dialog', { name: 'Delete all 2 completed tasks?' }),
+      ).getByRole('button', { name: 'Delete all' }),
+    );
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       "Some changes couldn't be saved to your account.",
