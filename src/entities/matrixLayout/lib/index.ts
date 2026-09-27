@@ -9,6 +9,10 @@ export { isSectionCollapsed } from './isSectionCollapsed';
 export { listSections } from './listSections';
 export { listStops } from './listStops';
 export { listTabStop } from './listTabStop';
+export {
+  COMPLETED_SECTION_ATTRIBUTE,
+  revealCompletedSection,
+} from './revealCompletedSection';
 export { matrixTabStop } from './matrixTabStop';
 export type { MatrixStop } from './matrixTabStop';
 export { deadlineStatus } from './deadlineStatus';

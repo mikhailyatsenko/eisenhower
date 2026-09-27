@@ -23,8 +23,12 @@ import { QuadrantSlots } from '../types';
 
 interface ListLayoutProps {
   tasks: Record<MatrixKey, Task[]>;
-  /** Newest first: the last section, while there are any */
+  /** The shown completed tasks, newest first */
   completedTasks: Task[];
+  /** All completed tasks: the last section, while there are any */
+  completedCount: number;
+  /** Shows the next completed tasks; absent once all are shown */
+  onShowMoreCompleted?: () => void;
   slots: QuadrantSlots;
   /** Empty sections show their example tasks */
   hasExamples: boolean;
@@ -41,6 +45,8 @@ interface ListLayoutProps {
 export const ListLayout: React.FC<ListLayoutProps> = ({
   tasks,
   completedTasks,
+  completedCount,
+  onShowMoreCompleted,
   slots,
   hasExamples,
 }) => {
@@ -150,9 +156,11 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
         );
       })}
 
-      {completedTasks.length > 0 && (
+      {completedCount > 0 && (
         <CompletedSection
           tasks={completedTasks}
+          count={completedCount}
+          onShowMore={onShowMoreCompleted}
           isExpanded={isCompletedExpanded}
           onExpandedChange={handleCompletedExpandedChange}
           isTabStop={(taskId) => isTabStop({ taskId })}

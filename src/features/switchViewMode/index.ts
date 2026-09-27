@@ -1,1 +1,1 @@
-export { ViewPanel, ViewTabs } from './ui';
+export { CompletedEntry, ViewPanel, ViewTabs } from './ui';

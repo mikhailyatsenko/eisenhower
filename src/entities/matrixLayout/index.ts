@@ -13,6 +13,7 @@ export {
   isSectionToggle,
   listSections,
   listStops,
+  revealCompletedSection,
 } from './lib';
 export type { MatrixStop } from './lib';
 export type { ListSection, QuadrantSlots } from './types';

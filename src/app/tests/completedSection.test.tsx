@@ -126,9 +126,14 @@ describe('Completed section', () => {
   it('has no Completed block outside List view', async () => {
     await renderHomePage({ tasks: TASKS, completedTasks: DONE });
 
+    // Only the way into it, "✓ 3 completed →"
     expect(
-      screen.queryByRole('button', { name: /completed/i }),
+      screen.queryByRole('button', { name: /^Completed/ }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('listbox', { name: 'Completed' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('File taxes')).not.toBeInTheDocument();
   });
 
   it('shows the newest first, and a task just completed at the top', async () => {
