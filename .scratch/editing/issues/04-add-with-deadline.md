@@ -1,7 +1,7 @@
 # Добавление задачи сразу со сроком
 
 Type: prototype
-Status: open
+Status: claimed
 Blocked by: 01, 03
 
 ## Question
