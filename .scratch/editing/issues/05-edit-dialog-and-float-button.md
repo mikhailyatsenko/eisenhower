@@ -1,7 +1,7 @@
 # Судьба диалога Edit и плавающей кнопки
 
 Type: grilling
-Status: open
+Status: claimed
 Blocked by: 02, 03, 04
 
 ## Question
