@@ -1,18 +1,27 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { InlineAddField, QuadrantAddButton } from '@/features/addTask';
 import { InteractWithMatrix } from '@/features/interactWithMatrix';
 import { SelectionHint, TaskActionPanel } from '@/features/selectTask';
-import { ViewPanel } from '@/features/switchViewMode';
-import { completeTask, deleteTask, moveTask } from '@/features/undo';
+import { CompletedEntry, ViewPanel } from '@/features/switchViewMode';
+import {
+  completeTask,
+  deleteCompletedTask,
+  deleteTask,
+  moveTask,
+  restoreTask,
+} from '@/features/undo';
 import { QuadrantSlots } from '@/entities/matrixLayout';
 import { useAuth } from '@/shared/api/auth';
 import { forgetSignOut, useIsSignedOut } from '@/shared/api/cloudMatrix';
 import { useSyncStore } from '@/shared/stores/syncStore';
 import {
+  newestCompletedFirst,
+  selectCompletedTasks,
   selectTasks,
+  Task,
   useIsTaskStoreRestored,
   useTaskStore,
 } from '@/shared/stores/tasksStore';
@@ -25,6 +34,7 @@ import {
 import { LoaderFullScreen } from '@/shared/ui/loader';
 import { NoSignUpLine } from '../../components/NoSignUpLine';
 import { SignedOutLine } from '../../components/SignedOutLine';
+import { COMPLETED_PAGE_SIZE } from '../../consts';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
@@ -37,10 +47,36 @@ const QUADRANT_SLOTS: QuadrantSlots = {
   openAddFieldByEmptySpace: openInlineAddByEmptySpaceAction,
 };
 
+const NO_TASKS: Task[] = [];
+
 export const TaskMatrix: React.FC = () => {
   const { isLoading, user, handleGoogleSignIn } = useAuth();
   const tasks = useTaskStore(selectTasks);
+  const storedCompleted = useTaskStore(selectCompletedTasks);
+  const completedTasks = useMemo(
+    () => newestCompletedFirst(storedCompleted),
+    [storedCompleted],
+  );
+  // Not remembered: after a reload the first page again
+  const [completedLimit, setCompletedLimit] = useState(COMPLETED_PAGE_SIZE);
+  const completedPage = useMemo(
+    () => completedTasks.slice(0, completedLimit),
+    [completedTasks, completedLimit],
+  );
+  const showMoreCompleted =
+    completedTasks.length > completedLimit
+      ? () => setCompletedLimit((limit) => limit + COMPLETED_PAGE_SIZE)
+      : undefined;
   const viewMode = useUIStore((state) => state.viewMode);
+  const isCompletedExpanded = useUIStore((state) => state.isCompletedExpanded);
+  // Only List view shows Completed, and only while it's expanded
+  const isCompletedShown =
+    viewMode === 'list' && isCompletedExpanded && completedTasks.length > 0;
+  const shownCompleted = isCompletedShown ? completedPage : NO_TASKS;
+  // Out of sight, Completed shows the first page again when it comes back
+  if (!isCompletedShown && completedLimit !== COMPLETED_PAGE_SIZE) {
+    setCompletedLimit(COMPLETED_PAGE_SIZE);
+  }
   // The server's HTML doesn't know the stored view: neither view flashes
   const isUIStoreRestored = useIsUIStoreRestored();
   const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
@@ -141,21 +177,34 @@ export const TaskMatrix: React.FC = () => {
               />
             </>
           ) : (
-            <TaskListView tasks={tasks} hasExamples={!isAccountAwaited} />
+            <TaskListView
+              tasks={tasks}
+              completedTasks={completedPage}
+              completedCount={completedTasks.length}
+              onShowMoreCompleted={showMoreCompleted}
+              hasExamples={!isAccountAwaited}
+            />
           )}
 
           {/* Both views select and act the same way */}
           <TaskActionPanel
             tasks={tasks}
+            shownCompleted={shownCompleted}
             matrixRef={matrixRef}
             completeTask={completeTask}
             deleteTask={deleteTask}
             moveTask={moveTask}
+            restoreTask={restoreTask}
+            deleteCompletedTask={deleteCompletedTask}
           />
         </div>
       </ViewPanel>
 
       <SelectionHint />
+      {/* List view has Completed as its last section */}
+      {viewMode === 'matrix' && completedTasks.length > 0 && (
+        <CompletedEntry count={completedTasks.length} />
+      )}
     </>
   );
 };

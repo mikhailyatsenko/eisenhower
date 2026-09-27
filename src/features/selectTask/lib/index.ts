@@ -6,3 +6,5 @@ export { listArrowTarget } from './listArrowTarget';
 export { locateTask } from './locateTask';
 export { neighbourTaskId } from './neighbourTaskId';
 export { taskCard } from './taskCard';
+export { lastShownTaskId } from './lastShownTaskId';
+export { locateCompleted } from './locateCompleted';

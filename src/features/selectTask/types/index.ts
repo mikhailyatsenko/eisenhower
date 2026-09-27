@@ -7,6 +7,9 @@ export interface TaskLocation {
   index: number;
 }
 
+/** Where a task sits in Completed, as List view shows it */
+export type CompletedLocation = Omit<TaskLocation, 'quadrantKey'>;
+
 /** Undoable task actions; the widget passes them in from features/undo */
 export interface TaskActions {
   completeTask: (quadrantKey: MatrixKey, taskId: string) => void;
@@ -17,6 +20,8 @@ export interface TaskActions {
     taskId: string,
     toQuadrant: MatrixKey,
   ) => Promise<void>;
+  restoreTask: (task: Task) => void;
+  deleteCompletedTask: (taskId: string) => void;
 }
 
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';

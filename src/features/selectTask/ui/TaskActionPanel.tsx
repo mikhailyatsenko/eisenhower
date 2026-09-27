@@ -5,6 +5,7 @@ import { EditTaskDialog } from '@/entities/matrixLayout';
 import {
   Deadline,
   MatrixKey,
+  Task,
   Tasks,
   editTaskAction,
   selectTasks,
@@ -23,27 +24,43 @@ import {
   useFocusAfterAction,
   useMatrixKeys,
 } from '../hooks';
-import { locateTask, neighbourTaskId, taskCard } from '../lib';
-import { TaskActions, TaskLocation } from '../types';
+import {
+  lastShownTaskId,
+  locateCompleted,
+  locateTask,
+  neighbourTaskId,
+  taskCard,
+} from '../lib';
+import { CompletedLocation, TaskActions, TaskLocation } from '../types';
 
 const getActiveTasks = () => selectTasks(useTaskStore.getState());
 
 interface TaskActionPanelProps extends TaskActions {
   tasks: Tasks;
+  /** What Completed shows, newest first: none in the matrix or while it's collapsed */
+  shownCompleted: Task[];
   /** Takes the focus when the matrix has no task left to focus */
   matrixRef: RefObject<HTMLElement | null>;
 }
 
+const isInQuadrant = (
+  location: TaskLocation | CompletedLocation,
+): location is TaskLocation => 'quadrantKey' in location;
+
 /**
  * The action panel of the Selected Task, the edit form it opens and the
- * matrix keyboard, which does the same actions
+ * matrix keyboard, which does the same actions. A completed task has
+ * Restore and Delete only.
  */
 export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   tasks,
+  shownCompleted,
   matrixRef,
   completeTask,
   deleteTask,
   moveTask,
+  restoreTask,
+  deleteCompletedTask,
 }) => {
   const selectedTaskId = useUIStore((state) => state.selectedTaskId);
   const isMatrixView = useUIStore((state) => state.viewMode === 'matrix');
@@ -52,33 +69,69 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   const toolbarRef = useRef<HTMLDivElement>(null);
   // By id: a dialog left open for another task must not pop up on a later selection
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const lastLocation = useRef<TaskLocation | null>(null);
+  const lastLocation = useRef<TaskLocation | CompletedLocation | null>(null);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
+  // Where the focus goes once Completed has emptied
+  const lastListTaskId = () =>
+    lastShownTaskId(tasks, useUIStore.getState().collapsedSections);
+
   const found = locateTask(tasks, selectedTaskId);
-  // The selected task has left the matrix (Complete, Delete): its neighbour
-  // takes over in this very render, so the panel and the focus in it stay
-  // put. A change in the cloud drops the selection before this (J1).
-  const left =
-    !found && lastLocation.current?.task.id === selectedTaskId
+  const foundCompleted = locateCompleted(shownCompleted, selectedTaskId);
+  // The selected task has left its place (Complete, Delete, Restore): its
+  // neighbour takes over in this very render, so the panel and the focus in
+  // it stay put. A change in the cloud drops the selection before this (J1).
+  const wasSelected =
+    lastLocation.current?.task.id === selectedTaskId
       ? lastLocation.current
       : null;
-  const location =
-    found ?? (left ? locateTask(tasks, neighbourTaskId(tasks, left)) : null);
+  const leftQuadrant =
+    wasSelected && isInQuadrant(wasSelected) && !found ? wasSelected : null;
+  const leftCompleted =
+    wasSelected && !isInQuadrant(wasSelected) && !foundCompleted
+      ? wasSelected
+      : null;
+
+  let location: TaskLocation | null = null;
+  let completedLocation: CompletedLocation | null = null;
+  if (leftQuadrant) {
+    location = locateTask(tasks, neighbourTaskId(tasks, leftQuadrant));
+  } else if (leftCompleted) {
+    // The next completed task, else the previous one; Completed emptied:
+    // the last task of the open sections, else the List view itself
+    const { index } = leftCompleted;
+    completedLocation = locateCompleted(
+      shownCompleted,
+      (shownCompleted[index] ?? shownCompleted[index - 1])?.id ?? null,
+    );
+    if (!completedLocation) {
+      location = locateTask(tasks, lastListTaskId());
+    }
+  } else {
+    location = found;
+    completedLocation = found ? null : foundCompleted;
+  }
   // No neighbour: the quadrant is empty, its "Add a task" takes the focus
-  const emptiedQuadrant = left && !location ? left.quadrantKey : null;
-  const isSelectionStale = selectedTaskId !== null && !found;
-  const locatedTaskId = location?.task.id ?? null;
+  const emptiedQuadrant =
+    leftQuadrant && !location ? leftQuadrant.quadrantKey : null;
+  const locatedTaskId = location?.task.id ?? completedLocation?.task.id ?? null;
+  const isSelectionStale =
+    selectedTaskId !== null && selectedTaskId !== locatedTaskId;
 
   useEffect(() => {
-    lastLocation.current = location;
+    lastLocation.current = location ?? completedLocation;
   });
 
   useEffect(() => {
     if (isSelectionStale) selectTaskAction(locatedTaskId);
   }, [isSelectionStale, locatedTaskId]);
 
-  useFocusAfterAction(matrixRef, locatedTaskId, emptiedQuadrant);
+  useFocusAfterAction(
+    matrixRef,
+    locatedTaskId,
+    emptiedQuadrant,
+    lastListTaskId,
+  );
   useDeselectOnPageClick();
 
   const handleMove = async (toQuadrant: MatrixKey) => {
@@ -112,17 +165,24 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   const handleDelete = () =>
     location && deleteTask(location.quadrantKey, location.task.id);
   const handleEdit = () => location && setEditingTaskId(location.task.id);
+  const handleRestore = () =>
+    completedLocation && restoreTask(completedLocation.task);
+  const handleDeleteCompleted = () =>
+    completedLocation && deleteCompletedTask(completedLocation.task.id);
   // As Esc from the task: the card keeps the focus, not the selection. It's
   // focused while still selected, so its focus doesn't select it again.
   const handleDeselect = () => {
-    if (!location) return;
-    taskCard(location.task.id)?.focus();
+    if (!locatedTaskId) return;
+    taskCard(locatedTaskId)?.focus();
     selectTaskAction(null);
   };
 
   useMatrixKeys({
     tasks,
+    shownCompleted,
     location,
+    completedLocation,
+    onDeleteCompleted: handleDeleteCompleted,
     isMatrixView,
     toolbarRef,
     onComplete: handleComplete,
@@ -145,8 +205,20 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
 
   return (
     <>
+      {completedLocation && !isAddingInline && (
+        <ActionToolbar
+          // Its own toolbar: the focus in the other one doesn't carry over
+          key="completed"
+          toolbarRef={toolbarRef}
+          completedTask={completedLocation.task}
+          onRestore={handleRestore}
+          onDelete={handleDeleteCompleted}
+          onDeselect={handleDeselect}
+        />
+      )}
       {location && !isAddingInline && (
         <ActionToolbar
+          key="active"
           toolbarRef={toolbarRef}
           location={location}
           onComplete={handleComplete}

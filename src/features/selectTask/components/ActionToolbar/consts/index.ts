@@ -8,6 +8,9 @@ export const QUADRANT_DOT: Record<MatrixKey, string> = {
   NotImportantNotUrgent: 'bg-green-500',
 };
 
+// The task's main action: Complete, or Restore for a completed task
+export const PRIMARY_BUTTON = 'bg-green-700 font-bold hover:bg-green-800';
+
 const BUTTON =
   'cursor-pointer rounded-lg px-3 py-2 hover:bg-white/10 disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent';
 
@@ -36,5 +39,6 @@ export const PANEL_STYLES = {
     TASK_TEXT: 'line-clamp-1 min-w-0 flex-1 px-1 opacity-80',
     DESELECT_BUTTON: 'flex min-w-11 shrink-0 items-center justify-center',
     ACTIONS_ROW: 'grid grid-cols-3 gap-2',
+    COMPLETED_ACTIONS_ROW: 'grid grid-cols-2 gap-2',
   },
 } as const;

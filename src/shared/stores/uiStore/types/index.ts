@@ -24,6 +24,8 @@ export interface UIState {
    * synced; an empty section shows open whatever is stored here.
    */
   collapsedSections: MatrixKey[];
+  /** The Completed section is expanded; collapsed by default. Stored like collapsedSections. */
+  isCompletedExpanded: boolean;
   /** Task whose card takes focus once it's rendered, e.g. after Undo */
   taskToFocus: string | null;
   /** The Selected Task in the matrix: at most one, none when null */

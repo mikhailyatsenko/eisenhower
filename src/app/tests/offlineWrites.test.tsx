@@ -55,8 +55,17 @@ const moveTask = async (user: User, text: string, quadrant: string) => {
   );
 };
 
-const openCompleted = (user: User) =>
-  user.click(screen.getByRole('button', { name: /completed tasks/i }));
+const openCompleted = async (user: User) => {
+  await user.click(screen.getByRole('tab', { name: 'List' }));
+  await user.click(screen.getByRole('button', { name: /^Completed, / }));
+};
+
+const restoreCompleted = async (user: User, text: string) => {
+  await user.click(
+    screen.getByRole('option', { name: new RegExp(`^${text}`) }),
+  );
+  await user.click(within(toolbar()).getByRole('button', { name: 'Restore' }));
+};
 
 const offlinePage = () =>
   renderHomePage({
@@ -118,7 +127,7 @@ describe('Changes of a signed-in user without a network', () => {
     const { user } = await offlinePage();
 
     await openCompleted(user);
-    await user.click(screen.getByRole('button', { name: 'Restore task' }));
+    await restoreCompleted(user, 'File taxes');
 
     expect(tasksIn('Schedule')).toEqual(['File taxes']);
   });
@@ -127,7 +136,7 @@ describe('Changes of a signed-in user without a network', () => {
     const { user, cloud, reload } = await offlinePage();
 
     await openCompleted(user);
-    await user.click(screen.getByRole('button', { name: 'Restore task' }));
+    await restoreCompleted(user, 'File taxes');
     await moveTask(user, 'Pay rent', 'Schedule');
     await actOnTask(user, 'Call the bank', 'Complete');
     await actOnTask(user, 'Reply to the landlord', 'Delete');
@@ -176,15 +185,19 @@ describe('Changes of a signed-in user without a network', () => {
   });
 
   it('clears Completed on the server once back online', async () => {
-    jest.spyOn(window, 'confirm').mockReturnValue(true);
     const { user, cloud } = await offlinePage();
     await actOnTask(user, 'Pay rent', 'Complete');
 
     await openCompleted(user);
-    await user.click(screen.getByRole('button', { name: 'delete all' }));
+    await user.click(screen.getByRole('button', { name: 'Delete all' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Delete all',
+      }),
+    );
 
     expect(
-      screen.queryByRole('button', { name: /completed tasks/i }),
+      screen.queryByRole('button', { name: /^Completed, / }),
     ).not.toBeInTheDocument();
 
     cloud.goOnline();

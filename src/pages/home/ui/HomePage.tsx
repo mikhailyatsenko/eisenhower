@@ -1,7 +1,6 @@
 import { TaskMatrix } from '@/widgets/taskMatrix';
 import { AddTask } from '@/features/addTask';
 import { ToastRegion } from '@/shared/ui/toast';
-import { CompletedTasks } from './CompletedTasks';
 
 // Server component: the h1 is in the HTML before hydration
 export const HomePage = () => (
@@ -15,7 +14,5 @@ export const HomePage = () => (
     <TaskMatrix />
     {/* Right after the matrix: Undo is the next Tab stop */}
     <ToastRegion />
-
-    <CompletedTasks />
   </div>
 );

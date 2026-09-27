@@ -1,4 +1,4 @@
-import { MatrixKey } from '@/shared/stores/tasksStore';
+import { MatrixKey, TaskArea } from '@/shared/stores/tasksStore';
 import { MatrixStop } from '../lib/matrixTabStop';
 
 /**
@@ -18,7 +18,7 @@ export interface QuadrantSlots {
 
 /** A List view section on screen and where the keyboard stands in it */
 export interface ListSection {
-  quadrantKey: MatrixKey;
+  area: TaskArea;
   /** Its tasks, or the "Add a task" of an empty section */
   stops: MatrixStop[];
 }

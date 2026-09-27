@@ -3,10 +3,12 @@ import { MATRIX_KEYS } from '@/shared/consts';
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
 import {
   selectTaskAction,
+  setCompletedExpandedAction,
   setSectionCollapsedAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { AddTaskButton } from '../components/addTaskButton';
+import { CompletedSection } from '../components/completedSection';
 import { QuadrantExamples } from '../components/quadrantExamples';
 import { SectionHeader } from '../components/sectionHeader';
 import { TaskItem } from '../components/taskItem';
@@ -21,6 +23,12 @@ import { QuadrantSlots } from '../types';
 
 interface ListLayoutProps {
   tasks: Record<MatrixKey, Task[]>;
+  /** The shown completed tasks, newest first */
+  completedTasks: Task[];
+  /** All completed tasks: the last section, while there are any */
+  completedCount: number;
+  /** Shows the next completed tasks; absent once all are shown */
+  onShowMoreCompleted?: () => void;
   slots: QuadrantSlots;
   /** Empty sections show their example tasks */
   hasExamples: boolean;
@@ -31,14 +39,19 @@ interface ListLayoutProps {
  * the matrix order, its tasks in the quadrant's order. A section collapses to
  * its header; an empty one always shows open. A click on a section's empty
  * space, between the tasks or after the last one, adds there as in a
- * quadrant. No drag: the list is mounted outside a DndContext.
+ * quadrant. Completed comes last, collapsed by default. No drag: the list
+ * is mounted outside a DndContext.
  */
 export const ListLayout: React.FC<ListLayoutProps> = ({
   tasks,
+  completedTasks,
+  completedCount,
+  onShowMoreCompleted,
   slots,
   hasExamples,
 }) => {
   const collapsedSections = useUIStore((state) => state.collapsedSections);
+  const isCompletedExpanded = useUIStore((state) => state.isCompletedExpanded);
   const selectedTaskId = useUIStore((state) => state.selectedTaskId);
   const lastSelectedTaskId = useUIStore((state) => state.lastSelectedTaskId);
   const addTaskTabStop = useUIStore((state) => state.addTaskTabStop);
@@ -50,6 +63,7 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
   const tabStop = listTabStop(
     tasks,
     collapsedSections,
+    isCompletedExpanded ? completedTasks : [],
     selectedTaskId,
     lastSelectedTaskId,
     addTaskTabStop,
@@ -63,6 +77,12 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
       collapse && tasks[quadrant].some(({ id }) => id === selectedTaskId);
     if (hidesSelection) selectTaskAction(null);
     setSectionCollapsedAction(quadrant, collapse);
+  };
+  const handleCompletedExpandedChange = (expand: boolean) => {
+    const hidesSelection =
+      !expand && completedTasks.some(({ id }) => id === selectedTaskId);
+    if (hidesSelection) selectTaskAction(null);
+    setCompletedExpandedAction(expand);
   };
   const handleEmptySpaceClick = useEmptySpaceClick();
 
@@ -135,6 +155,17 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
           </div>
         );
       })}
+
+      {completedCount > 0 && (
+        <CompletedSection
+          tasks={completedTasks}
+          count={completedCount}
+          onShowMore={onShowMoreCompleted}
+          isExpanded={isCompletedExpanded}
+          onExpandedChange={handleCompletedExpandedChange}
+          isTabStop={(taskId) => isTabStop({ taskId })}
+        />
+      )}
     </div>
   );
 };
