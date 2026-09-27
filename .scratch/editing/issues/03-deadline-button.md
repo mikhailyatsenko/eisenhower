@@ -1,7 +1,7 @@
 # Кнопка «Deadline» в панели действий
 
 Type: prototype
-Status: open
+Status: claimed
 Blocked by: 01
 
 ## Question
