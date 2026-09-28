@@ -18,11 +18,10 @@ export const DEADLINE_CHIPS = Object.keys(DEADLINE_CHIP_KEYS) as DeadlineChip[];
 /** The chip that clears the deadline, picked by Delete or Backspace */
 export const NO_DEADLINE = 'No deadline';
 
-const CHIP_ACTION: Record<DeadlineChip, string> = {
-  Today: 'Today',
-  Tomorrow: 'Tomorrow',
-  'This weekend': 'This weekend: Saturday, or today at the weekend',
-  'Next week': 'Next week: Monday',
+// What the name of a chip leaves unsaid, for the cheatsheet
+const CHIP_DETAIL: Partial<Record<DeadlineChip, string>> = {
+  'This weekend': 'Saturday, or today at the weekend',
+  'Next week': 'Monday',
 };
 
 /**
@@ -32,7 +31,7 @@ const CHIP_ACTION: Record<DeadlineChip, string> = {
 export const DEADLINE_SHORTCUTS: Shortcut[] = [
   ...DEADLINE_CHIPS.map((chip) => ({
     keys: [DEADLINE_CHIP_KEYS[chip]],
-    action: CHIP_ACTION[chip],
+    action: CHIP_DETAIL[chip] ? `${chip}: ${CHIP_DETAIL[chip]}` : chip,
   })),
   { keys: ['Delete', 'Backspace'], action: NO_DEADLINE },
   { keys: ['Enter'], action: 'In the date or time field: set that date' },

@@ -259,7 +259,8 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       } else if (letter === 'e' || (key === 'Enter' && !isControl(target))) {
         handle(onEdit);
       } else if (letter === 'd') {
-        handle(onDeadline);
+        // From the task back to the task, so ↓ goes on; from the panel to its button
+        handle(() => onDeadline(isInToolbar ? 'button' : 'task'));
       } else if (key === 'Delete' || key === 'Backspace') {
         handle(onDelete);
       } else if (letter === 'n') {

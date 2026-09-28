@@ -298,6 +298,41 @@ describe('Deadline button in the action panel', () => {
     expect(card('Renew passport')).not.toHaveTextContent(/\d:\d\d/);
   });
 
+  it('keeps Undo and the matrix keys out with the focus past the choices, and Esc still goes back', async () => {
+    const page = await renderHomePage({ tasks: TASKS });
+    await select(page, 'Call the bank');
+    await page.user.keyboard('c');
+    expect(screen.getByRole('button', { name: /Undo/ })).toBeInTheDocument();
+
+    await select(page, 'Renew passport');
+    await page.user.keyboard('d');
+    // Out of the choices: the focus is on the page, not in them
+    act(() => (document.activeElement as HTMLElement).blur());
+
+    await page.user.keyboard('{Control>}z{/Control}c');
+    expect(
+      screen.queryByRole('option', { name: /^Call the bank/ }),
+    ).not.toBeInTheDocument();
+    expect(card('Renew passport')).toBeInTheDocument();
+
+    await page.user.keyboard('{Escape}');
+    expect(toolbar()).toHaveAccessibleName('Actions for “Renew passport”');
+  });
+
+  it('puts the focus back on the Deadline button after D pressed in the panel', async () => {
+    const page = await renderHomePage({ tasks: TASKS });
+    await select(page, 'Renew passport');
+    await page.user.tab();
+    expect(
+      within(toolbar()).getByRole('button', { name: /Complete/ }),
+    ).toHaveFocus();
+
+    await page.user.keyboard('d');
+    await page.user.keyboard('m');
+
+    expect(deadlineButton()).toHaveFocus();
+  });
+
   it('leaves the matrix keys alone while choosing', async () => {
     const page = await renderHomePage({ tasks: TASKS });
     await openByKey(page, 'Renew passport');
@@ -459,8 +494,8 @@ describe('Deadline button in the action panel', () => {
       const page = await renderHomePage({ tasks: TASKS, viewport: PHONE });
       await openByClick(page, 'Renew passport');
 
-      expect(chip('Renew passport', /^Tomorrow/)).toHaveTextContent(
-        shown(day(26)),
+      expect(chip('Renew passport', /^Tomorrow/)).toHaveAccessibleName(
+        `Tomorrow ${shown(day(26))}`,
       );
       expect(chip('Renew passport', /^Next week/)).toHaveTextContent(
         shown(day(28)),
@@ -483,6 +518,23 @@ describe('Deadline button in the action panel', () => {
 
       await expectNoAxeViolations();
     });
+  });
+
+  it('closes when the task is deleted on another device', async () => {
+    const page = await renderHomePage({
+      signedIn: { uid: 'u1', displayName: 'Ada' },
+      cloud: { tasks: { ImportantUrgent: ['Pay rent', 'Call the bank'] } },
+    });
+    await openByClick(page, 'Pay rent');
+
+    page.cloud.remoteChange((server) => server.remove('Pay rent'));
+    await act(async () => {});
+
+    expect(
+      screen.queryByRole('group', { name: /^Deadline for/ }),
+    ).not.toBeInTheDocument();
+    await select(page, 'Call the bank');
+    expect(toolbar()).toHaveAccessibleName('Actions for “Call the bank”');
   });
 
   it('sets the deadline of a signed-in user without a network', async () => {

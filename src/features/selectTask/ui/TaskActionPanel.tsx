@@ -31,7 +31,12 @@ import {
   neighbourTaskId,
   taskCard,
 } from '../lib';
-import { CompletedLocation, TaskActions, TaskLocation } from '../types';
+import {
+  CompletedLocation,
+  DeadlineFocusReturn,
+  TaskActions,
+  TaskLocation,
+} from '../types';
 
 const getActiveTasks = () => selectTasks(useTaskStore.getState());
 
@@ -42,9 +47,6 @@ interface TaskActionPanelProps extends TaskActions {
   /** Takes the focus when the matrix has no task left to focus */
   matrixRef: RefObject<HTMLElement | null>;
 }
-
-/** Where the focus goes back from the deadline choices: where D or the button was pressed */
-type DeadlineReturn = 'task' | 'button';
 
 const isInQuadrant = (
   location: TaskLocation | CompletedLocation,
@@ -79,9 +81,9 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   // By id, like the edit dialog: the choices don't come back on a later selection
   const [deadlineChoice, setDeadlineChoice] = useState<{
     taskId: string;
-    returnTo: DeadlineReturn;
+    returnTo: DeadlineFocusReturn;
   } | null>(null);
-  const deadlineFocus = useRef<DeadlineReturn | null>(null);
+  const pendingFocusReturn = useRef<DeadlineFocusReturn | null>(null);
 
   // Where the focus goes once Completed has emptied
   const lastListTaskId = () =>
@@ -149,9 +151,9 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   // Before useFocusAfterAction's effect: the focus leaves the choices for
   // the task or the button, never for the page
   useLayoutEffect(() => {
-    const returnTo = deadlineFocus.current;
+    const returnTo = pendingFocusReturn.current;
     if (!returnTo || isChoosingDeadline) return;
-    deadlineFocus.current = null;
+    pendingFocusReturn.current = null;
     if (returnTo === 'button') deadlineButtonRef.current?.focus();
     else if (locatedTaskId) taskCard(locatedTaskId)?.focus();
   });
@@ -195,10 +197,10 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   const handleDelete = () =>
     location && deleteTask(location.quadrantKey, location.task.id);
   const handleEdit = () => location && setEditingTaskId(location.task.id);
-  const openDeadline = (returnTo: DeadlineReturn) =>
+  const openDeadline = (returnTo: DeadlineFocusReturn) =>
     location && setDeadlineChoice({ taskId: location.task.id, returnTo });
   const closeDeadline = () => {
-    deadlineFocus.current = deadlineChoice?.returnTo ?? null;
+    pendingFocusReturn.current = deadlineChoice?.returnTo ?? null;
     setDeadlineChoice(null);
   };
   // As it is, the text and the quadrant too; no toast and no Undo
@@ -231,8 +233,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     isChoosingDeadline,
     onComplete: handleComplete,
     onEdit: handleEdit,
-    // D from the task: the focus comes back to it, so ↓ goes on
-    onDeadline: () => openDeadline('task'),
+    onDeadline: openDeadline,
     onMove: handleMove,
     onDelete: handleDelete,
     onShowShortcuts: () => setIsShortcutsOpen(true),
@@ -269,7 +270,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
           location={location}
           onComplete={handleComplete}
           onEdit={handleEdit}
-          onDeadline={() => openDeadline('button')}
+          onDeadline={openDeadline}
           deadlineButtonRef={deadlineButtonRef}
           isChoosingDeadline={isChoosingDeadline}
           onPickDeadline={handlePickDeadline}

@@ -36,7 +36,7 @@ export interface UIState {
   fullScreenQuadrant: MatrixKey | null;
   /** Closed when null */
   inlineAdd: InlineAdd | null;
-  /** A task is being dragged in the matrix: the action panel drops its deadline choices */
+  /** A task is being dragged in the matrix, from its drag start to the drop or cancel */
   isDraggingTask: boolean;
   /**
    * The empty quadrant whose "Add a task" had the focus last, after any task

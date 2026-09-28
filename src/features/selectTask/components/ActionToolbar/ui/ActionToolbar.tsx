@@ -219,7 +219,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = (props) => {
       type="button"
       aria-label={deadline ? `Deadline, ${deadline.text}` : 'Deadline'}
       aria-keyshortcuts="D"
-      onClick={onDeadline}
+      onClick={() => onDeadline('button')}
       className={twMerge(
         styles.BUTTON,
         isPhone ? PANEL_STYLES.phone.DEADLINE_ROW : 'flex items-center',

@@ -71,9 +71,9 @@ export const DeadlineChooser = ({
   const rootRef = useRef<HTMLDivElement>(null);
   const timeRef = useRef<HTMLInputElement>(null);
   const dateId = useId();
-  const current = toDeadlineInput(task);
-  const [custom, setCustom] = useState<DeadlineInput>(current);
-  const customDeadline = toDeadline(custom);
+  const savedInput = toDeadlineInput(task);
+  const [customInput, setCustomInput] = useState<DeadlineInput>(savedInput);
+  const customDeadline = toDeadline(customInput);
 
   // Before the panel's own effects: the focus never drops to the page
   useLayoutEffect(() => {
@@ -87,7 +87,7 @@ export const DeadlineChooser = ({
   }, []);
 
   // "+ Time" hands the focus to the time field it opens
-  const isTimeOpen = custom.time !== null;
+  const isTimeOpen = customInput.time !== null;
   const shouldFocusTime = useRef(false);
   useEffect(() => {
     if (isTimeOpen && shouldFocusTime.current) timeRef.current?.focus();
@@ -98,33 +98,48 @@ export const DeadlineChooser = ({
   const pickChip = (chip: DeadlineChip) =>
     onPick({ dueDate: chipDate(chip), hasDueTime: false });
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    // The matrix keys (C, E, 1–4, N, ?), Undo too, stay out while choosing
-    event.stopPropagation();
-    const { key, nativeEvent } = event;
-    if (key === 'Escape') {
-      event.preventDefault();
-      onBack();
-      return;
-    }
-    // A field types its letters and edits with Delete and Backspace
-    if (isTextField(event.target)) return;
-    if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return;
-    if (key === 'Delete' || key === 'Backspace') {
-      event.preventDefault();
-      onPick(null);
-      return;
-    }
-    const letter = keyLetter(nativeEvent);
-    const chip = DEADLINE_CHIPS.find(
-      (deadlineChip) =>
-        DEADLINE_CHIP_KEYS[deadlineChip].toLowerCase() === letter,
-    );
-    if (chip) {
-      event.preventDefault();
-      pickChip(chip);
-    }
-  };
+  // The keys work wherever the focus is while choosing: first on the page,
+  // before the matrix keys (C, E, 1–4, N, ?) and Undo, which they keep out
+  const keysRef = useRef({ onPick, onBack, pickChip });
+  useEffect(() => {
+    keysRef.current = { onPick, onBack, pickChip };
+  });
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      const { key, target } = event;
+      const keys = keysRef.current;
+      if (key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        keys.onBack();
+        return;
+      }
+      // A field types its letters and edits with Delete and Backspace
+      if (isTextField(target)) return;
+      event.stopPropagation();
+      if (event.ctrlKey || event.metaKey || event.altKey || event.repeat)
+        return;
+      if (key === 'Delete' || key === 'Backspace') {
+        event.preventDefault();
+        keys.onPick(null);
+        return;
+      }
+      const letter = keyLetter(event);
+      const chip = DEADLINE_CHIPS.find(
+        (deadlineChip) =>
+          DEADLINE_CHIP_KEYS[deadlineChip].toLowerCase() === letter,
+      );
+      if (chip) {
+        event.preventDefault();
+        keys.pickChip(chip);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () =>
+      window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, []);
 
   const hint = (label: string) => !isTouchScreen && <KeyHint label={label} />;
 
@@ -147,6 +162,8 @@ export const DeadlineChooser = ({
       )}
     >
       {name}
+      {/* Read as "Tomorrow Mon 28 Sept", not run together */}
+      {isPhone && date && ' '}
       {isPhone && date && (
         <span className="text-[11px] font-normal">
           {formatDate(date, { hasTime: false, now })}
@@ -160,7 +177,8 @@ export const DeadlineChooser = ({
     chipButton(
       chip,
       // An own time isn't a whole day; one set before R4 has a time
-      current.time === null && current.date === toDateValue(chipDate(chip)),
+      savedInput.time === null &&
+        savedInput.date === toDateValue(chipDate(chip)),
       () => pickChip(chip),
       DEADLINE_CHIP_KEYS[chip],
       chipDate(chip),
@@ -168,7 +186,7 @@ export const DeadlineChooser = ({
   );
   const noDeadlineChip = chipButton(
     NO_DEADLINE,
-    !current.date,
+    !savedInput.date,
     () => onPick(null),
     'Del',
   );
@@ -192,12 +210,12 @@ export const DeadlineChooser = ({
         <input
           id={dateId}
           type="date"
-          value={custom.date}
+          value={customInput.date}
           // Without a date there is no time
           onChange={(event) =>
-            setCustom({
+            setCustomInput({
               date: event.target.value,
-              time: event.target.value ? custom.time : null,
+              time: event.target.value ? customInput.time : null,
             })
           }
           className={FIELD}
@@ -208,19 +226,19 @@ export const DeadlineChooser = ({
           ref={timeRef}
           type="time"
           aria-label="Time"
-          value={custom.time ?? ''}
+          value={customInput.time ?? ''}
           onChange={(event) =>
-            setCustom({ ...custom, time: event.target.value })
+            setCustomInput({ ...customInput, time: event.target.value })
           }
           className={FIELD}
         />
       ) : (
-        custom.date && (
+        customInput.date && (
           <button
             type="button"
             onClick={() => {
               shouldFocusTime.current = true;
-              setCustom({ ...custom, time: DEFAULT_TIME });
+              setCustomInput({ ...customInput, time: DEFAULT_TIME });
             }}
             className={twMerge(BUTTON, 'text-xs font-bold underline')}
           >
@@ -258,7 +276,6 @@ export const DeadlineChooser = ({
       ref={rootRef}
       role="group"
       aria-label={`Deadline for “${task.text}”`}
-      onKeyDown={handleKeyDown}
       className={
         isPhone
           ? 'flex flex-col gap-3'
