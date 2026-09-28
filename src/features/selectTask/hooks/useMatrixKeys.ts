@@ -10,6 +10,7 @@ import {
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { isDialogOpen } from '@/shared/lib/isDialogOpen';
 import { isTextField } from '@/shared/lib/isTextField';
+import { keyLetter } from '@/shared/lib/keyLetter';
 import { Task, Tasks } from '@/shared/stores/tasksStore';
 import {
   openInlineAddAction,
@@ -22,7 +23,6 @@ import {
   arrowTarget,
   isArrowKey,
   isControl,
-  keyLetter,
   listArrowTarget,
   locateTask,
   taskCard,
@@ -46,6 +46,8 @@ interface MatrixKeysOptions extends TaskActionHandlers {
   /** List view walks its open sections, the matrix its 2×2 */
   isMatrixView: boolean;
   toolbarRef: RefObject<HTMLElement | null>;
+  /** The panel shows the deadline choices: they take their own keys, the matrix none */
+  isChoosingDeadline: boolean;
   onShowShortcuts: () => void;
 }
 
@@ -106,7 +108,7 @@ const firstShownTaskId = (
 
 /**
  * The matrix keyboard, one handler for the page and both views: arrows, 1–4,
- * C/Space, E/Enter, Del/Backspace, N, Esc and ? for the cheatsheet. Keys in
+ * C/Space, E/Enter, D, Del/Backspace, N, Esc and ? for the cheatsheet. Keys in
  * a text field or an open dialog are left alone, arrows on a List view
  * section's header too. "Add" opens the inline field in both views, and Esc
  * from it comes back to where the key was pressed. A completed task takes
@@ -125,6 +127,7 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       if (event.altKey || isTextField(target)) return;
       if (target instanceof HTMLSelectElement) return;
       if (isDialogOpen()) return;
+      if (optionsRef.current.isChoosingDeadline) return;
       // Holding an action key down must not repeat the action
       if (event.repeat && !isArrowKey(key)) return;
       // The header's button collapses its section, it doesn't select
@@ -140,6 +143,7 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
         toolbarRef,
         onComplete,
         onEdit,
+        onDeadline,
         onMove,
         onDelete,
         onShowShortcuts,
@@ -254,6 +258,8 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
         handle(onComplete);
       } else if (letter === 'e' || (key === 'Enter' && !isControl(target))) {
         handle(onEdit);
+      } else if (letter === 'd') {
+        handle(onDeadline);
       } else if (key === 'Delete' || key === 'Backspace') {
         handle(onDelete);
       } else if (letter === 'n') {

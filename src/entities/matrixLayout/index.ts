@@ -1,4 +1,5 @@
 export {
+  DeadlineChooser,
   EditTaskDialog,
   ListLayout,
   MatrixLayout,
@@ -8,6 +9,7 @@ export { EditTaskForm } from './components/editTaskForm';
 export { colors } from './consts';
 export {
   addTaskButtonQuadrant,
+  deadlineStatus,
   firstTaskId,
   isInCompletedSection,
   isSameStop,
@@ -16,5 +18,5 @@ export {
   listStops,
   revealCompletedSection,
 } from './lib';
-export type { MatrixStop } from './lib';
+export type { DeadlineStatus, MatrixStop } from './lib';
 export type { ListSection, QuadrantSlots } from './types';

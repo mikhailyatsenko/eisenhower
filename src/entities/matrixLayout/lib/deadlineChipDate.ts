@@ -6,15 +6,7 @@ import {
   startOfDay,
   startOfWeek,
 } from 'date-fns';
-
-export const DEADLINE_CHIPS = [
-  'Today',
-  'Tomorrow',
-  'This weekend',
-  'Next week',
-] as const;
-
-export type DeadlineChip = (typeof DEADLINE_CHIPS)[number];
+import type { DeadlineChip } from '@/shared/consts';
 
 const chipDay: Record<DeadlineChip, (now: Date) => Date> = {
   Today: (now) => now,

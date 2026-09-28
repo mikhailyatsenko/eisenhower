@@ -1,6 +1,11 @@
 import { within } from '@testing-library/react';
 import { renderToString } from 'react-dom/server.node';
-import { ADD_HINT, MATRIX_SHORTCUTS, SITE_URL } from '@/shared/consts';
+import {
+  ADD_HINT,
+  DEADLINE_SHORTCUTS,
+  MATRIX_SHORTCUTS,
+  SITE_URL,
+} from '@/shared/consts';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts/quadrants';
 import EisenhowerMatrixPage, {
   metadata,
@@ -106,6 +111,12 @@ describe('Server pages', () => {
       expect(howTo).toHaveTextContent('action panel');
       expect(howTo).toHaveTextContent('Move to');
       expect(howTo).toHaveTextContent(
+        'Complete, Edit, Move to one of the other quadrants, Deadline and Delete',
+      );
+      expect(howTo).toHaveTextContent(
+        'deadline choices, with no window on top',
+      );
+      expect(howTo).toHaveTextContent(
         'Drag a task to reorder or move it; long-press on touch',
       );
       MATRIX_SHORTCUTS.forEach(({ keys, action }) => {
@@ -115,6 +126,18 @@ describe('Server pages', () => {
           ).toBeGreaterThan(0),
         );
         expect(howTo).toHaveTextContent(action);
+      });
+      const deadlineTable = within(howTo).getByRole('heading', {
+        level: 3,
+        name: 'Choosing a deadline',
+      }).nextElementSibling as HTMLElement;
+      DEADLINE_SHORTCUTS.forEach(({ keys, action }) => {
+        keys.forEach((key) =>
+          expect(
+            within(deadlineTable).getAllByText(key, { selector: 'kbd' }).length,
+          ).toBeGreaterThan(0),
+        );
+        expect(deadlineTable).toHaveTextContent(action);
       });
       // Selection replaced the hover buttons
       expect(howTo).not.toHaveTextContent('Hover over a task');
@@ -132,6 +155,9 @@ describe('Server pages', () => {
       expect(phone).toHaveTextContent('Back to matrix');
       expect(phone).toHaveTextContent('Tap a task');
       expect(phone).toHaveTextContent('panel at the bottom of the screen');
+      expect(phone).toHaveTextContent(
+        'Complete, Edit and Delete, under them the deadline, and Move to',
+      );
       expect(phone).toHaveTextContent('Move to');
       expect(phone).toHaveTextContent('press and hold');
     });

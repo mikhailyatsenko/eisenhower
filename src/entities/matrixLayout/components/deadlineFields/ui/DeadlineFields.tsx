@@ -1,11 +1,16 @@
 import { useEffect, useId, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { DEADLINE_CHIPS, NO_DEADLINE } from '@/shared/consts';
 import { useNow } from '@/shared/hooks';
-import { DEADLINE_CHIPS, deadlineChipDate, deadlineStatus } from '../../../lib';
+import { DEFAULT_TIME } from '../../../consts';
+import {
+  deadlineChipDate,
+  deadlineStatus,
+  toDateValue,
+  toDeadline,
+} from '../../../lib';
+import { DeadlineInput } from '../../../types';
 import { DeadlineLine } from '../../deadlineLine';
-import { DEFAULT_TIME } from '../consts';
-import { toDateValue, toDeadline } from '../lib';
-import { DeadlineInput } from '../types';
 
 interface DeadlineFieldsProps {
   value: DeadlineInput;
@@ -92,7 +97,7 @@ export const DeadlineFields = ({
           isPressed={!value.date}
           onClick={() => onChange({ date: '', time: null })}
         >
-          No deadline
+          {NO_DEADLINE}
         </Chip>
         {DEADLINE_CHIPS.map((chip) => {
           const date = toDateValue(deadlineChipDate(chip, now));

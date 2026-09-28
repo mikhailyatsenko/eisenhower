@@ -198,6 +198,42 @@ describe('Shortcuts cheatsheet', () => {
     expect(cheatsheet()).toHaveTextContent('New task button');
   });
 
+  it('tells D and the keys of the deadline choices under the matrix keys', async () => {
+    const { user } = await renderHomePage({
+      tasks: { ImportantUrgent: TASKS },
+    });
+
+    await user.keyboard('?');
+
+    const rows = within(cheatsheet())
+      .getAllByRole('row')
+      .map((row) => row.textContent);
+    const editRow = rows.findIndex((row) => row?.startsWith('EorEnter'));
+    expect(rows[editRow + 1]).toBe(
+      'DSet the deadline: the action panel turns into deadline choices, keys below',
+    );
+
+    const heading = within(cheatsheet()).getByRole('heading', {
+      level: 3,
+      name: 'Choosing a deadline',
+    });
+    const table = heading.nextElementSibling as HTMLElement;
+    expect(
+      within(table)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => row.textContent),
+    ).toEqual([
+      'TToday',
+      'MTomorrow',
+      'WThis weekend: Saturday, or today at the weekend',
+      'XNext week: Monday',
+      'DeleteorBackspaceNo deadline',
+      'EnterIn the date or time field: set that date',
+      'EscBack to the action panel without changes',
+    ]);
+  });
+
   it('opens with a task selected, holds the matrix keys and gives the focus back', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },

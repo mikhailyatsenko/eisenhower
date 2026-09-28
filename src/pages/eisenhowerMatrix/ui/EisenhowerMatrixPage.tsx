@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { DEADLINE_SHORTCUTS } from '@/shared/consts/deadlineShortcuts';
 import {
   ADD_HINT,
   DRAG_HINT,
@@ -131,8 +132,10 @@ export const EisenhowerMatrixPage = () => (
         <li>
           While a task is selected, the action panel at the bottom of the window
           shows what you can do with it: Complete, Edit, Move to one of the
-          other quadrants, and Delete. After Complete, Delete or Move, the next
-          task in the quadrant is selected, so you can keep going.
+          other quadrants, Deadline and Delete. Deadline turns the panel itself
+          into deadline choices, with no window on top. After Complete, Delete
+          or Move, the next task in the quadrant is selected, so you can keep
+          going.
         </li>
         <li>
           Changed your mind? Press Undo in the message that follows an action,
@@ -158,9 +161,10 @@ export const EisenhowerMatrixPage = () => (
         </li>
         <li>
           Tap a task to select it. The panel at the bottom of the screen has
-          Complete, Edit and Delete, and under them Move to, laid out as a small
-          matrix: tap the quadrant the task should go to. Tap the × next to the
-          task&apos;s text, the task again or any empty spot to close the panel.
+          Complete, Edit and Delete, under them the deadline, and Move to, laid
+          out as a small matrix: tap the quadrant the task should go to. Tap the
+          × next to the task&apos;s text, the task again or any empty spot to
+          close the panel.
         </li>
         <li>
           To drag a task, press and hold it until it lifts, then move it to
@@ -177,6 +181,10 @@ export const EisenhowerMatrixPage = () => (
         press ? to see them.
       </p>
       <ShortcutsTable shortcuts={MATRIX_SHORTCUTS} />
+      <h3 className="pt-2 font-semibold text-gray-900 dark:text-gray-100">
+        Choosing a deadline
+      </h3>
+      <ShortcutsTable shortcuts={DEADLINE_SHORTCUTS} />
     </Section>
 
     <Section id="no-sign-up" title="No sign-up needed">

@@ -149,6 +149,12 @@ export const requestTaskFocusAction = (taskId: string | null) => {
   });
 };
 
+export const setDraggingTaskAction = (isDragging: boolean) => {
+  useUIStore.setState((state) => {
+    state.isDraggingTask = isDragging;
+  });
+};
+
 export const selectTaskAction = (taskId: string | null) => {
   useUIStore.setState((state) => {
     state.selectedTaskId = taskId;

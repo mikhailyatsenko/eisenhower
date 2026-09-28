@@ -2,12 +2,9 @@ import { useEffect, useId, useState, useRef } from 'react';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
 import { Deadline, Task, MatrixKey } from '@/shared/stores/tasksStore';
 import { BUTTON_CANCEL_TEXT, BUTTON_SAVE_TEXT } from '../../consts';
-import {
-  DeadlineFields,
-  DeadlineInput,
-  toDeadlineInput,
-  toDeadline,
-} from '../deadlineFields';
+import { toDeadline, toDeadlineInput } from '../../lib';
+import { DeadlineInput } from '../../types';
+import { DeadlineFields } from '../deadlineFields';
 
 interface EditFormProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;

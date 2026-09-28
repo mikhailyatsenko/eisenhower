@@ -12,7 +12,10 @@ import {
   holdCloudSnapshotsAction,
   releaseCloudSnapshotsAction,
 } from '@/shared/stores/tasksStore';
-import { setRecentlyAddedQuadrantAction } from '@/shared/stores/uiStore';
+import {
+  setDraggingTaskAction,
+  setRecentlyAddedQuadrantAction,
+} from '@/shared/stores/uiStore';
 import { dropIndex, findQuadrant } from '..';
 import { MoveTask } from '../../types';
 
@@ -38,6 +41,7 @@ export const useDragEvents = (moveTask: MoveTask) => {
     origin.current = null;
     setDragOverQuadrant(null);
     setActiveTaskId(null);
+    setDraggingTaskAction(false);
   };
 
   /** Undoes the drag preview: puts the task back where the drag found it */
@@ -50,6 +54,7 @@ export const useDragEvents = (moveTask: MoveTask) => {
 
   const handleDragStart = (event: DragStartEvent) => {
     holdCloudSnapshotsAction();
+    setDraggingTaskAction(true);
     const taskId = event.active.id as string;
     const activeArea = event.active.data.current?.quadrantKey as
       | MatrixKey

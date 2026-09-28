@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { DEADLINE_SHORTCUTS } from '@/shared/consts/deadlineShortcuts';
 import {
   ADD_HINT,
   DRAG_HINT,
@@ -12,8 +13,8 @@ interface ShortcutsDialogProps {
 }
 
 /**
- * The cheatsheet that ? opens: adding, every matrix key, Undo and drag, and
- * last the way to the method page
+ * The cheatsheet that ? opens: adding, every matrix key, Undo, the keys of
+ * the deadline choices, drag, and last the way to the method page
  */
 export const ShortcutsDialog: React.FC<ShortcutsDialogProps> = ({
   onClose,
@@ -34,6 +35,8 @@ export const ShortcutsDialog: React.FC<ShortcutsDialogProps> = ({
         {ADD_HINT}
       </p>
       <ShortcutsTable shortcuts={MATRIX_SHORTCUTS} />
+      <h3 className="mt-4 mb-1 text-sm font-semibold">Choosing a deadline</h3>
+      <ShortcutsTable shortcuts={DEADLINE_SHORTCUTS} />
       <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
         {DRAG_HINT}
       </p>

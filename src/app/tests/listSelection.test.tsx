@@ -344,6 +344,7 @@ describe('List view hint line and drag', () => {
       'Complete',
       'Edit',
       'Delete',
+      'DeadlineNone›',
       'Do First',
       'Schedule',
       'Delegate',

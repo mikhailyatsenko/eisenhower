@@ -531,6 +531,7 @@ describe('Key hints in the toolbar', () => {
 
     expect(button('Complete')).toHaveAttribute('aria-keyshortcuts', 'C');
     expect(button('Edit')).toHaveAttribute('aria-keyshortcuts', 'E');
+    expect(button('Deadline')).toHaveAttribute('aria-keyshortcuts', 'D');
     expect(button('Delete')).toHaveAttribute('aria-keyshortcuts', 'Delete');
     expect(button('Schedule')).toHaveAttribute('aria-keyshortcuts', '2');
     expect(button('Deselect task')).toHaveAttribute(
@@ -538,7 +539,7 @@ describe('Key hints in the toolbar', () => {
       'Escape',
     );
     // No hint on the current quadrant: its digit does nothing
-    expect(toolbar().querySelectorAll('kbd')).toHaveLength(7);
+    expect(toolbar().querySelectorAll('kbd')).toHaveLength(8);
   });
 
   it('hides the key hints on a touch screen', async () => {

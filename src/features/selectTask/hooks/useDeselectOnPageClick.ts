@@ -15,7 +15,7 @@ const OWN_CLICK = [
   'summary',
   '[role="button"]',
   '[role="option"]',
-  '[role="toolbar"]',
+  '[data-action-panel]',
   'dialog',
   TOAST_CARD_SELECTOR,
 ].join(', ');

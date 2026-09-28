@@ -25,6 +25,11 @@ export const MATRIX_SHORTCUTS: Shortcut[] = [
   },
   { keys: ['C', 'Space'], action: 'Complete the task' },
   { keys: ['E', 'Enter'], action: 'Edit the task' },
+  {
+    keys: ['D'],
+    action:
+      'Set the deadline: the action panel turns into deadline choices, keys below',
+  },
   { keys: ['Delete', 'Backspace'], action: 'Delete the task' },
   {
     keys: ['N'],

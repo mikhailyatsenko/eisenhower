@@ -1,3 +1,4 @@
+import type { DeadlineStatus } from '@/entities/matrixLayout';
 import { MatrixKey } from '@/shared/stores/tasksStore';
 
 /** Quadrant colour dot next to its name in "Move to" */
@@ -6,6 +7,16 @@ export const QUADRANT_DOT: Record<MatrixKey, string> = {
   ImportantNotUrgent: 'bg-yellow-400',
   NotImportantUrgent: 'bg-blue-500',
   NotImportantNotUrgent: 'bg-green-500',
+};
+
+/**
+ * The Deadline button's date by its status, over 4.5:1 on the panel in both
+ * themes. It only backs up the status word on the card.
+ */
+export const DEADLINE_STATUS_TEXT: Record<DeadlineStatus, string> = {
+  overdue: 'text-red-300',
+  today: 'text-amber-200',
+  soon: 'text-amber-100',
 };
 
 // The task's main action: Complete, or Restore for a completed task
@@ -39,6 +50,7 @@ export const PANEL_STYLES = {
     TASK_TEXT: 'line-clamp-1 min-w-0 flex-1 px-1 opacity-80',
     DESELECT_BUTTON: 'flex min-w-11 shrink-0 items-center justify-center',
     ACTIONS_ROW: 'grid grid-cols-3 gap-2',
+    DEADLINE_ROW: 'mt-2 flex w-full items-center justify-between gap-2 px-3',
     COMPLETED_ACTIONS_ROW: 'grid grid-cols-2 gap-2',
   },
 } as const;

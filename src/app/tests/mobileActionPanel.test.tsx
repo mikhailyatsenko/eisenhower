@@ -24,7 +24,7 @@ const tasksIn = (title: string) =>
     .map((option) => option.textContent);
 
 describe('Action panel on a phone', () => {
-  it('puts × by the task text, then Complete, Edit, Delete and Move to as a 2×2', async () => {
+  it('puts × by the task text, then Complete, Edit, Delete, the deadline and Move to as a 2×2', async () => {
     const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
 
     await user.click(task('Bravo'));
@@ -39,6 +39,7 @@ describe('Action panel on a phone', () => {
       'Complete',
       'Edit',
       'Delete',
+      'DeadlineNone›',
       'Do First',
       'Schedule',
       'Delegate',
@@ -100,7 +101,7 @@ describe('Action panel on a phone', () => {
       within(toolbar())
         .getAllByRole('button')
         .map((button) => button.getAttribute('aria-keyshortcuts')),
-    ).toEqual(['C', 'E', '1', '2', '3', '4', 'Delete', 'Escape']);
+    ).toEqual(['C', 'E', '1', '2', '3', '4', 'D', 'Delete', 'Escape']);
   });
 
   it('passes axe with the panel open', async () => {

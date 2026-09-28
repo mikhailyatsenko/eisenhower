@@ -30,6 +30,8 @@ export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 export interface TaskActionHandlers {
   onComplete: () => void;
   onEdit: () => void;
+  /** Turns the panel into the deadline choices */
+  onDeadline: () => void;
   onMove: (toQuadrant: MatrixKey) => void;
   onDelete: () => void;
 }

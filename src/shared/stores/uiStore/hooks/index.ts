@@ -17,6 +17,7 @@ const initialState: UIState = {
   lastSelectedTaskId: null,
   fullScreenQuadrant: null,
   inlineAdd: null,
+  isDraggingTask: false,
   addTaskTabStop: null,
   addTaskButtonToFocus: null,
   hasAddedByEmptySpace: false,
