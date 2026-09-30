@@ -1,7 +1,6 @@
 'use client';
 
 import { RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { EditTaskDialog } from '@/entities/matrixLayout';
 import {
   Deadline,
   MatrixKey,
@@ -12,9 +11,10 @@ import {
   useTaskStore,
 } from '@/shared/stores/tasksStore';
 import {
+  closeTextEditAction,
   requestAddTaskButtonFocusAction,
-  requestTaskFocusAction,
   selectTaskAction,
+  startTextEditAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
 import { ActionToolbar } from '../components/ActionToolbar';
@@ -53,9 +53,9 @@ const isInQuadrant = (
 ): location is TaskLocation => 'quadrantKey' in location;
 
 /**
- * The action panel of the Selected Task, the edit form it opens, the
- * deadline choices it turns into and the matrix keyboard, which does the
- * same actions. A completed task has Restore and Delete only.
+ * The action panel of the Selected Task, the text field and the deadline
+ * choices it turns into, and the matrix keyboard, which does the same
+ * actions. A completed task has Restore and Delete only.
  */
 export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   tasks,
@@ -72,13 +72,14 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
   // The inline add field keeps the panel closed while it's open
   const isAddingInline = useUIStore((state) => state.inlineAdd !== null);
   const toolbarRef = useRef<HTMLDivElement>(null);
-  // By id: a dialog left open for another task must not pop up on a later selection
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  // In the store: the card shows the draft. By id, so the field doesn't come
+  // back on a later selection.
+  const textEditTaskId = useUIStore((state) => state.textEdit?.taskId ?? null);
   const lastLocation = useRef<TaskLocation | CompletedLocation | null>(null);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const isDraggingTask = useUIStore((state) => state.isDraggingTask);
   const deadlineButtonRef = useRef<HTMLButtonElement>(null);
-  // By id, like the edit dialog: the choices don't come back on a later selection
+  // By id, like the text edit: the choices don't come back on a later selection
   const [deadlineChoice, setDeadlineChoice] = useState<{
     taskId: string;
     returnTo: DeadlineFocusReturn;
@@ -141,18 +142,21 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
 
   const isChoosingDeadline =
     location !== null && deadlineChoice?.taskId === location.task.id;
+  const isEditingText =
+    location !== null && textEditTaskId === location.task.id;
 
   // Another task, no selection (another view, a removal on another device
-  // too) or a drag: the choices close with nothing saved
+  // too) or a drag: the choices and the text field close with nothing saved
   useEffect(() => {
     setDeadlineChoice(null);
+    closeTextEditAction();
   }, [selectedTaskId, isDraggingTask]);
 
-  // Before useFocusAfterAction's effect: the focus leaves the choices for
-  // the task or the button, never for the page
+  // Before useFocusAfterAction's effect: the focus leaves the choices and
+  // the text field for the task or the button, never for the page
   useLayoutEffect(() => {
     const returnTo = pendingFocusReturn.current;
-    if (!returnTo || isChoosingDeadline) return;
+    if (!returnTo || isChoosingDeadline || isEditingText) return;
     pendingFocusReturn.current = null;
     if (returnTo === 'button') deadlineButtonRef.current?.focus();
     else if (locatedTaskId) taskCard(locatedTaskId)?.focus();
@@ -196,7 +200,20 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     location && completeTask(location.quadrantKey, location.task.id);
   const handleDelete = () =>
     location && deleteTask(location.quadrantKey, location.task.id);
-  const handleEdit = () => location && setEditingTaskId(location.task.id);
+  const handleEdit = () =>
+    location && startTextEditAction(location.task.id, location.task.text);
+  const closeTextEdit = () => {
+    pendingFocusReturn.current = 'task';
+    closeTextEditAction();
+  };
+  // As the chosen deadline: the deadline and the quadrant stay, no toast and
+  // no Undo. An unchanged text isn't written.
+  const handleSaveText = (text: string) => {
+    if (!location) return;
+    const { task, quadrantKey } = location;
+    if (text !== task.text) editTaskAction(quadrantKey, task.id, text);
+    closeTextEdit();
+  };
   const openDeadline = (returnTo: DeadlineFocusReturn) =>
     location && setDeadlineChoice({ taskId: location.task.id, returnTo });
   const closeDeadline = () => {
@@ -231,6 +248,7 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     isMatrixView,
     toolbarRef,
     isChoosingDeadline,
+    isEditingText,
     onComplete: handleComplete,
     onEdit: handleEdit,
     onDeadline: openDeadline,
@@ -238,17 +256,6 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
     onDelete: handleDelete,
     onShowShortcuts: () => setIsShortcutsOpen(true),
   });
-
-  const handleSave = (
-    editText: string,
-    deadline: Deadline | null,
-    newQuadrant?: MatrixKey,
-  ) => {
-    if (!location) return;
-    const { task, quadrantKey } = location;
-    editTaskAction(quadrantKey, task.id, editText, deadline, newQuadrant);
-    setEditingTaskId(null);
-  };
 
   return (
     <>
@@ -275,20 +282,12 @@ export const TaskActionPanel: React.FC<TaskActionPanelProps> = ({
           isChoosingDeadline={isChoosingDeadline}
           onPickDeadline={handlePickDeadline}
           onDeadlineBack={closeDeadline}
+          isEditingText={isEditingText}
+          onSaveText={handleSaveText}
+          onTextBack={closeTextEdit}
           onMove={handleMove}
           onDelete={handleDelete}
           onDeselect={handleDeselect}
-        />
-      )}
-
-      {location && editingTaskId === location.task.id && (
-        <EditTaskDialog
-          task={location.task}
-          quadrantKey={location.quadrantKey}
-          onSave={handleSave}
-          onClose={() => setEditingTaskId(null)}
-          // Back to the task, wherever the edit has put it, not to the Edit button
-          restoreFocus={() => requestTaskFocusAction(location.task.id)}
         />
       )}
 

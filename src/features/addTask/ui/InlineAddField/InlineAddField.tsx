@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { addTaskButtonQuadrant } from '@/entities/matrixLayout';
-import { QUADRANTS } from '@/shared/consts';
+import { MAX_TASK_LENGTH, QUADRANTS } from '@/shared/consts';
 import {
   MatrixKey,
   addTaskAction,
@@ -19,7 +19,7 @@ import {
   setInlineAddTextAction,
   useUIStore,
 } from '@/shared/stores/uiStore';
-import { FIELD_BORDER, FIELD_STYLES, MAX_TASK_LENGTH } from '../../consts';
+import { FIELD_BORDER, FIELD_STYLES } from '../../consts';
 import { addButtonId, scrollIntoArea } from '../../lib';
 
 const getActiveTasks = () => selectTasks(useTaskStore.getState());

@@ -7,3 +7,4 @@ export { neighbourTaskId } from './neighbourTaskId';
 export { taskCard } from './taskCard';
 export { lastShownTaskId } from './lastShownTaskId';
 export { locateCompleted } from './locateCompleted';
+export { singleLineText } from './singleLineText';

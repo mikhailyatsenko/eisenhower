@@ -1,8 +1,5 @@
 import { MatrixKey } from '@/shared/stores/tasksStore';
 
-/** The length of a task's text, as the store takes it */
-export const MAX_TASK_LENGTH = 200;
-
 // The field's dashed frame, solid while focused: 700 on the 200 fill of the
 // quadrant, 400 on the dark one, all above 3:1
 export const FIELD_BORDER: Record<MatrixKey, string> = {

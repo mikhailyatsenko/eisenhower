@@ -186,12 +186,7 @@ describe('Deadline on the card', () => {
 
     await user.click(card('Call the bank'));
     await user.keyboard('e');
-    const dialog = screen.getByRole('dialog', { name: 'Edit task' });
-    await user.type(
-      within(dialog).getByPlaceholderText('What needs to be done?'),
-      ' today',
-    );
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    await user.keyboard('{End} today{Enter}');
 
     expect(card('Call the bank today')).toHaveAccessibleName(/DUE TODAY/);
     expect(card('Call the bank today')).not.toHaveTextContent(TIME);

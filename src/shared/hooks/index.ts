@@ -4,3 +4,4 @@ export { useMediaQuery } from './useMediaQuery';
 export { useScrollLock } from './useScrollLock';
 export { useWindowResize } from './useWindowResize';
 export { useNow } from './useNow';
+export { useKeyboardInset } from './useKeyboardInset';

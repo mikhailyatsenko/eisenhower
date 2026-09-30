@@ -41,20 +41,6 @@ describe('Quadrant vocabulary', () => {
     expect(document.body).not.toHaveTextContent(OLD_NAMES);
   });
 
-  it('shows name and criteria for each quadrant in the edit form', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantNotUrgent: ['Plan the quarter'] },
-    });
-
-    await user.click(screen.getByRole('option'));
-    await user.click(
-      within(screen.getByRole('toolbar')).getByRole('button', { name: 'Edit' }),
-    );
-
-    expectQuadrantPicker();
-    expect(document.body).not.toHaveTextContent(OLD_NAMES);
-  });
-
   it('names only the quadrant in the toast after restoring a task', async () => {
     const { user } = await renderHomePage({
       completedTasks: [

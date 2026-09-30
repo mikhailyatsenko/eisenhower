@@ -54,24 +54,11 @@ describe('Delete all completed tasks', () => {
 });
 
 describe('Invalid deadline', () => {
-  it('explains it in the edit form, not in a toast', async () => {
-    const { user } = await renderHomePage({
-      tasks: {
-        ImportantUrgent: [
-          {
-            id: 'task-1',
-            text: 'Alpha',
-            createdAt: new Date('2026-09-20T10:00:00.000Z'),
-            dueDate: new Date('2026-09-30T10:00:00.000Z'),
-          },
-        ],
-      },
-    });
+  it('explains it in the add form, not in a toast', async () => {
+    const { user } = await renderHomePage();
 
-    await user.click(screen.getByRole('option'));
-    await user.click(
-      within(screen.getByRole('toolbar')).getByRole('button', { name: 'Edit' }),
-    );
+    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.keyboard('Alpha');
     // A half-typed date: the field's value is empty, the browser knows better
     const date = screen.getByLabelText<HTMLInputElement>('Date');
     Object.defineProperty(date, 'validity', {

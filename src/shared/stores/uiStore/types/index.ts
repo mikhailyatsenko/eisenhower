@@ -11,6 +11,13 @@ export interface InlineAdd {
   isByEmptySpace: boolean;
 }
 
+/** The Selected Task's text being edited in the action panel */
+export interface TextEdit {
+  taskId: string;
+  /** What the field holds: the panel writes it, the card shows it */
+  draft: string;
+}
+
 export type ViewMode = 'matrix' | 'list';
 
 export interface UIState {
@@ -36,6 +43,8 @@ export interface UIState {
   fullScreenQuadrant: MatrixKey | null;
   /** Closed when null */
   inlineAdd: InlineAdd | null;
+  /** Closed when null */
+  textEdit: TextEdit | null;
   /** A task is being dragged in the matrix, from its drag start to the drop or cancel */
   isDraggingTask: boolean;
   /**

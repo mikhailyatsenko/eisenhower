@@ -9,8 +9,6 @@ const TASKS = ['Alpha', 'Bravo', 'Charlie'];
 
 const task = (text: string) => screen.getByRole('option', { name: text });
 
-const toolbar = () => screen.getByRole('toolbar');
-
 const tasksIn = (title: string) =>
   within(screen.getByRole('listbox', { name: title }))
     .queryAllByRole('option')
@@ -31,99 +29,6 @@ const expectModalDialog = (dialog: HTMLElement) => {
   expect(dialog.tagName).toBe('DIALOG');
   expect(dialog).toHaveAttribute('open');
 };
-
-describe('Edit dialog', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  it('is a modal <dialog> with focus in it', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.click(within(toolbar()).getByRole('button', { name: 'Edit' }));
-
-    const dialog = screen.getByRole('dialog', { name: 'Edit task' });
-    expectModalDialog(dialog);
-    expect(dialog).toContainElement(document.activeElement as HTMLElement);
-  });
-
-  it('closes on Escape and gives the focus back to the task', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.click(within(toolbar()).getByRole('button', { name: 'Edit' }));
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expectCurrentTask('Bravo');
-  });
-
-  it('gives the focus back to the task after saving', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.keyboard('e');
-    await user.type(screen.getByRole('textbox'), ' ASAP');
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expectCurrentTask('Bravo ASAP');
-  });
-
-  it('follows the task to the quadrant it was moved to', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.keyboard('e');
-    const dialog = screen.getByRole('dialog', { name: 'Edit task' });
-    await user.click(within(dialog).getByRole('button', { name: /Schedule/ }));
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
-
-    expect(tasksIn('Schedule')).toEqual(['Bravo']);
-    expectCurrentTask('Bravo');
-  });
-
-  it('leaves ? and the matrix keys in its text field to the field', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.keyboard('e');
-    await user.type(screen.getByRole('textbox'), ' c?');
-
-    expect(screen.getByRole('textbox')).toHaveValue('Bravo c?');
-    expect(screen.getAllByRole('dialog')).toHaveLength(1);
-    expect(tasksIn('Do First')).toEqual(TASKS);
-  });
-
-  it('closes on a click outside it', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.keyboard('e');
-    // The backdrop belongs to the <dialog> itself
-    await user.click(screen.getByRole('dialog', { name: 'Edit task' }));
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expectCurrentTask('Bravo');
-  });
-});
 
 describe('Add dialog', () => {
   it('is a modal <dialog> and gives the focus back to the New Task button', async () => {
@@ -198,7 +103,7 @@ describe('Shortcuts cheatsheet', () => {
     expect(cheatsheet()).toHaveTextContent('New task button');
   });
 
-  it('tells D and the keys of the deadline choices under the matrix keys', async () => {
+  it('tells E, D and the keys of the deadline choices under the matrix keys', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },
     });
@@ -209,6 +114,9 @@ describe('Shortcuts cheatsheet', () => {
       .getAllByRole('row')
       .map((row) => row.textContent);
     const editRow = rows.findIndex((row) => row?.startsWith('EorEnter'));
+    expect(rows[editRow]).toBe(
+      'EorEnterEdit the task’s text right in the action panel: Enter saves, Esc cancels',
+    );
     expect(rows[editRow + 1]).toBe(
       'DSet the deadline: the action panel turns into deadline choices, keys below',
     );
@@ -304,18 +212,6 @@ describe('Shortcuts cheatsheet', () => {
 
 // Real timers: axe waits on its own timeouts
 describe('Dialogs with axe', () => {
-  it('has no axe violations with the edit dialog open', async () => {
-    const { user } = await renderHomePage({
-      tasks: { ImportantUrgent: TASKS },
-    });
-
-    await user.click(task('Bravo'));
-    await user.keyboard('e');
-
-    // The dialog is portalled to body, outside the render container
-    expect(await axe(document.body)).toHaveNoViolations();
-  });
-
   it('has no axe violations with the cheatsheet open', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },

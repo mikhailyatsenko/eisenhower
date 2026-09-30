@@ -20,3 +20,7 @@ export const CARD_LAYOUT_CLASS: Record<CardLayout, CardLayoutClasses> = {
     deadline: 'sm:justify-start',
   },
 };
+
+/** The card's text while it's edited in the action panel */
+export const DRAFT_CLASS =
+  'rounded outline-2 outline-offset-2 outline-gray-900 outline-dashed dark:outline-gray-100';

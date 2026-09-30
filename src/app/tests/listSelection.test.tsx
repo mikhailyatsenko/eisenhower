@@ -120,8 +120,11 @@ describe('Selection in List view', () => {
     expectCurrentTask('Answer emails');
 
     await user.keyboard('e');
-    expect(screen.getByRole('dialog', { name: 'Edit task' })).toBeVisible();
+    expect(
+      screen.getByRole('group', { name: 'Edit text of “Answer emails”' }),
+    ).toBeInTheDocument();
     await user.keyboard('{Escape}');
+    expectCurrentTask('Answer emails');
 
     await user.keyboard('?');
     expect(

@@ -57,10 +57,19 @@ const openNewTask = async ({ user }: Page, text: string) => {
   await user.keyboard(text);
 };
 
-const openEdit = async ({ user }: Page, text: string) => {
+/** The deadline of a task in the matrix: the Deadline button's choices */
+const openDeadline = async ({ user }: Page, text: string) => {
   await user.click(card(text));
-  await user.keyboard('e');
+  await user.keyboard('d');
 };
+const choices = (text: string) =>
+  screen.getByRole('group', { name: `Deadline for “${text}”` });
+const choice = (text: string, name: string) =>
+  within(choices(text)).getByRole('button', { name });
+const deadlineButton = () =>
+  within(screen.getByRole('toolbar')).getByRole('button', {
+    name: /^Deadline/,
+  });
 
 const save = ({ user }: Page) =>
   user.click(within(form()).getByRole('button', { name: 'Save' }));
@@ -219,20 +228,19 @@ describe('Deadline in the task form', () => {
     const page = await renderHomePage({
       tasks: { ImportantUrgent: [task('Pay rent', day(24), false)] },
     });
-    await openEdit(page, 'Pay rent');
+    await openDeadline(page, 'Pay rent');
 
-    expect(chip('Today')).toHaveAttribute('aria-pressed', 'false');
-    expect(dateField()).toHaveValue('2026-09-24');
-    expect(preview()).toHaveTextContent('OVERDUE');
+    expect(choice('Pay rent', 'Today')).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(within(choices('Pay rent')).getByLabelText('Date')).toHaveValue(
+      '2026-09-24',
+    );
 
-    await page.user.click(chip('No deadline'));
+    await page.user.click(choice('Pay rent', 'No deadline'));
 
-    expect(chip('No deadline')).toHaveAttribute('aria-pressed', 'true');
-    expect(dateField()).toHaveValue('');
-    expect(preview()).toBeNull();
-
-    await save(page);
-
+    expect(deadlineButton()).toHaveAccessibleName('Deadline');
     expect(card('Pay rent')).toHaveAccessibleName('Pay rent');
     expect(card('Pay rent')).not.toHaveTextContent(/OVERDUE|DUE/);
   });
@@ -242,17 +250,19 @@ describe('Deadline in the task form', () => {
     const page = await renderHomePage({
       tasks: { ImportantNotUrgent: [task('Old task', beforeR4)] },
     });
-    await openEdit(page, 'Old task');
+    await openDeadline(page, 'Old task');
 
-    expect(dateField()).toHaveValue('2026-10-07');
-    expect(timeField()).toHaveValue('14:00');
-    expect(preview()).toHaveTextContent(shown(beforeR4, true));
-
-    await page.user.type(
-      within(form()).getByRole('textbox', { name: /description/i }),
-      '!',
+    expect(within(choices('Old task')).getByLabelText('Date')).toHaveValue(
+      '2026-10-07',
     );
-    await save(page);
+    expect(within(choices('Old task')).getByLabelText('Time')).toHaveValue(
+      '14:00',
+    );
+    await page.user.keyboard('{Escape}');
+
+    // A new text leaves the deadline as it is
+    await page.user.keyboard('e');
+    await page.user.keyboard('{End}!{Enter}');
 
     expect(card('Old task!')).toHaveTextContent(shown(beforeR4, true));
   });
@@ -261,10 +271,15 @@ describe('Deadline in the task form', () => {
     const page = await renderHomePage({
       tasks: { ImportantUrgent: [task('Call the bank', day(25), false)] },
     });
-    await openEdit(page, 'Call the bank');
+    await openDeadline(page, 'Call the bank');
 
-    expect(chip('Today')).toHaveAttribute('aria-pressed', 'true');
-    expect(timeField()).toBeNull();
+    expect(choice('Call the bank', 'Today')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(
+      within(choices('Call the bank')).queryByLabelText('Time'),
+    ).toBeNull();
   });
 
   it('uses native fields, not react-datepicker, and passes axe with the time open', async () => {
@@ -304,9 +319,8 @@ describe('Deadline in the form of a signed-in user', () => {
     });
 
     page.cloud.goOffline();
-    await openEdit(page, 'Call the bank');
-    await page.user.click(chip('Tomorrow'));
-    await save(page);
+    await openDeadline(page, 'Call the bank');
+    await page.user.click(choice('Call the bank', 'Tomorrow'));
 
     expect(card('Call the bank')).toHaveAccessibleName(/DUE SOON/);
     expect(card('Call the bank')).not.toHaveTextContent(TIME);

@@ -3,6 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { twMerge } from 'tailwind-merge';
 
 import { MatrixKey, Task } from '@/shared/stores/tasksStore';
+import { useUIStore } from '@/shared/stores/uiStore';
 import {
   OPTION_SELECTION_CLASS,
   TASK_CARD_CLASS,
@@ -38,6 +39,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   const { isSelected, itemRef, handlers } = useSelectableTask(task.id);
   const status = useDeadlineStatus(task);
+  // Its text edited in the action panel: the card shows the draft
+  const draft = useUIStore((state) =>
+    state.textEdit?.taskId === task.id ? state.textEdit.draft : null,
+  );
 
   // No dnd-kit attributes: the card is an option, not a sortable button
   const { listeners, setNodeRef, transform, transition, isDragging } =
@@ -79,7 +84,12 @@ export const TaskItem: React.FC<TaskItemProps> = ({
           : OPTION_SELECTION_CLASS.idle,
       )}
     >
-      <TaskCardContent task={task} status={status} layout={layout} />
+      <TaskCardContent
+        task={task}
+        status={status}
+        layout={layout}
+        draft={draft}
+      />
     </li>
   );
 };

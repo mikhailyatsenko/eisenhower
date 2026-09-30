@@ -24,7 +24,11 @@ export const MATRIX_SHORTCUTS: Shortcut[] = [
     action: `Move the task to ${QUADRANT_TITLES.slice(0, -1).join(', ')} or ${QUADRANT_TITLES.at(-1)}. With nothing selected, open the add field there.`,
   },
   { keys: ['C', 'Space'], action: 'Complete the task' },
-  { keys: ['E', 'Enter'], action: 'Edit the task' },
+  {
+    keys: ['E', 'Enter'],
+    action:
+      'Edit the task’s text right in the action panel: Enter saves, Esc cancels',
+  },
   {
     keys: ['D'],
     action:

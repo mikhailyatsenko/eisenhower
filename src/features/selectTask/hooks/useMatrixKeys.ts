@@ -48,6 +48,8 @@ interface MatrixKeysOptions extends TaskActionHandlers {
   toolbarRef: RefObject<HTMLElement | null>;
   /** The panel shows the deadline choices: they take their own keys, the matrix none */
   isChoosingDeadline: boolean;
+  /** The panel shows the task's text field: the matrix takes no keys */
+  isEditingText: boolean;
   onShowShortcuts: () => void;
 }
 
@@ -127,7 +129,8 @@ export const useMatrixKeys = (options: MatrixKeysOptions) => {
       if (event.altKey || isTextField(target)) return;
       if (target instanceof HTMLSelectElement) return;
       if (isDialogOpen()) return;
-      if (optionsRef.current.isChoosingDeadline) return;
+      const { isChoosingDeadline, isEditingText } = optionsRef.current;
+      if (isChoosingDeadline || isEditingText) return;
       // Holding an action key down must not repeat the action
       if (event.repeat && !isArrowKey(key)) return;
       // The header's button collapses its section, it doesn't select

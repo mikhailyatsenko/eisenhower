@@ -132,10 +132,10 @@ export const EisenhowerMatrixPage = () => (
         <li>
           While a task is selected, the action panel at the bottom of the window
           shows what you can do with it: Complete, Edit, Move to one of the
-          other quadrants, Deadline and Delete. Deadline turns the panel itself
-          into deadline choices, with no window on top. After Complete, Delete
-          or Move, the next task in the quadrant is selected, so you can keep
-          going.
+          other quadrants, Deadline and Delete. Edit and Deadline turn the panel
+          itself into a text field or deadline choices, with no window on top.
+          After Complete, Delete or Move, the next task in the quadrant is
+          selected, so you can keep going.
         </li>
         <li>
           Changed your mind? Press Undo in the message that follows an action,

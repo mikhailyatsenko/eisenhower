@@ -1,6 +1,5 @@
 export {
   DeadlineChooser,
-  EditTaskDialog,
   ListLayout,
   MatrixLayout,
   TaskDragPreview,

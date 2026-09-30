@@ -257,7 +257,7 @@ describe('Action toolbar', () => {
     expect(task('Alpha')).toHaveFocus();
   });
 
-  it('leaves Escape in the edit form to the form', async () => {
+  it('leaves Escape in the text field to the field', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },
     });
@@ -266,11 +266,13 @@ describe('Action toolbar', () => {
     await user.click(within(toolbar()).getByRole('button', { name: 'Edit' }));
     await user.keyboard('{Escape}');
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('group', { name: /^Edit text of/ }),
+    ).not.toBeInTheDocument();
     expect(selectedTasks()).toEqual(['Bravo']);
   });
 
-  it('opens the usual edit form and keeps the task in its quadrant', async () => {
+  it('edits the text in the panel and keeps the task in its quadrant', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantNotUrgent: ['Plan the quarter'] },
     });
@@ -278,9 +280,9 @@ describe('Action toolbar', () => {
     await user.click(task('Plan the quarter'));
     await user.click(within(toolbar()).getByRole('button', { name: 'Edit' }));
 
-    expect(screen.getByRole('dialog', { name: 'Edit task' })).toBeVisible();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-    await user.type(screen.getByRole('textbox'), ' ASAP');
+    await user.keyboard('{End} ASAP');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(tasksIn('Schedule')).toEqual(['Plan the quarter ASAP']);
@@ -341,7 +343,7 @@ describe('Selection accessibility', () => {
     expect(await axe(document.body)).toHaveNoViolations();
   });
 
-  it('has no axe violations with the edit form open', async () => {
+  it('has no axe violations with the text field open', async () => {
     const { user } = await renderHomePage({
       tasks: { ImportantUrgent: TASKS },
     });

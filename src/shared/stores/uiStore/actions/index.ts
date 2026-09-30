@@ -110,6 +110,25 @@ export const closeInlineAddAction = () => {
   });
 };
 
+/** Opens the text edit of a task with its text as the draft */
+export const startTextEditAction = (taskId: string, text: string) => {
+  useUIStore.setState((state) => {
+    state.textEdit = { taskId, draft: text };
+  });
+};
+
+export const setTextEditDraftAction = (draft: string) => {
+  useUIStore.setState((state) => {
+    if (state.textEdit) state.textEdit.draft = draft;
+  });
+};
+
+export const closeTextEditAction = () => {
+  useUIStore.setState((state) => {
+    state.textEdit = null;
+  });
+};
+
 export const setViewModeAction = (viewMode: ViewMode) => {
   useUIStore.setState((state) => {
     state.viewMode = viewMode;

@@ -2,7 +2,12 @@ import { RefObject, useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { DeadlineChooser, deadlineStatus } from '@/entities/matrixLayout';
 import { MATRIX_KEYS, QUADRANTS } from '@/shared/consts';
-import { useIsPhone, useIsTouchScreen, useNow } from '@/shared/hooks';
+import {
+  useIsPhone,
+  useIsTouchScreen,
+  useKeyboardInset,
+  useNow,
+} from '@/shared/hooks';
 import { formatDate } from '@/shared/lib/formatDate';
 import { Deadline, Task } from '@/shared/stores/tasksStore';
 import { useToastClearance } from '@/shared/ui/toast';
@@ -13,6 +18,7 @@ import {
   PRIMARY_BUTTON,
   QUADRANT_DOT,
 } from '../consts';
+import { TextEditPanel } from './TextEditPanel';
 
 interface ToolbarBaseProps {
   toolbarRef: RefObject<HTMLDivElement | null>;
@@ -30,6 +36,10 @@ interface ActiveTaskToolbarProps
   isChoosingDeadline: boolean;
   onPickDeadline: (deadline: Deadline | null) => void;
   onDeadlineBack: () => void;
+  /** The panel shows the task's text field instead of the actions */
+  isEditingText: boolean;
+  onSaveText: (text: string) => void;
+  onTextBack: () => void;
 }
 
 /** A completed task: Restore and Delete only */
@@ -59,7 +69,7 @@ const Divider = () => (
  * On a phone it is a full-width panel: Complete, Edit, Delete in a row, the
  * deadline under them and Move to as a 2×2 mini-matrix at the bottom. A
  * completed task has Restore and Delete instead. Deadline turns the panel
- * into the deadline choices.
+ * into the deadline choices, Edit into the task's text field.
  * Its appearance isn't announced: aria-selected on the task already is.
  */
 export const ActionToolbar: React.FC<ActionToolbarProps> = (props) => {
@@ -72,6 +82,9 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = (props) => {
   const isTouchScreen = useIsTouchScreen();
   const isPhone = useIsPhone();
   const now = useNow();
+  // The text field keeps the panel over the on-screen keyboard
+  const isEditingText = !isCompleted && props.isEditingText;
+  const keyboardInset = useKeyboardInset(isPhone && isEditingText);
   const hint = (label: string) => !isTouchScreen && <KeyHint label={label} />;
   const styles = isPhone ? PANEL_STYLES.phone : PANEL_STYLES.desktop;
 
@@ -162,7 +175,22 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = (props) => {
     isChoosingDeadline,
     onPickDeadline,
     onDeadlineBack,
+    onSaveText,
+    onTextBack,
   } = props;
+
+  if (isEditingText) {
+    return (
+      <div
+        ref={toolbarRef}
+        data-action-panel
+        className={styles.TOOLBAR}
+        style={isPhone ? { bottom: keyboardInset } : undefined}
+      >
+        <TextEditPanel task={task} onSave={onSaveText} onBack={onTextBack} />
+      </div>
+    );
+  }
 
   if (isChoosingDeadline) {
     return (

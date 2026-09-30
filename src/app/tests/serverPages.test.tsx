@@ -114,7 +114,7 @@ describe('Server pages', () => {
         'Complete, Edit, Move to one of the other quadrants, Deadline and Delete',
       );
       expect(howTo).toHaveTextContent(
-        'deadline choices, with no window on top',
+        'Edit and Deadline turn the panel itself into a text field or deadline choices, with no window on top',
       );
       expect(howTo).toHaveTextContent(
         'Drag a task to reorder or move it; long-press on touch',

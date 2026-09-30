@@ -285,15 +285,23 @@ describe('Matrix keys with a selection', () => {
     expectCurrentTask('A2');
   });
 
-  it.each(['e', '{Enter}'])('opens the edit form on %p', async (key) => {
-    const { user } = await renderHomePage({ tasks: GRID });
+  it.each(['e', '{Enter}'])(
+    'turns the panel into the text field on %p',
+    async (key) => {
+      const { user } = await renderHomePage({ tasks: GRID });
 
-    await user.click(task('B1'));
-    await user.keyboard(key);
+      await user.click(task('B1'));
+      await user.keyboard(key);
 
-    expect(screen.getByRole('dialog', { name: 'Edit task' })).toBeVisible();
-    expect(screen.getByRole('textbox')).toHaveValue('B1');
-  });
+      expect(
+        screen.getByRole('group', { name: 'Edit text of “B1”' }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: 'Task text' })).toHaveValue(
+        'B1',
+      );
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    },
+  );
 
   it.each(['{Delete}', '{Backspace}'])(
     'deletes the task on %p',
@@ -343,18 +351,22 @@ describe('Matrix keys with a selection', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('ignores the keys in a form field', async () => {
+  it('ignores the keys in a text field', async () => {
     const { user } = await renderHomePage({ tasks: GRID });
 
     await user.click(task('A1'));
     await user.keyboard('e');
-    const field = screen.getByRole('textbox');
+    const field = screen.getByRole('textbox', { name: 'Task text' });
     await user.clear(field);
     await user.type(field, 'c 2n{ArrowDown}{Backspace}');
 
     expect(field).toHaveValue('c 2');
-    expect(tasksIn('Do First')).toEqual(['A1', 'A2', 'A3']);
-    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    // The card shows the draft; nothing completed, moved or added
+    expect(tasksIn('Do First')).toEqual(['c 2', 'A2', 'A3']);
+    expect(tasksIn('Schedule')).toEqual(['B1', 'B2']);
+    expect(
+      screen.getByRole('group', { name: 'Edit text of “A1”' }),
+    ).toBeInTheDocument();
   });
 
   it('takes the letters by physical key on a Cyrillic layout', async () => {
