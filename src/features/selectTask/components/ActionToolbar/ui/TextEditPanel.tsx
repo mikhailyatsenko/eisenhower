@@ -1,11 +1,12 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { MAX_TASK_LENGTH, TASK_LENGTH_COUNTER_FROM } from '@/shared/consts';
+import { MAX_TASK_LENGTH } from '@/shared/consts';
 import { useIsPhone, useIsTouchScreen } from '@/shared/hooks';
 import { Task } from '@/shared/stores/tasksStore';
 import { setTextEditDraftAction, useUIStore } from '@/shared/stores/uiStore';
 import { singleLineText } from '../../../lib';
-import { PANEL_STYLES, PRIMARY_BUTTON } from '../consts';
+import { PANEL_STYLES, PRIMARY_BUTTON, TEXT_COUNTER_FROM } from '../consts';
+import { KeyHint } from './KeyHint';
 
 interface TextEditPanelProps {
   task: Pick<Task, 'text'>;
@@ -16,16 +17,6 @@ interface TextEditPanelProps {
 }
 
 const EMPTY_TEXT_ERROR = 'A task needs some text';
-
-/** The key that does the button's action, on desktop only */
-const KeyHint = ({ label }: { label: string }) => (
-  <kbd
-    aria-hidden="true"
-    className="ml-1.5 rounded border border-white/30 px-1 font-sans text-xs text-gray-300"
-  >
-    {label}
-  </kbd>
-);
 
 /**
  * The task's text field the action panel turns into: "← Back", the field
@@ -44,7 +35,7 @@ export const TextEditPanel = ({ task, onSave, onBack }: TextEditPanelProps) => {
   const counterId = useId();
   // Shown by Save or Enter, gone as soon as the text changes
   const [isErrorShown, setIsErrorShown] = useState(false);
-  const hasCounter = draft.length >= TASK_LENGTH_COUNTER_FROM;
+  const hasCounter = draft.length >= TEXT_COUNTER_FROM;
 
   // Before the panel's own effects: the focus never drops to the page
   useLayoutEffect(() => {
@@ -115,10 +106,14 @@ export const TextEditPanel = ({ task, onSave, onBack }: TextEditPanelProps) => {
         setTextEditDraftAction(singleLineText(event.target.value));
       }}
       onKeyDown={(event) => {
-        // One line: Enter saves, and with Shift it doesn't break the line either
         if (event.key !== 'Enter') return;
+        // Enter that commits an IME composition is the input method's own;
+        // Safari sends it with isComposing false but keyCode 229
+        const { isComposing, keyCode } = event.nativeEvent;
+        if (isComposing || keyCode === 229) return;
+        // One line: Enter saves, and with Shift it doesn't break the line either
         event.preventDefault();
-        if (!event.shiftKey && !event.nativeEvent.isComposing) save();
+        if (!event.shiftKey) save();
       }}
       className={twMerge(
         'block max-h-40 w-full min-w-0 resize-none overflow-y-auto rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-300',

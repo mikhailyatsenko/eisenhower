@@ -18,6 +18,7 @@ import {
   PRIMARY_BUTTON,
   QUADRANT_DOT,
 } from '../consts';
+import { KeyHint } from './KeyHint';
 import { TextEditPanel } from './TextEditPanel';
 
 interface ToolbarBaseProps {
@@ -49,16 +50,6 @@ interface CompletedTaskToolbarProps extends ToolbarBaseProps {
 }
 
 type ActionToolbarProps = ActiveTaskToolbarProps | CompletedTaskToolbarProps;
-
-/** The key that does the button's action right now, on desktop only */
-const KeyHint = ({ label }: { label: string }) => (
-  <kbd
-    aria-hidden="true"
-    className="ml-1.5 rounded border border-white/30 px-1 font-sans text-xs text-gray-300"
-  >
-    {label}
-  </kbd>
-);
 
 const Divider = () => (
   <span aria-hidden="true" className="mx-1 h-6 w-px bg-white/20" />

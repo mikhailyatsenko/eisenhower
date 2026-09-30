@@ -19,6 +19,9 @@ export const DEADLINE_STATUS_TEXT: Record<DeadlineStatus, string> = {
   soon: 'text-amber-100',
 };
 
+/** The text field shows its "NNN/200" counter from this length on */
+export const TEXT_COUNTER_FROM = 170;
+
 // The task's main action: Complete, or Restore for a completed task
 export const PRIMARY_BUTTON = 'bg-green-700 font-bold hover:bg-green-800';
 
