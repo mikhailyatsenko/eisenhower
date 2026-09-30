@@ -1,10 +1,15 @@
-import { MatrixKey } from '../../tasksStore/types';
+import { Deadline, MatrixKey } from '../../tasksStore/types';
 
 /** The inline add field: one on the page, at the end of a quadrant's list */
 export interface InlineAdd {
   quadrant: MatrixKey;
   /** Moves with the field when it opens in another quadrant */
   text: string;
+  /**
+   * The deadline strip's pick for the task being typed, null for none.
+   * Moves with the text; each task added starts over without one.
+   */
+  deadline: Deadline | null;
   /** Counts the opens: each one, in the same quadrant too, focuses the field */
   openCount: number;
   /** This open was a click on empty space: what the header hint teaches */

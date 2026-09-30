@@ -25,8 +25,9 @@ const CHIP_DETAIL: Partial<Record<DeadlineChip, string>> = {
 };
 
 /**
- * The keys of the deadline choices, as the shortcuts cheatsheet and the
- * method page tell them. The keys themselves are handled by the choices.
+ * The keys of the deadline choices and the deadline strip, as the shortcuts
+ * cheatsheet and the method page tell them. The keys themselves are handled
+ * by the choices and the strip.
  */
 export const DEADLINE_SHORTCUTS: Shortcut[] = [
   ...DEADLINE_CHIPS.map((chip) => ({
@@ -34,6 +35,14 @@ export const DEADLINE_SHORTCUTS: Shortcut[] = [
     action: CHIP_DETAIL[chip] ? `${chip}: ${CHIP_DETAIL[chip]}` : chip,
   })),
   { keys: ['Delete', 'Backspace'], action: NO_DEADLINE },
-  { keys: ['Enter'], action: 'In the date or time field: set that date' },
-  { keys: ['Esc'], action: 'Back to the action panel without changes' },
+  {
+    keys: ['Enter'],
+    action:
+      'In the date or time field: set that date; while adding a task, add it',
+  },
+  {
+    keys: ['Esc'],
+    action:
+      'Back to the action panel without changes, or from the deadline strip back to the add field',
+  },
 ];

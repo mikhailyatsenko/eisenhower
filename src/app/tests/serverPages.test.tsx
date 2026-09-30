@@ -139,6 +139,11 @@ describe('Server pages', () => {
         );
         expect(deadlineTable).toHaveTextContent(action);
       });
+      // The deadline strip of the add field shares the keys
+      expect(deadlineTable).toHaveTextContent('while adding a task, add it');
+      expect(deadlineTable).toHaveTextContent(
+        'from the deadline strip back to the add field',
+      );
       // Selection replaced the hover buttons
       expect(howTo).not.toHaveTextContent('Hover over a task');
     });

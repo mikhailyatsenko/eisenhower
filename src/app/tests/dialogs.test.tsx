@@ -137,8 +137,8 @@ describe('Shortcuts cheatsheet', () => {
       'WThis weekend: Saturday, or today at the weekend',
       'XNext week: Monday',
       'DeleteorBackspaceNo deadline',
-      'EnterIn the date or time field: set that date',
-      'EscBack to the action panel without changes',
+      'EnterIn the date or time field: set that date; while adding a task, add it',
+      'EscBack to the action panel without changes, or from the deadline strip back to the add field',
     ]);
   });
 

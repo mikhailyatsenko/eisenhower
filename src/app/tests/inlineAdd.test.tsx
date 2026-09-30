@@ -177,18 +177,24 @@ describe('Adding a task in the quadrant', () => {
     expect(screen.queryByRole('toolbar')).not.toBeInTheDocument();
   });
 
-  it('closes an empty field when focus leaves it, keeps one with text', async () => {
+  it('closes an empty field once focus leaves it and the deadline strip, keeps one with text', async () => {
     const { user } = await renderHomePage({ tasks: TASKS });
 
     await user.click(list('Schedule'));
+    // Into the deadline strip: the field is still being added to
     await user.tab();
 
+    expect(field('Schedule')).toBeInTheDocument();
+    expect(document.activeElement).toHaveAccessibleName(/^No deadline/);
+
+    // On past the strip: a click outside both
+    await user.click(document.body);
+
     expect(queryFields()).toEqual([]);
-    expect(document.activeElement).not.toBe(document.body);
 
     await user.click(list('Schedule'));
     await user.keyboard('Echo');
-    await user.tab();
+    await user.click(document.body);
 
     expect(field('Schedule')).toHaveValue('Echo');
   });

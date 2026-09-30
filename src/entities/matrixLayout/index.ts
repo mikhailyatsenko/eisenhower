@@ -1,5 +1,8 @@
 export {
+  DeadlineChips,
   DeadlineChooser,
+  DeadlineDateFields,
+  DeadlineKeyHint,
   ListLayout,
   MatrixLayout,
   TaskDragPreview,
@@ -8,6 +11,7 @@ export { EditTaskForm } from './components/editTaskForm';
 export { colors } from './consts';
 export {
   addTaskButtonQuadrant,
+  deadlineByKey,
   deadlineStatus,
   firstTaskId,
   isInCompletedSection,
@@ -16,6 +20,8 @@ export {
   listSections,
   listStops,
   revealCompletedSection,
+  toDeadline,
+  toDeadlineInput,
 } from './lib';
 export type { DeadlineStatus, MatrixStop } from './lib';
-export type { ListSection, QuadrantSlots } from './types';
+export type { DeadlineInput, ListSection, QuadrantSlots } from './types';

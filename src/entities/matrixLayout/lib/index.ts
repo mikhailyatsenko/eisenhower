@@ -19,6 +19,7 @@ export type { MatrixStop } from './matrixTabStop';
 export { deadlineStatus } from './deadlineStatus';
 export type { DeadlineStatus } from './deadlineStatus';
 export { deadlineChipDate } from './deadlineChipDate';
+export { deadlineByKey } from './deadlineByKey';
 export { toDateValue } from './toDateValue';
 export { toDeadline } from './toDeadline';
 export { toDeadlineInput } from './toDeadlineInput';

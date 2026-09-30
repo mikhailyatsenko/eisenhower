@@ -1,0 +1,1 @@
+export { useClearOfStrip } from './useClearOfStrip';

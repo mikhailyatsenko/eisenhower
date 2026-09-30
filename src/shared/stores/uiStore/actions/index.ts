@@ -1,4 +1,4 @@
-import { MatrixKey } from '@/shared/stores/tasksStore';
+import { Deadline, MatrixKey } from '@/shared/stores/tasksStore';
 import { useUIStore } from '../hooks';
 import type { ViewMode } from '../types';
 
@@ -49,9 +49,9 @@ export const getInlineAddReturnFocus = () =>
 
 /**
  * Opens the inline add field in the quadrant, or moves it there with its
- * text. The selection goes: no action panel while the field is open. Esc
- * puts the focus back on `returnFocus`, else on the quadrant's "+". A
- * collapsed List view section expands for it, and stays expanded.
+ * text and deadline. The selection goes: no action panel while the field is
+ * open. Esc puts the focus back on `returnFocus`, else on the quadrant's
+ * "+". A collapsed List view section expands for it, and stays expanded.
  */
 const openInlineAdd = (
   quadrant: MatrixKey,
@@ -64,6 +64,7 @@ const openInlineAdd = (
     state.inlineAdd = {
       quadrant,
       text: state.inlineAdd?.text ?? '',
+      deadline: state.inlineAdd?.deadline ?? null,
       openCount: (state.inlineAdd?.openCount ?? 0) + 1,
       isByEmptySpace,
     };
@@ -87,13 +88,14 @@ export const openInlineAddByEmptySpaceAction = (quadrant: MatrixKey) =>
   openInlineAdd(quadrant, null, true);
 
 /**
- * Records a task the inline add field added: its text goes. The first one
- * added by a click on empty space retires the header hint.
+ * Records a task the inline add field added: its text and deadline go. The
+ * first one added by a click on empty space retires the header hint.
  */
 export const recordInlineTaskAddAction = () => {
   useUIStore.setState((state) => {
     if (!state.inlineAdd) return;
     state.inlineAdd.text = '';
+    state.inlineAdd.deadline = null;
     if (state.inlineAdd.isByEmptySpace) state.hasAddedByEmptySpace = true;
   });
 };
@@ -101,6 +103,12 @@ export const recordInlineTaskAddAction = () => {
 export const setInlineAddTextAction = (text: string) => {
   useUIStore.setState((state) => {
     if (state.inlineAdd) state.inlineAdd.text = text;
+  });
+};
+
+export const setInlineAddDeadlineAction = (deadline: Deadline | null) => {
+  useUIStore.setState((state) => {
+    if (state.inlineAdd) state.inlineAdd.deadline = deadline;
   });
 };
 
