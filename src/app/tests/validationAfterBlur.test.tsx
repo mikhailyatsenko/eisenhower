@@ -1,6 +1,9 @@
 import { screen, within } from '@testing-library/react';
 import { renderHomePage } from './renderHomePage';
 
+// Whole-page flows run past the default 5 s on a cold pre-commit run
+jest.setTimeout(20_000);
+
 describe('Task text validation', () => {
   it('waits for Save in the text edit, not for blur', async () => {
     const { user } = await renderHomePage({

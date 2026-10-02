@@ -22,7 +22,7 @@ export const Footer = () => {
           Quick add: press keys <span className="font-bold">1-4</span>
         </div>
       )}
-      <div className="mr-0 flex flex-col gap-1 sm:mr-30 sm:flex-row sm:gap-4">
+      <div className="flex flex-col gap-1 sm:flex-row sm:gap-4">
         <Link href="/eisenhower-matrix" className="hover:underline">
           How the Eisenhower Matrix works
         </Link>
