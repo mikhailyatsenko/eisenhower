@@ -178,7 +178,7 @@ export const DeadlineStrip = ({
               onClick={() => setIsUnfolded(!isUnfolded)}
               className={STRIP_STYLES.FOLD_BUTTON}
             >
-              Deadline · new task in {quadrantTitle}
+              Deadline
               <svg
                 aria-hidden="true"
                 className={twMerge(

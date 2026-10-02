@@ -445,9 +445,7 @@ describe('Deadline strip while adding a task', () => {
 
   describe('on a phone', () => {
     const deadlineToggle = (title: string) =>
-      within(strip(title)).getByRole('button', {
-        name: `Deadline · new task in ${title}`,
-      });
+      within(strip(title)).getByRole('button', { name: 'Deadline' });
 
     it('shows the quadrant full screen and the strip folded to one line with Add', async () => {
       const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
@@ -460,7 +458,7 @@ describe('Deadline strip while adding a task', () => {
         within(strip('Schedule'))
           .getAllByRole('button')
           .map((button) => button.textContent),
-      ).toEqual(['Deadline · new task in Schedule', 'Add without deadline']);
+      ).toEqual(['Deadline', 'Add without deadline']);
       expect(deadlineToggle('Schedule')).toHaveAttribute(
         'aria-expanded',
         'false',
