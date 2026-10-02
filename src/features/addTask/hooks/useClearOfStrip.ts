@@ -1,7 +1,8 @@
 import { RefObject, useLayoutEffect, useState } from 'react';
 
-// Between the field and the strip once it's scrolled clear
-const GAP_PX = 8;
+// Between the field and the strip once it's scrolled clear, past the ×
+// badge over a phone strip's top edge too
+const GAP_PX = 24;
 
 /**
  * Keeps the inline add field above the deadline strip, which covers the

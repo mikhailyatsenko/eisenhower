@@ -140,7 +140,9 @@ export const DeadlineStrip = ({
       type="button"
       aria-label="Cancel adding"
       onClick={onCancel}
-      className={STRIP_STYLES.CANCEL_BUTTON}
+      className={
+        isPhone ? STRIP_STYLES.CANCEL_BADGE : STRIP_STYLES.CANCEL_BUTTON
+      }
     >
       {/* An icon, not the × glyph: the glyph sits low in its line */}
       <svg
@@ -193,10 +195,11 @@ export const DeadlineStrip = ({
     >
       {isPhone ? (
         <>
-          {/* Add above the chips, out of the keyboard's way; × at the
-              other end, away from Add */}
-          <div className="flex items-center gap-2">
-            {cancelButton}
+          {/* × on the strip's top left corner, away from Add */}
+          {cancelButton}
+          {/* Add above the chips, out of the keyboard's way. Deadline starts
+              past the ×'s 44px target, so a tap can't land on both. */}
+          <div className="flex items-center gap-2 pl-10">
             <button
               type="button"
               aria-expanded={isUnfolded}
