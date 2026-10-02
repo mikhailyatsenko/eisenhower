@@ -91,8 +91,10 @@ describe('Deadline strip while adding a task', () => {
       within(strip('Schedule'))
         .getAllByRole('button')
         .map((button) => button.getAttribute('aria-pressed')),
-    ).toEqual(['false', 'false', 'false', 'false', 'true', null, null]);
-    expect(chip('Schedule', /^Today/)).toBeInTheDocument();
+    ).toEqual(['false', 'false', 'false', 'true', null, null]);
+    expect(
+      within(strip('Schedule')).queryByRole('button', { name: /^Today/ }),
+    ).not.toBeInTheDocument();
     expect(chip('Schedule', /^Tomorrow/)).toBeInTheDocument();
     expect(chip('Schedule', /^This weekend/)).toBeInTheDocument();
     expect(chip('Schedule', /^Next week/)).toBeInTheDocument();
@@ -148,13 +150,17 @@ describe('Deadline strip while adding a task', () => {
 
     await user.keyboard('2Book flights');
     await user.tab();
+    // No Today chip, no T
     await user.keyboard('t');
+    expect(addButton('Schedule')).toHaveAccessibleName('Add without deadline');
+    await user.keyboard('w');
     expect(addButton('Schedule')).toHaveAccessibleName(
-      `Add · ${shown(day(25))}`,
+      `Add · ${shown(day(26))}`,
     );
 
     await user.tab();
-    expect(chip('Schedule', /^Today/)).toHaveFocus();
+    // Saturday 26 is tomorrow too: Tomorrow, the first pressed chip
+    expect(chip('Schedule', /^Tomorrow/)).toHaveFocus();
     await user.keyboard('x');
     expect(addButton('Schedule')).toHaveAccessibleName(
       `Add · ${shown(day(28))}`,
@@ -261,10 +267,10 @@ describe('Deadline strip while adding a task', () => {
     expect(field('Schedule')).toHaveFocus();
     expect(field('Schedule')).toHaveValue('Book flights');
 
-    // Today, the first element of the strip
-    await user.click(chip('Schedule', /^Today/));
+    // Tomorrow, the first element of the strip
+    await user.click(chip('Schedule', /^Tomorrow/));
     await user.tab();
-    expect(chip('Schedule', /^Today/)).toHaveFocus();
+    expect(chip('Schedule', /^Tomorrow/)).toHaveFocus();
     await user.tab({ shift: true });
 
     expect(field('Schedule')).toHaveFocus();
@@ -293,7 +299,7 @@ describe('Deadline strip while adding a task', () => {
     expect(field('Schedule')).toBeInTheDocument();
 
     // A click on the strip itself keeps it too
-    await user.click(chip('Schedule', /^Today/));
+    await user.click(chip('Schedule', /^Tomorrow/));
     expect(field('Schedule')).toHaveFocus();
     expect(field('Schedule')).toBeInTheDocument();
 

@@ -5,7 +5,6 @@ import type { Shortcut } from '@/shared/ui/shortcutsTable';
  * key that picks each one there. Their dates are in entities/matrixLayout.
  */
 export const DEADLINE_CHIP_KEYS = {
-  Today: 'T',
   Tomorrow: 'M',
   'This weekend': 'W',
   'Next week': 'X',

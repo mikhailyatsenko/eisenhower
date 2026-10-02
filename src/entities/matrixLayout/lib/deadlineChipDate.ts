@@ -9,7 +9,6 @@ import {
 import type { DeadlineChip } from '@/shared/consts';
 
 const chipDay: Record<DeadlineChip, (now: Date) => Date> = {
-  Today: (now) => now,
   Tomorrow: (now) => addDays(now, 1),
   // On Saturday and Sunday the weekend is already here
   'This weekend': (now) => (isWeekend(now) ? now : nextSaturday(now)),

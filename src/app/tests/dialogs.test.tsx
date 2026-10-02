@@ -119,7 +119,6 @@ describe('Shortcuts cheatsheet', () => {
         .slice(1)
         .map((row) => row.textContent),
     ).toEqual([
-      'TToday',
       'MTomorrow',
       'WThis weekend: Saturday, or today at the weekend',
       'XNext week: Monday',

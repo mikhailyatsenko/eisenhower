@@ -81,12 +81,11 @@ describe('Deadline of a task', () => {
     await typeDate(page, '2026-09-24');
 
     expect(addButton()).toHaveAccessibleName(`Add · ${shown(day(24), false)}`);
-    ['No deadline', 'Today', 'Tomorrow', 'This weekend', 'Next week'].forEach(
-      (name) =>
-        expect(chip(new RegExp(`^${name}`))).toHaveAttribute(
-          'aria-pressed',
-          'false',
-        ),
+    ['No deadline', 'Tomorrow', 'This weekend', 'Next week'].forEach((name) =>
+      expect(chip(new RegExp(`^${name}`))).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      ),
     );
 
     await page.user.keyboard('{Enter}');
@@ -140,7 +139,7 @@ describe('Deadline of a task', () => {
     });
     await openDeadline(page, 'Pay rent');
 
-    expect(choice('Pay rent', 'Today')).toHaveAttribute(
+    expect(choice('Pay rent', 'Tomorrow')).toHaveAttribute(
       'aria-pressed',
       'false',
     );
@@ -179,11 +178,11 @@ describe('Deadline of a task', () => {
 
   it('marks the chip of a whole-day deadline being edited', async () => {
     const page = await renderHomePage({
-      tasks: { ImportantUrgent: [task('Call the bank', day(25), false)] },
+      tasks: { ImportantUrgent: [task('Call the bank', day(28), false)] },
     });
     await openDeadline(page, 'Call the bank');
 
-    expect(choice('Call the bank', 'Today')).toHaveAttribute(
+    expect(choice('Call the bank', 'Next week')).toHaveAttribute(
       'aria-pressed',
       'true',
     );

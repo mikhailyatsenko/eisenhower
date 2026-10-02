@@ -23,9 +23,10 @@ const BUTTON =
 
 /**
  * The deadline choices the action panel turns into: "← Back", whole-day
- * chips that save at once (T, M, W, X, Del for none), then a date with an
+ * chips that save at once (M, W, X, Del for none), then a date with an
  * optional time that saves on Set or Enter. One row on desktop; on a phone
- * the chips sit 2×2 with their dates. The page's keys stay out of it.
+ * the chips sit in a row of three with their dates. The page's keys stay
+ * out of it.
  */
 export const DeadlineChooser = ({
   task,

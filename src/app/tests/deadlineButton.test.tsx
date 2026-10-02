@@ -112,7 +112,7 @@ describe('Deadline button in the action panel', () => {
       'aria-pressed',
       'true',
     );
-    expect(chip('Renew passport', /^Today/)).toHaveAttribute(
+    expect(chip('Renew passport', /^Tomorrow/)).toHaveAttribute(
       'aria-pressed',
       'false',
     );
@@ -189,7 +189,7 @@ describe('Deadline button in the action panel', () => {
     expect(card('Renew passport')).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('sets This weekend, Next week, Today and No deadline by their keys', async () => {
+  it('sets This weekend, Next week and No deadline by their keys, T does nothing', async () => {
     const page = await renderHomePage({ tasks: TASKS });
 
     await openByKey(page, 'Renew passport');
@@ -200,17 +200,20 @@ describe('Deadline button in the action panel', () => {
     await page.user.keyboard('x');
     expect(card('Renew passport')).toHaveTextContent(shown(day(28)));
 
+    // No Today chip: T leaves the deadline and the choices as they are
     await page.user.keyboard('d');
     await page.user.keyboard('t');
-    expect(card('Renew passport')).toHaveAccessibleName(/DUE TODAY/);
+    expect(card('Renew passport')).toHaveTextContent(shown(day(28)));
+    expect(
+      screen.getByRole('group', { name: 'Deadline for “Renew passport”' }),
+    ).toBeInTheDocument();
 
-    await page.user.keyboard('d');
     await page.user.keyboard('{Delete}');
     expect(card('Renew passport')).toHaveAccessibleName('Renew passport');
     expect(deadlineButton()).toHaveAccessibleName('Deadline');
 
     await page.user.keyboard('d');
-    await page.user.keyboard('t');
+    await page.user.keyboard('m');
     await page.user.keyboard('d');
     await page.user.keyboard('{Backspace}');
     expect(card('Renew passport')).toHaveAccessibleName('Renew passport');

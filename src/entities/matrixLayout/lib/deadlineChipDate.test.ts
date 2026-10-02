@@ -6,7 +6,6 @@ const at = (day: number, hours = 0, month = 8, year = 2026) =>
 
 describe('deadlineChipDate', () => {
   it.each([
-    { chip: 'Today', now: at(25, 15), date: at(25) },
     { chip: 'Tomorrow', now: at(25, 15), date: at(26) },
     { chip: 'Tomorrow', now: at(31, 23, 11), date: at(1, 0, 0, 2027) },
     // The nearest Saturday; on the weekend it is today

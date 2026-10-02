@@ -18,8 +18,8 @@ interface DeadlineChipsProps {
   /** A chip's whole day, null for No deadline */
   onPick: (deadline: Deadline | null) => void;
   /**
-   * On a phone: 2×2 with the dates under the names and No deadline under
-   * them, or all in wrapping rows, names only
+   * On a phone: a row of three with the dates under the names and No
+   * deadline under it, or all in wrapping rows, names only
    */
   phoneLayout: 'grid' | 'rows';
 }
@@ -35,7 +35,7 @@ const CHIP_BUTTON = {
 };
 
 /**
- * The deadline chips of the deadline choices, Today to Next week and No
+ * The deadline chips of the deadline choices, Tomorrow to Next week and No
  * deadline, with aria-pressed and their keys. On desktop they sit in the
  * row of the parent.
  */
@@ -111,7 +111,7 @@ export const DeadlineChips = ({
   if (phoneLayout === 'grid') {
     return (
       <>
-        <div className="grid grid-cols-2 gap-2">{chips}</div>
+        <div className="grid grid-cols-3 gap-2">{chips}</div>
         {noDeadlineChip}
       </>
     );
