@@ -19,7 +19,6 @@ const toolbar = () => screen.getByRole('toolbar');
 const queryToolbar = () => screen.queryByRole('toolbar');
 const deselectButton = () =>
   within(toolbar()).getByRole('button', { name: 'Deselect task' });
-const fab = () => screen.queryByRole('button', { name: /^new task/i });
 
 describe('Clearing the selection', () => {
   it('clears it on a click on an axis label', async () => {
@@ -103,16 +102,13 @@ describe('Clearing the selection', () => {
     expect(task('Bravo')).toHaveFocus();
   });
 
-  it('closes the phone panel on "Deselect task" and brings New task back', async () => {
+  it('closes the phone panel on "Deselect task"', async () => {
     const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
 
     await user.click(task('Bravo'));
-    expect(fab()).not.toBeInTheDocument();
-
     await user.click(deselectButton());
 
     expect(queryToolbar()).not.toBeInTheDocument();
-    expect(fab()).toBeInTheDocument();
     expect(task('Bravo')).toHaveAttribute('aria-selected', 'false');
   });
 

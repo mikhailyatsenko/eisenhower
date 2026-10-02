@@ -4,11 +4,8 @@ import { MatrixKey } from '@/shared/stores/tasksStore';
 export const HEADER_FOCUS_RING =
   'outline-hidden focus-visible:outline-2 focus-visible:outline-indigo-700 dark:focus-visible:outline-indigo-300';
 
-/** The time the field opens with on "+ Add time" and "+ Time" */
+/** The time the field opens with on "+ Time" */
 export const DEFAULT_TIME = '09:00';
-
-export const BUTTON_CANCEL_TEXT = 'Cancel';
-export const BUTTON_SAVE_TEXT = 'Save';
 
 // Task card background per quadrant
 export const colors: Record<MatrixKey, string> = {

@@ -15,7 +15,9 @@ const SERVER_TASKS = {
 type User = Awaited<ReturnType<typeof renderHomePage>>['user'];
 
 const addTask = async (user: User, text: string) => {
-  await user.click(screen.getByRole('button', { name: /new task/i }));
+  await user.click(
+    screen.getByRole('button', { name: 'Add a task to Do First' }),
+  );
   await user.keyboard(`${text}{Enter}`);
 };
 

@@ -52,30 +52,3 @@ describe('Delete all completed tasks', () => {
     expect(await axe(document.body)).toHaveNoViolations();
   });
 });
-
-describe('Invalid deadline', () => {
-  it('explains it in the add form, not in a toast', async () => {
-    const { user } = await renderHomePage();
-
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-    await user.keyboard('Alpha');
-    // A half-typed date: the field's value is empty, the browser knows better
-    const date = screen.getByLabelText<HTMLInputElement>('Date');
-    Object.defineProperty(date, 'validity', {
-      value: { ...date.validity, badInput: true, valid: false },
-    });
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-
-    const error = screen.getByRole('alert');
-    expect(error).toHaveTextContent(
-      'Please select a valid deadline date and time',
-    );
-    expect(screen.getByLabelText('Date')).toHaveAccessibleDescription(
-      'Please select a valid deadline date and time',
-    );
-    expect(
-      screen.getByRole('status', { name: 'Notifications' }),
-    ).toBeEmptyDOMElement();
-    expect(await axe(document.body)).toHaveNoViolations();
-  });
-});

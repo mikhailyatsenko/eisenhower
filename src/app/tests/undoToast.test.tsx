@@ -238,9 +238,10 @@ describe('Undo toast', () => {
   it('adds a task silently', async () => {
     const { user } = await renderHomePage();
 
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-    await user.type(screen.getByRole('textbox'), 'Book the venue');
-    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Do First' }),
+    );
+    await user.keyboard('Book the venue{Enter}');
 
     expect(screen.getByText('Book the venue')).toBeInTheDocument();
     expect(toast()).toBeEmptyDOMElement();
@@ -301,8 +302,10 @@ describe('Undo shortcut', () => {
     });
 
     await deleteTask(user, 'Bravo');
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-    await user.type(screen.getByRole('textbox'), 'Book');
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Schedule' }),
+    );
+    await user.keyboard('Book');
     await user.keyboard('{Control>}z{/Control}');
 
     expect(screen.queryByText('Bravo')).not.toBeInTheDocument();
@@ -315,11 +318,12 @@ describe('Undo shortcut', () => {
     });
 
     await deleteTask(user, 'Bravo');
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-    act(() => screen.getByRole('button', { name: 'Save' }).focus());
+    await user.keyboard('?');
     await user.keyboard('{Control>}z{/Control}');
 
-    expect(screen.getByRole('dialog', { name: 'New task' })).toBeVisible();
+    expect(
+      screen.getByRole('dialog', { name: 'Keyboard shortcuts' }),
+    ).toBeVisible();
     expect(screen.queryByText('Bravo')).not.toBeInTheDocument();
   });
 
@@ -477,7 +481,7 @@ describe('Undo toast accessibility', () => {
     });
 
     await deleteTask(user, 'Alpha');
-    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.keyboard('?');
 
     // The dialog is portalled to body, outside the render container
     expect(await axe(document.body)).toHaveNoViolations();

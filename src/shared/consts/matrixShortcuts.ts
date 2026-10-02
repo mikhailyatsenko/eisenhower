@@ -49,7 +49,7 @@ export const MATRIX_SHORTCUTS: Shortcut[] = [
 
 /** Adding a task, for the cheatsheet and the method page */
 export const ADD_HINT =
-  'To add a task, click empty space in a quadrant or the + in its title, or press N or 1–4: a field opens at the end of the quadrant. Enter adds the task and keeps the field open for the next one, Esc closes it. For a deadline, use the New task button, which opens the full form.';
+  'To add a task, press + Add in a quadrant’s title or click empty space in the quadrant, or press N or 1–4: a field opens at the end of the quadrant. While you type, the strip at the bottom sets a deadline for the new task; Tab takes you there from the field. Enter or Add adds the task and keeps the field open for the next one, Esc closes it.';
 
 export const DRAG_HINT =
   'Drag a task to reorder or move it; long-press on touch';

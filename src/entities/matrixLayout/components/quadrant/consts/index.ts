@@ -6,8 +6,6 @@ import { MatrixKey } from '@/shared/stores/tasksStore';
 const PHONE_HEIGHT = 'h-[calc(50dvh_-_var(--top-bars-height,56px)/2_-_70px)]';
 
 export const QUADRANT_STYLES = {
-  TYPING_NEW_TASK_ACTIVE: `animate-from-bottom-appear w-[calc(55%-8px)] ${PHONE_HEIGHT} sm:h-[calc(100vh/2)] transition-[width] duration-300`,
-  TYPING_NEW_TASK_INACTIVE: `w-[calc(45%-8px)] !opacity-25 ${PHONE_HEIGHT} sm:h-[calc(100vh/2)] transition-[width] duration-300`,
   DEFAULT: `w-[calc(50%-8px)] ${PHONE_HEIGHT} sm:h-[calc(100vh/2-64px)] min-h-40`,
   CONTAINER:
     'relative m-1 flex cursor-pointer flex-col overflow-hidden rounded-md p-1 ease-in-out sm:p-6 dark:border dark:bg-gray-950',

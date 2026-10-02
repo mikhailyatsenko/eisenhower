@@ -12,8 +12,6 @@ export interface QuadrantProps {
   /** Id of the title, which names the quadrant's task list */
   titleId: string;
   isDragOver: boolean;
-  orderIndex: number;
-  isTypingNewTask: boolean;
   children: React.ReactNode;
   recentlyAddedQuadrant: MatrixKey | null;
   taskCount: number;
@@ -29,8 +27,6 @@ export const Quadrant: React.FC<QuadrantProps> = ({
   quadrantKey,
   titleId,
   isDragOver,
-  orderIndex,
-  isTypingNewTask,
   recentlyAddedQuadrant,
   taskCount,
   fullScreen,
@@ -46,13 +42,6 @@ export const Quadrant: React.FC<QuadrantProps> = ({
 
   const isFullScreen = fullScreen === 'open';
 
-  const actionStyles =
-    isTypingNewTask && !isFullScreen
-      ? orderIndex === 0
-        ? QUADRANT_STYLES.TYPING_NEW_TASK_ACTIVE
-        : QUADRANT_STYLES.TYPING_NEW_TASK_INACTIVE
-      : QUADRANT_STYLES.DEFAULT;
-
   const animateByRecentlyAddedQuadrant =
     recentlyAddedQuadrant === quadrantKey
       ? 'animate-recently-added-quadrant'
@@ -63,10 +52,9 @@ export const Quadrant: React.FC<QuadrantProps> = ({
   return (
     <div
       ref={setNodeRef}
-      style={{ order: orderIndex }}
       className={twMerge(
         quadrantStyles[quadrantKey],
-        actionStyles,
+        QUADRANT_STYLES.DEFAULT,
         animateByRecentlyAddedQuadrant,
         isDragOver && [QUADRANT_STYLES.DRAG_OVER, DRAG_OVER_RING[quadrantKey]],
         QUADRANT_STYLES.CONTAINER,

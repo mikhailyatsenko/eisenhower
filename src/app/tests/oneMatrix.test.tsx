@@ -71,7 +71,9 @@ describe('One Matrix', () => {
       cloud: { tasks: SERVER_TASKS },
     });
 
-    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Do First' }),
+    );
     await user.keyboard('Buy milk{Enter}');
 
     expect(tasksIn('Do First')).toEqual([

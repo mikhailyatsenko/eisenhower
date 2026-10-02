@@ -157,7 +157,9 @@ describe('The account menu', () => {
   it('asks first with changes waiting, and "Stay signed in" goes back to the avatar', async () => {
     const { user, cloud } = await renderSignedIn();
     cloud.goOffline();
-    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Do First' }),
+    );
     await user.keyboard('Buy milk{Enter}');
     await user.click(getAccountButton());
 

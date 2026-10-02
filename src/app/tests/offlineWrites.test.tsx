@@ -78,13 +78,17 @@ describe('Changes of a signed-in user without a network', () => {
     jest.restoreAllMocks();
   });
 
-  it('closes the add form after the first Enter and adds the task once', async () => {
+  it('adds the task once on the first Enter and empties the field', async () => {
     const { user, cloud } = await offlinePage();
 
-    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Do First' }),
+    );
     await user.keyboard('Buy milk{Enter}');
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('textbox', { name: 'Add task to Do First' }),
+    ).toHaveValue('');
     expect(screen.getAllByRole('option', { name: 'Buy milk' })).toHaveLength(1);
 
     cloud.goOnline();

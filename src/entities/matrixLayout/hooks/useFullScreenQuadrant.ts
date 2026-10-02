@@ -10,7 +10,7 @@ import {
 
 /**
  * The quadrant open full screen, only ever on a phone: a wider screen shows
- * the whole matrix. The selected task, a task just added or restored, the add
+ * the whole matrix. The selected task, a task just dropped or restored, the add
  * field and the "Add a task" the keyboard goes to stay in sight: when they
  * are in another quadrant, that quadrant opens instead. The add field opens
  * its quadrant from the grid as well.

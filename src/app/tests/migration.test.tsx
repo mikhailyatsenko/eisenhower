@@ -93,7 +93,9 @@ describe('Migration into an empty account', () => {
     const { user } = await renderHomePage({ tasks: DEVICE_TASKS });
 
     await signIn(user);
-    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Do First' }),
+    );
     await user.keyboard('Buy milk{Enter}');
 
     expect(toast()).toBeEmptyDOMElement();

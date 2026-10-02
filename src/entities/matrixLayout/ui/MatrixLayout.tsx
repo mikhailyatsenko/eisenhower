@@ -21,9 +21,7 @@ import { QuadrantSlots } from '../types';
 
 interface MatrixLayoutProps {
   tasks: Record<MatrixKey, Task[]>;
-  quadrantOrder: MatrixKey[];
   dragOverQuadrant: MatrixKey | null;
-  taskInputText: string;
   slots: QuadrantSlots;
   /** Empty quadrants show their example tasks */
   hasExamples: boolean;
@@ -31,9 +29,7 @@ interface MatrixLayoutProps {
 
 export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
   tasks,
-  quadrantOrder,
   dragOverQuadrant,
-  taskInputText,
   slots,
   hasExamples,
 }) => {
@@ -70,8 +66,6 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
             quadrantKey={quadrantKey}
             titleId={titleId}
             isDragOver={dragOverQuadrant === quadrantKey}
-            orderIndex={quadrantOrder.indexOf(quadrantKey)}
-            isTypingNewTask={taskInputText.trim() !== ''}
             recentlyAddedQuadrant={recentlyAddedQuadrant}
             taskCount={taskCount}
             fullScreen={isFullScreen ? 'open' : isPhone ? 'closed' : 'off'}
@@ -82,9 +76,7 @@ export const MatrixLayout: React.FC<MatrixLayoutProps> = ({
               setFullScreenQuadrantAction(isOpen ? quadrantKey : null);
             }}
             headerAction={slots.headerAction(quadrantKey)}
-            onEmptySpaceClick={() =>
-              slots.openAddFieldByEmptySpace(quadrantKey)
-            }
+            onEmptySpaceClick={() => slots.openAddField(quadrantKey)}
           >
             <SortableContext
               items={quadrantTasks}

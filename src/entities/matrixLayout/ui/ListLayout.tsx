@@ -116,7 +116,7 @@ export const ListLayout: React.FC<ListLayoutProps> = ({
                 className="motion-safe:animate-menu-fade-in pb-6"
                 onClick={(event) =>
                   handleEmptySpaceClick(event, () =>
-                    slots.openAddFieldByEmptySpace(quadrant),
+                    slots.openAddField(quadrant),
                   )
                 }
               >

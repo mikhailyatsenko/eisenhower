@@ -104,8 +104,15 @@ describe('Server pages', () => {
       });
 
       expect(howTo).toHaveTextContent(ADD_HINT);
+      expect(ADD_HINT).toMatch(
+        /^To add a task, press \+ Add in a quadrant’s title/,
+      );
+      expect(ADD_HINT).toContain(
+        'the strip at the bottom sets a deadline for the new task',
+      );
       expect(howTo).toHaveTextContent('1 for Do First, 2 for Schedule');
       expect(howTo).not.toHaveTextContent('open the form');
+      expect(howTo).not.toHaveTextContent(/New task|full form/);
 
       expect(howTo).toHaveTextContent('Click or tap a task to select it');
       expect(howTo).toHaveTextContent('action panel');

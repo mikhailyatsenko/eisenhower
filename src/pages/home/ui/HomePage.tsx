@@ -1,5 +1,4 @@
 import { TaskMatrix } from '@/widgets/taskMatrix';
-import { AddTask } from '@/features/addTask';
 import { ToastRegion } from '@/shared/ui/toast';
 
 // Server component: the h1 is in the HTML before hydration
@@ -10,7 +9,6 @@ export const HomePage = () => (
     <h1 className="mb-4 text-center text-sm font-medium text-gray-600 dark:text-gray-400">
       Eisenhower Matrix — prioritize tasks by urgency and importance
     </h1>
-    <AddTask />
     <TaskMatrix />
     {/* Right after the matrix: Undo is the next Tab stop */}
     <ToastRegion />

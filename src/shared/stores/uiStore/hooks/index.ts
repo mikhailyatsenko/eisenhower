@@ -1,14 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { DEFAULT_SELECTED_CATEGORY, UI_STORAGE_KEY } from '../consts';
+import { UI_STORAGE_KEY } from '../consts';
 import { UIState } from '../types';
 
 const initialState: UIState = {
-  selectedCategory: DEFAULT_SELECTED_CATEGORY,
-  taskInputText: '',
   recentlyAddedQuadrant: null,
-  isFormOpened: false,
   viewMode: 'matrix',
   collapsedSections: [],
   isCompletedExpanded: false,
@@ -21,7 +18,6 @@ const initialState: UIState = {
   isDraggingTask: false,
   addTaskTabStop: null,
   addTaskButtonToFocus: null,
-  hasAddedByEmptySpace: false,
 };
 
 export const useUIStore = create<UIState>()(
@@ -33,7 +29,6 @@ export const useUIStore = create<UIState>()(
         viewMode: state.viewMode,
         collapsedSections: state.collapsedSections,
         isCompletedExpanded: state.isCompletedExpanded,
-        hasAddedByEmptySpace: state.hasAddedByEmptySpace,
       }),
     },
   ),

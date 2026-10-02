@@ -34,7 +34,9 @@ describe('Signing out on a shared device', () => {
       cloud: { tasks: SERVER_TASKS },
     });
     cloud.goOffline();
-    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Do First' }),
+    );
     await user.keyboard('Buy milk{Enter}');
     expect(cloud.deviceTasks()).toContain('Buy milk');
 
@@ -117,7 +119,9 @@ describe('Signing out on a shared device', () => {
     await screen.findByRole('option', { name: 'Pay rent' });
 
     cloud.goOffline();
-    await user.click(screen.getByRole('button', { name: /new task/i }));
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Do First' }),
+    );
     await user.keyboard('Buy milk{Enter}');
     await cloud.expireSession();
 

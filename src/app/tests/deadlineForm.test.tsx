@@ -33,27 +33,16 @@ const TIME = /\d:\d\d/;
 
 type Page = Awaited<ReturnType<typeof renderHomePage>>;
 
-const form = () => screen.getByRole('dialog');
-const deadline = () => within(form()).getByRole('group', { name: 'Deadline' });
-const chip = (name: string) => within(deadline()).getByRole('button', { name });
-const dateField = () => within(deadline()).getByLabelText('Date');
-const timeField = () => within(deadline()).queryByLabelText('Time');
-const addTimeButton = () =>
-  within(deadline()).getByRole('button', { name: '+ Add time' });
+const strip = () =>
+  screen.getByRole('group', { name: 'Deadline for the new task in Do First' });
+const chip = (name: string | RegExp) =>
+  within(strip()).getByRole('button', { name });
+const dateField = () => within(strip()).getByLabelText('Date');
+const timeField = () => within(strip()).queryByLabelText('Time');
+const addButton = () => within(strip()).getByRole('button', { name: /^Add/ });
 
-const PREVIEW = 'Shows on card as:';
-/** The innermost element that holds the whole preview line */
-const preview = () =>
-  within(form()).queryByText(
-    (_, element) =>
-      !!element?.textContent?.startsWith(PREVIEW) &&
-      ![...element.children].some((child) =>
-        child.textContent?.startsWith(PREVIEW),
-      ),
-  );
-
-const openNewTask = async ({ user }: Page, text: string) => {
-  await user.click(screen.getByRole('button', { name: /new task/i }));
+const openAddField = async ({ user }: Page, text: string) => {
+  await user.keyboard('n');
   await user.keyboard(text);
 };
 
@@ -71,15 +60,12 @@ const deadlineButton = () =>
     name: /^Deadline/,
   });
 
-const save = ({ user }: Page) =>
-  user.click(within(form()).getByRole('button', { name: 'Save' }));
-
 const typeDate = async ({ user }: Page, value: string) => {
   await user.clear(dateField());
   if (value) await user.type(dateField(), value);
 };
 
-describe('Deadline in the task form', () => {
+describe('Deadline of a task', () => {
   beforeEach(() => {
     jest.useFakeTimers({ now: NOW });
   });
@@ -88,140 +74,64 @@ describe('Deadline in the task form', () => {
     jest.useRealTimers();
   });
 
-  it('sets a whole day with a chip and shows the card line before saving', async () => {
+  it('takes a date typed while adding as a whole day, in the past too', async () => {
     const page = await renderHomePage();
-    await openNewTask(page, 'Renew passport');
-
-    expect(dateField()).toHaveAttribute('type', 'date');
-    expect(chip('No deadline')).toHaveAttribute('aria-pressed', 'true');
-    expect(preview()).toBeNull();
-
-    await page.user.click(chip('Tomorrow'));
-
-    expect(chip('Tomorrow')).toHaveAttribute('aria-pressed', 'true');
-    expect(chip('No deadline')).toHaveAttribute('aria-pressed', 'false');
-    expect(dateField()).toHaveValue('2026-09-26');
-    expect(preview()).toHaveTextContent('DUE SOON');
-    expect(preview()).toHaveTextContent(shown(day(26), false));
-    expect(preview()).not.toHaveTextContent(TIME);
-    // Plain text, not announced on every change
-    expect(preview()?.closest('[aria-live]')).toBeNull();
-
-    await save(page);
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(card('Renew passport')).toHaveAccessibleName(/DUE SOON/);
-    expect(card('Renew passport')).not.toHaveTextContent(TIME);
-  });
-
-  it('sets the dates of the other chips', async () => {
-    const page = await renderHomePage();
-    await openNewTask(page, 'Plan the week');
-
-    // Friday: the weekend is tomorrow, next week starts on Monday 28
-    await page.user.click(chip('Today'));
-    expect(dateField()).toHaveValue('2026-09-25');
-    expect(preview()).toHaveTextContent('DUE TODAY');
-
-    await page.user.click(chip('This weekend'));
-    expect(dateField()).toHaveValue('2026-09-26');
-    // Tomorrow is the same day: both chips set it
-    expect(chip('This weekend')).toHaveAttribute('aria-pressed', 'true');
-
-    await page.user.click(chip('Next week'));
-    expect(dateField()).toHaveValue('2026-09-28');
-    expect(chip('Next week')).toHaveAttribute('aria-pressed', 'true');
-    expect(chip('This weekend')).toHaveAttribute('aria-pressed', 'false');
-  });
-
-  it('adds an optional time and removes it again', async () => {
-    const page = await renderHomePage();
-    await openNewTask(page, 'Renew passport');
-    await page.user.click(chip('Tomorrow'));
-
-    expect(timeField()).toBeNull();
-
-    await page.user.click(addTimeButton());
-
-    expect(timeField()).toHaveFocus();
-    expect(timeField()).toHaveValue('09:00');
-    expect(preview()).toHaveTextContent(shown(day(26, 9), true));
-    // A chip sets a whole day: with a time none is picked
-    expect(chip('Tomorrow')).toHaveAttribute('aria-pressed', 'false');
-
-    // An emptied time field is still open: no chip is picked
-    await page.user.clear(timeField()!);
-    expect(preview()).not.toHaveTextContent(TIME);
-    expect(chip('Tomorrow')).toHaveAttribute('aria-pressed', 'false');
-
-    await page.user.type(timeField()!, '18:30');
-
-    expect(preview()).toHaveTextContent(shown(day(26, 18, 30), true));
-
-    await page.user.click(
-      within(deadline()).getByRole('button', { name: 'Remove time' }),
-    );
-
-    expect(timeField()).toBeNull();
-    expect(addTimeButton()).toHaveFocus();
-    expect(preview()).not.toHaveTextContent(TIME);
-    expect(chip('Tomorrow')).toHaveAttribute('aria-pressed', 'true');
-
-    await page.user.click(addTimeButton());
-    await page.user.clear(timeField()!);
-    await page.user.type(timeField()!, '18:30');
-    await save(page);
-
-    expect(card('Renew passport')).toHaveTextContent(
-      shown(day(26, 18, 30), true),
-    );
-  });
-
-  it('drops the time when a chip is picked', async () => {
-    const page = await renderHomePage();
-    await openNewTask(page, 'Renew passport');
-    await page.user.click(chip('Tomorrow'));
-    await page.user.click(addTimeButton());
-
-    await page.user.click(chip('Next week'));
-
-    expect(timeField()).toBeNull();
-    expect(preview()).not.toHaveTextContent(TIME);
-  });
-
-  it('takes a date typed in the field as a whole day, in the past too', async () => {
-    const page = await renderHomePage();
-    await openNewTask(page, 'Pay rent');
+    await openAddField(page, 'Pay rent');
 
     await typeDate(page, '2026-09-24');
 
-    expect(preview()).toHaveTextContent('OVERDUE');
-    expect(preview()).toHaveTextContent(shown(day(24), false));
-    expect(preview()).not.toHaveTextContent(TIME);
+    expect(addButton()).toHaveAccessibleName(`Add · ${shown(day(24), false)}`);
     ['No deadline', 'Today', 'Tomorrow', 'This weekend', 'Next week'].forEach(
-      (name) => expect(chip(name)).toHaveAttribute('aria-pressed', 'false'),
+      (name) =>
+        expect(chip(new RegExp(`^${name}`))).toHaveAttribute(
+          'aria-pressed',
+          'false',
+        ),
     );
 
-    await save(page);
+    await page.user.keyboard('{Enter}');
 
     expect(card('Pay rent')).toHaveAccessibleName(/OVERDUE/);
+    expect(card('Pay rent')).not.toHaveTextContent(TIME);
   });
 
-  it('drops the time together with an emptied date', async () => {
+  it('drops the time while adding when a chip is picked or the date is emptied', async () => {
     const page = await renderHomePage();
-    await openNewTask(page, 'Renew passport');
-    await page.user.click(chip('Tomorrow'));
-    await page.user.click(addTimeButton());
+    await openAddField(page, 'Renew passport');
+    await page.user.click(chip(/^Tomorrow/));
+    await page.user.click(chip('+ Time'));
 
+    await page.user.click(chip(/^Next week/));
+
+    expect(timeField()).toBeNull();
+    expect(addButton()).toHaveAccessibleName(`Add · ${shown(day(28), false)}`);
+
+    await page.user.click(chip('+ Time'));
     await typeDate(page, '');
 
     expect(timeField()).toBeNull();
-    expect(preview()).toBeNull();
-    expect(chip('No deadline')).toHaveAttribute('aria-pressed', 'true');
+    expect(chip(/^No deadline/)).toHaveAttribute('aria-pressed', 'true');
 
-    await save(page);
+    await page.user.click(addButton());
 
     expect(card('Renew passport')).toHaveAccessibleName('Renew passport');
+  });
+
+  it('uses native fields while adding, not react-datepicker, and passes axe with the time open', async () => {
+    const page = await renderHomePage();
+    await openAddField(page, 'Renew passport');
+    await page.user.click(chip(/^Tomorrow/));
+    await page.user.click(chip('+ Time'));
+
+    expect(dateField()).toHaveAttribute('type', 'date');
+    expect(timeField()).toHaveAttribute('type', 'time');
+    expect(document.querySelector('[class*="react-datepicker"]')).toBeNull();
+    expect(within(strip()).queryByRole('checkbox')).toBeNull();
+    expect(within(strip()).queryByRole('button', { name: '+3h' })).toBeNull();
+
+    // axe waits on real timers
+    jest.useRealTimers();
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 
   it('removes a deadline with No deadline', async () => {
@@ -281,25 +191,9 @@ describe('Deadline in the task form', () => {
       within(choices('Call the bank')).queryByLabelText('Time'),
     ).toBeNull();
   });
-
-  it('uses native fields, not react-datepicker, and passes axe with the time open', async () => {
-    const page = await renderHomePage();
-    await openNewTask(page, 'Renew passport');
-    await page.user.click(chip('Tomorrow'));
-    await page.user.click(addTimeButton());
-
-    expect(timeField()).toHaveAttribute('type', 'time');
-    expect(document.querySelector('[class*="react-datepicker"]')).toBeNull();
-    expect(within(form()).queryByRole('checkbox')).toBeNull();
-    expect(within(form()).queryByRole('button', { name: '+3h' })).toBeNull();
-
-    // axe waits on real timers
-    jest.useRealTimers();
-    expect(await axe(form())).toHaveNoViolations();
-  });
 });
 
-describe('Deadline in the form of a signed-in user', () => {
+describe('Deadline of a signed-in user', () => {
   const ADA = { uid: 'u1', displayName: 'Ada' };
 
   beforeEach(() => {

@@ -199,15 +199,6 @@ describe('Adding a task in the quadrant', () => {
     expect(field('Schedule')).toHaveValue('Echo');
   });
 
-  it('leaves the New task button to the add form with a deadline', async () => {
-    const { user } = await renderHomePage({ tasks: TASKS });
-
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-
-    expect(screen.getByRole('dialog', { name: 'New task' })).toBeVisible();
-    expect(queryFields()).toEqual([]);
-  });
-
   it('shows no insert strips between tasks: a click there opens the field', async () => {
     const { user } = await renderHomePage({ tasks: TASKS });
 

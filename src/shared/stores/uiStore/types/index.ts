@@ -12,8 +12,6 @@ export interface InlineAdd {
   deadline: Deadline | null;
   /** Counts the opens: each one, in the same quadrant too, focuses the field */
   openCount: number;
-  /** This open was a click on empty space: what the header hint teaches */
-  isByEmptySpace: boolean;
 }
 
 /** The Selected Task's text being edited in the action panel */
@@ -26,10 +24,8 @@ export interface TextEdit {
 export type ViewMode = 'matrix' | 'list';
 
 export interface UIState {
-  selectedCategory: MatrixKey;
-  taskInputText: string;
+  /** A task just dropped there: the quadrant flashes and comes full screen */
   recentlyAddedQuadrant: MatrixKey | null;
-  isFormOpened: boolean;
   viewMode: ViewMode;
   /**
    * List view sections the user has collapsed. Stored on the device, not
@@ -59,9 +55,4 @@ export interface UIState {
   addTaskTabStop: MatrixKey | null;
   /** Empty quadrant whose "Add a task" takes focus once it's rendered */
   addTaskButtonToFocus: MatrixKey | null;
-  /**
-   * A task was once added by a click on empty space: the header hint "click
-   * empty space to add" is gone for good. Stored on the device, not synced.
-   */
-  hasAddedByEmptySpace: boolean;
 }

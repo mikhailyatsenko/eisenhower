@@ -6,14 +6,15 @@ import { MatrixStop } from '../lib/matrixTabStop';
  * with the add feature, which the quadrant doesn't know.
  */
 export interface QuadrantSlots {
-  /** A button after the title, the "+" */
+  /** A button after the title, the "+ Add" */
   headerAction: (quadrant: MatrixKey) => React.ReactNode;
   /** After the last task, in the scrolling area: the inline add field */
   listEnd: (quadrant: MatrixKey) => React.ReactNode;
-  /** Opens the add field in the quadrant from "Add a task", which Esc then comes back to */
-  openAddField: (quadrant: MatrixKey, returnFocus: HTMLElement) => void;
-  /** Opens the add field on a click on empty space with no task selected */
-  openAddFieldByEmptySpace: (quadrant: MatrixKey) => void;
+  /**
+   * Opens the add field in the quadrant: from "Add a task", which Esc then
+   * comes back to, or on a click on empty space with no task selected
+   */
+  openAddField: (quadrant: MatrixKey, returnFocus?: HTMLElement) => void;
 }
 
 /** A List view section on screen and where the keyboard stands in it */

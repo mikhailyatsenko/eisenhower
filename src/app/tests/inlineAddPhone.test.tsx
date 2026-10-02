@@ -28,8 +28,6 @@ const queryFields = () =>
 const plus = (title: string) =>
   screen.getByRole('button', { name: `Add a task to ${title}` });
 
-const fab = () => screen.queryByRole('button', { name: /^new task/i });
-
 const backButton = () => screen.getByRole('button', { name: 'Back to matrix' });
 
 const listTitles = () =>
@@ -42,14 +40,11 @@ describe('Adding a task on a phone', () => {
   it('opens the quadrant full screen with the field on a tap on empty space', async () => {
     const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
 
-    expect(fab()).toBeInTheDocument();
-
     await user.click(list('Schedule'));
 
     expect(listTitles()).toEqual(['Schedule']);
     expect(backButton()).toBeInTheDocument();
     expect(field('Schedule')).toHaveFocus();
-    expect(fab()).not.toBeInTheDocument();
   });
 
   it('opens an empty quadrant full screen with the field from its "+"', async () => {
@@ -88,7 +83,6 @@ describe('Adding a task on a phone', () => {
       'Eliminate',
     ]);
     expect(queryFields()).toEqual([]);
-    expect(fab()).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Open Schedule full screen' }),
     ).toHaveFocus();
@@ -103,7 +97,6 @@ describe('Adding a task on a phone', () => {
     expect(queryFields()).toEqual([]);
     expect(listTitles()).toEqual(['Schedule']);
     expect(plus('Schedule')).toHaveFocus();
-    expect(fab()).toBeInTheDocument();
   });
 
   it('closes the field when Undo brings another quadrant full screen', async () => {
@@ -124,10 +117,10 @@ describe('Adding a task on a phone', () => {
     expect(listTitles()).toEqual(['Do First']);
     expect(queryFields()).toEqual([]);
     expect(screen.getByRole('option', { name: 'Alpha' })).toHaveFocus();
-
-    // No field left open out of sight: New task comes back with no selection
-    await user.click(screen.getByRole('option', { name: 'Alpha' }));
-    expect(fab()).toBeInTheDocument();
+    // No field left open out of sight, nor its deadline strip
+    expect(
+      screen.queryByRole('group', { name: /^Deadline for the new task/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('puts the "+" next to the full-screen button, not inside it', async () => {

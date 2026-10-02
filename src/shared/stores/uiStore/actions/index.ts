@@ -2,18 +2,6 @@ import { Deadline, MatrixKey } from '@/shared/stores/tasksStore';
 import { useUIStore } from '../hooks';
 import type { ViewMode } from '../types';
 
-export const setSelectedCategoryAction = (category: MatrixKey) => {
-  useUIStore.setState((state) => {
-    state.selectedCategory = category;
-  });
-};
-
-export const setTaskInputTextAction = (text: string) => {
-  useUIStore.setState((state) => {
-    state.taskInputText = text;
-  });
-};
-
 const resetRecentlyAddedQuadrant = () => {
   useUIStore.setState((state) => {
     state.recentlyAddedQuadrant = null;
@@ -27,12 +15,6 @@ export const setRecentlyAddedQuadrantAction = (quadrant: MatrixKey | null) => {
   setTimeout(resetRecentlyAddedQuadrant, 550);
 };
 
-export const setIsFormOpenedAction = (isOpened: boolean) => {
-  useUIStore.setState((state) => {
-    state.isFormOpened = isOpened;
-  });
-};
-
 const withoutSection = (sections: MatrixKey[], quadrant: MatrixKey) =>
   sections.filter((key) => key !== quadrant);
 
@@ -42,21 +24,21 @@ let inlineAddReturnFocus: HTMLElement | null = null;
 
 /**
  * What the keyboard or "Add a task" opened the open inline add field from,
- * maybe gone from the page since; null for a click on empty space or "+"
+ * maybe gone from the page since; null for a click on empty space or "+ Add"
  */
 export const getInlineAddReturnFocus = () =>
   useUIStore.getState().inlineAdd ? inlineAddReturnFocus : null;
 
 /**
  * Opens the inline add field in the quadrant, or moves it there with its
- * text and deadline. The selection goes: no action panel while the field is
- * open. Esc puts the focus back on `returnFocus`, else on the quadrant's
- * "+". A collapsed List view section expands for it, and stays expanded.
+ * text and deadline: from "+ Add", a click on empty space, the keyboard or
+ * "Add a task". The selection goes: no action panel while the field is open.
+ * Esc puts the focus back on `returnFocus`, else on the quadrant's "+ Add". A
+ * collapsed List view section expands for it, and stays expanded.
  */
-const openInlineAdd = (
+export const openInlineAddAction = (
   quadrant: MatrixKey,
-  returnFocus: HTMLElement | null,
-  isByEmptySpace: boolean,
+  returnFocus: HTMLElement | null = null,
 ) => {
   inlineAddReturnFocus = returnFocus;
   useUIStore.setState((state) => {
@@ -66,7 +48,6 @@ const openInlineAdd = (
       text: state.inlineAdd?.text ?? '',
       deadline: state.inlineAdd?.deadline ?? null,
       openCount: (state.inlineAdd?.openCount ?? 0) + 1,
-      isByEmptySpace,
     };
     if (state.viewMode === 'list') {
       state.collapsedSections = withoutSection(
@@ -77,26 +58,12 @@ const openInlineAdd = (
   });
 };
 
-/** Opens the field from "+", the keyboard or "Add a task" */
-export const openInlineAddAction = (
-  quadrant: MatrixKey,
-  returnFocus: HTMLElement | null = null,
-) => openInlineAdd(quadrant, returnFocus, false);
-
-/** Opens the inline add field as a click on the quadrant's empty space */
-export const openInlineAddByEmptySpaceAction = (quadrant: MatrixKey) =>
-  openInlineAdd(quadrant, null, true);
-
-/**
- * Records a task the inline add field added: its text and deadline go. The
- * first one added by a click on empty space retires the header hint.
- */
+/** Records a task the inline add field added: its text and deadline go */
 export const recordInlineTaskAddAction = () => {
   useUIStore.setState((state) => {
     if (!state.inlineAdd) return;
     state.inlineAdd.text = '';
     state.inlineAdd.deadline = null;
-    if (state.inlineAdd.isByEmptySpace) state.hasAddedByEmptySpace = true;
   });
 };
 

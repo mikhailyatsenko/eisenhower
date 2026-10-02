@@ -13,8 +13,6 @@ const TASKS = {
   NotImportantUrgent: ['Answer emails'],
 };
 
-const HINT = 'click empty space to add';
-
 type RenderOptions = Parameters<typeof renderHomePage>[0];
 
 const openList = async (options: RenderOptions = { tasks: TASKS }) => {
@@ -290,45 +288,5 @@ describe('An empty section’s "Add a task" in List view', () => {
       .getAllByRole('button', { name: 'Click to add a task' })
       .filter((button) => button.tabIndex === 0);
     expect(tabStops).toEqual([addTaskButton('Do First')]);
-  });
-});
-
-describe('The hint "click empty space to add" in List view', () => {
-  const hints = () => screen.queryAllByText(HINT);
-
-  it('is in the header of every open section with a mouse', async () => {
-    const { user } = await openList();
-
-    expect(hints()).toHaveLength(4);
-
-    await user.click(toggle('Do First, 2 tasks'));
-
-    expect(hints()).toHaveLength(3);
-  });
-
-  it('is not there with a touch screen or narrower than 640px', async () => {
-    const { setViewport } = await openList({
-      tasks: TASKS,
-      viewport: { pointer: 'coarse' },
-    });
-
-    expect(hints()).toHaveLength(0);
-
-    await setViewport({ pointer: 'fine', width: 639 });
-
-    expect(hints()).toHaveLength(0);
-  });
-
-  it('goes for good once a task is added by a click on empty space', async () => {
-    const { user, reload } = await openList();
-
-    await user.click(section('Schedule'));
-    await user.keyboard('Order toner{Enter}');
-
-    expect(hints()).toHaveLength(0);
-
-    await reload();
-
-    expect(hints()).toHaveLength(0);
   });
 });

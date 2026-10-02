@@ -143,8 +143,9 @@ export const EisenhowerMatrixPage = () => (
         </li>
         <li>{DRAG_HINT}.</li>
         <li>
-          Completed tasks are listed below the matrix, where you can restore
-          them or delete them permanently.
+          Completed tasks are in the Completed section at the end of the list,
+          where you can restore them or delete them permanently; the line under
+          the matrix takes you there.
         </li>
         <li>
           Switch between the matrix and a single list with the button at the top

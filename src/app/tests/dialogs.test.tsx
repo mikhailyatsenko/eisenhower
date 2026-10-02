@@ -30,23 +30,6 @@ const expectModalDialog = (dialog: HTMLElement) => {
   expect(dialog).toHaveAttribute('open');
 };
 
-describe('Add dialog', () => {
-  it('is a modal <dialog> and gives the focus back to the New Task button', async () => {
-    const { user } = await renderHomePage();
-
-    const newTask = screen.getByRole('button', { name: /new task/i });
-    await user.click(newTask);
-
-    expectModalDialog(screen.getByRole('dialog', { name: 'New task' }));
-    expect(screen.getByRole('textbox')).toHaveFocus();
-
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(newTask).toHaveFocus();
-  });
-});
-
 describe('Shortcuts cheatsheet', () => {
   const cheatsheet = () =>
     screen.getByRole('dialog', { name: 'Keyboard shortcuts' });
@@ -93,14 +76,18 @@ describe('Shortcuts cheatsheet', () => {
     expect(cheatsheet()).toHaveTextContent(
       'Drag a task to reorder or move it; long-press on touch',
     );
-    // Adding: empty space, +, N and 1–4 open the field; New task, the form
-    expect(cheatsheet()).toHaveTextContent('click empty space in a quadrant');
-    expect(cheatsheet()).toHaveTextContent('the + in its title');
+    // Adding: + Add, empty space, N and 1–4 open the field; the strip sets
+    // the deadline
+    expect(cheatsheet()).toHaveTextContent('press + Add in a quadrant’s title');
+    expect(cheatsheet()).toHaveTextContent('click empty space in the quadrant');
     expect(cheatsheet()).toHaveTextContent('press N or 1–4');
     expect(cheatsheet()).toHaveTextContent(
-      'Enter adds the task and keeps the field open for the next one',
+      'the strip at the bottom sets a deadline for the new task; Tab takes you there from the field',
     );
-    expect(cheatsheet()).toHaveTextContent('New task button');
+    expect(cheatsheet()).toHaveTextContent(
+      'Enter or Add adds the task and keeps the field open for the next one',
+    );
+    expect(cheatsheet()).not.toHaveTextContent(/New task|full form/);
   });
 
   it('tells E, D and the keys of the deadline choices under the matrix keys', async () => {
@@ -199,14 +186,16 @@ describe('Shortcuts cheatsheet', () => {
     expectModalDialog(cheatsheet());
   });
 
-  it('leaves ? in a form field to the field', async () => {
+  it('leaves ? in the add field to the field', async () => {
     const { user } = await renderHomePage();
 
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-    await user.type(screen.getByRole('textbox'), 'Why?');
+    await user.keyboard('n');
+    await user.keyboard('Why?');
 
-    expect(screen.getByRole('textbox')).toHaveValue('Why?');
-    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    expect(
+      screen.getByRole('textbox', { name: 'Add task to Do First' }),
+    ).toHaveValue('Why?');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
 

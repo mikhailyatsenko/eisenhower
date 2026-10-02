@@ -27,7 +27,6 @@ import {
 } from '@/shared/stores/tasksStore';
 import {
   openInlineAddAction,
-  openInlineAddByEmptySpaceAction,
   useIsUIStoreRestored,
   useUIStore,
 } from '@/shared/stores/uiStore';
@@ -38,13 +37,12 @@ import { COMPLETED_PAGE_SIZE } from '../../consts';
 import { TaskListView } from '../taskListView/TaskListView';
 import { TaskMatrixHeaders } from '../taskMatrixHeader/TaskMatrixHeaders';
 
-// Adding in the quadrant: its "+", the inline field, a click on empty space
+// Adding in the quadrant: its "+ Add", the inline field, a click on empty space
 // and "Add a task"
 const QUADRANT_SLOTS: QuadrantSlots = {
   headerAction: (quadrant) => <QuadrantAddButton quadrant={quadrant} />,
   listEnd: (quadrant) => <InlineAddField quadrant={quadrant} />,
   openAddField: openInlineAddAction,
-  openAddFieldByEmptySpace: openInlineAddByEmptySpaceAction,
 };
 
 const NO_TASKS: Task[] = [];
@@ -81,9 +79,6 @@ export const TaskMatrix: React.FC = () => {
   const isUIStoreRestored = useIsUIStoreRestored();
   const fullScreenQuadrant = useUIStore((state) => state.fullScreenQuadrant);
   const matrixRef = useRef<HTMLDivElement>(null);
-
-  // Use specific selector to prevent unnecessary re-renders
-  const taskInputText = useUIStore((state) => state.taskInputText);
 
   // Until the cloud Matrix arrives, from the moment the user is known: the
   // device's tasks never flash in between. An error doesn't hide the Matrix.
@@ -163,14 +158,11 @@ export const TaskMatrix: React.FC = () => {
           {viewMode === 'matrix' ? (
             <>
               {/* The stored quadrant opens on a phone only, hence max-sm */}
-              {!taskInputText && (
-                <TaskMatrixHeaders
-                  isHiddenOnPhone={fullScreenQuadrant !== null}
-                />
-              )}
+              <TaskMatrixHeaders
+                isHiddenOnPhone={fullScreenQuadrant !== null}
+              />
 
               <InteractWithMatrix
-                taskInputText={taskInputText}
                 moveTask={moveTask}
                 quadrantSlots={QUADRANT_SLOTS}
                 hasExamples={!isAccountAwaited}

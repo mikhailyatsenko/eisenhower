@@ -17,7 +17,6 @@ const TASKS = {
 const task = (text: string) => screen.getByRole('option', { name: text });
 const toolbar = () => screen.getByRole('toolbar');
 const moveTo = () => within(toolbar()).getByRole('group', { name: 'Move to' });
-const fab = () => screen.queryByRole('button', { name: /^new task/i });
 const tasksIn = (title: string) =>
   within(screen.getByRole('listbox', { name: title }))
     .queryAllByRole('option')
@@ -65,38 +64,11 @@ describe('Action panel on a phone', () => {
     expect(await screen.findByText('Moved to Eliminate')).toBeInTheDocument();
   });
 
-  it('hides New task while a task is selected', async () => {
-    const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
-
-    expect(fab()).toBeInTheDocument();
-
-    await user.click(task('Bravo'));
-    expect(fab()).not.toBeInTheDocument();
-
-    // A second tap on the selected task deselects it
-    await user.click(task('Bravo'));
-    expect(screen.queryByRole('toolbar')).not.toBeInTheDocument();
-    expect(fab()).toBeInTheDocument();
-  });
-
-  it('hides New task in a full-screen quadrant too', async () => {
-    const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
-
-    await user.click(
-      screen.getByRole('button', { name: 'Open Do First full screen' }),
-    );
-    await user.click(task('Alpha'));
-
-    expect(moveTo()).toBeInTheDocument();
-    expect(fab()).not.toBeInTheDocument();
-  });
-
-  it('keeps New task and the one-row toolbar on desktop', async () => {
+  it('keeps the one-row toolbar on desktop', async () => {
     const { user } = await renderHomePage({ tasks: TASKS });
 
     await user.click(task('Bravo'));
 
-    expect(fab()).toBeInTheDocument();
     expect(
       within(toolbar())
         .getAllByRole('button')

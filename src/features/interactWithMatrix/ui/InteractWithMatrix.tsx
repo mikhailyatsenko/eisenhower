@@ -24,12 +24,10 @@ import {
 } from '@/shared/stores/tasksStore';
 
 import { useDragEvents } from '../lib/hooks';
-import { useQuadrantOrder } from '../lib/hooks';
 import { useScreenSize } from '../lib/hooks';
 import { MoveTask } from '../types';
 
 interface InteractWithMatrixProps {
-  taskInputText: string;
   moveTask: MoveTask;
   /** What the quadrants hold besides tasks, from the matrix widget */
   quadrantSlots: QuadrantSlots;
@@ -38,7 +36,6 @@ interface InteractWithMatrixProps {
 }
 
 export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
-  taskInputText,
   moveTask,
   quadrantSlots,
   hasExamples,
@@ -67,8 +64,6 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
 
   const { isSmallScreen } = useScreenSize();
 
-  const quadrantOrder = useQuadrantOrder(taskInputText);
-
   const dropAnimation: DropAnimation | null = isSmallScreen
     ? null
     : defaultDropAnimation;
@@ -84,9 +79,7 @@ export const InteractWithMatrix: React.FC<InteractWithMatrixProps> = ({
     >
       <MatrixLayout
         tasks={tasks}
-        quadrantOrder={quadrantOrder}
         dragOverQuadrant={dragOverQuadrant}
-        taskInputText={taskInputText}
         slots={quadrantSlots}
         hasExamples={hasExamples}
       />

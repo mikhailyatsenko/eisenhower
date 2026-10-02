@@ -11,15 +11,6 @@ const VOCABULARY = [
 const OLD_NAMES =
   /urgent & important|important & not urgent|urgent & not important|not urgent & not important/i;
 
-const expectQuadrantPicker = () => {
-  // The dialog: the action toolbar has quadrant buttons of its own
-  const dialog = screen.getByRole('dialog');
-  VOCABULARY.forEach(({ title, criteria }) => {
-    const button = within(dialog).getByRole('button', { name: title });
-    expect(button).toHaveAccessibleDescription(criteria);
-  });
-};
-
 describe('Quadrant vocabulary', () => {
   it('names each quadrant heading by its action only', async () => {
     await renderHomePage();
@@ -29,15 +20,6 @@ describe('Quadrant vocabulary', () => {
       .map((heading) => heading.textContent);
 
     expect(headings).toEqual(VOCABULARY.map(({ title }) => title));
-    expect(document.body).not.toHaveTextContent(OLD_NAMES);
-  });
-
-  it('shows name and criteria for each quadrant in the add form', async () => {
-    const { user } = await renderHomePage();
-
-    await user.click(screen.getByRole('button', { name: /new task/i }));
-
-    expectQuadrantPicker();
     expect(document.body).not.toHaveTextContent(OLD_NAMES);
   });
 
