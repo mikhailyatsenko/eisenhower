@@ -91,7 +91,7 @@ describe('Deadline strip while adding a task', () => {
       within(strip('Schedule'))
         .getAllByRole('button')
         .map((button) => button.getAttribute('aria-pressed')),
-    ).toEqual(['false', 'false', 'false', 'true', null, null]);
+    ).toEqual([null, 'false', 'false', 'false', 'true', null, null]);
     expect(
       within(strip('Schedule')).queryByRole('button', { name: /^Today/ }),
     ).not.toBeInTheDocument();
@@ -267,14 +267,56 @@ describe('Deadline strip while adding a task', () => {
     expect(field('Schedule')).toHaveFocus();
     expect(field('Schedule')).toHaveValue('Book flights');
 
-    // Tomorrow, the first element of the strip
+    // ×, the first element of the strip, is before Tomorrow
     await user.click(chip('Schedule', /^Tomorrow/));
     await user.tab();
     expect(chip('Schedule', /^Tomorrow/)).toHaveFocus();
     await user.tab({ shift: true });
+    expect(
+      within(strip('Schedule')).getByRole('button', { name: 'Cancel adding' }),
+    ).toHaveFocus();
+    await user.tab({ shift: true });
 
     expect(field('Schedule')).toHaveFocus();
     expect(field('Schedule')).toHaveValue('Book flights');
+  });
+
+  it('cancels adding with ×: the field, its text and deadline go, the focus back where it was', async () => {
+    const { user } = await renderHomePage({ tasks: TASKS });
+
+    await user.click(screen.getByRole('option', { name: 'Pay rent' }));
+    await user.keyboard('n');
+    await user.keyboard('Book flights');
+    await user.click(chip('Do First', /^Tomorrow/));
+    await user.click(
+      within(strip('Do First')).getByRole('button', { name: 'Cancel adding' }),
+    );
+
+    expect(queryFields()).toEqual([]);
+    expect(queryStrip()).not.toBeInTheDocument();
+    expect(cardsIn('Do First')).toHaveLength(1);
+    expect(screen.getByRole('option', { name: 'Pay rent' })).toHaveFocus();
+
+    await user.keyboard('n');
+
+    expect(field('Do First')).toHaveValue('');
+    expect(addButton('Do First')).toHaveAccessibleName('Add without deadline');
+  });
+
+  it('cancels adding opened by + Add, the focus back on it', async () => {
+    const { user } = await renderHomePage({ tasks: TASKS });
+
+    await user.click(
+      screen.getByRole('button', { name: 'Add a task to Delegate' }),
+    );
+    await user.click(
+      within(strip('Delegate')).getByRole('button', { name: 'Cancel adding' }),
+    );
+
+    expect(queryFields()).toEqual([]);
+    expect(
+      screen.getByRole('button', { name: 'Add a task to Delegate' }),
+    ).toHaveFocus();
   });
 
   it('leaves the matrix keys alone in the strip', async () => {
@@ -464,7 +506,7 @@ describe('Deadline strip while adding a task', () => {
         within(strip('Schedule'))
           .getAllByRole('button')
           .map((button) => button.textContent),
-      ).toEqual(['Deadline', 'Add without deadline']);
+      ).toEqual(['', 'Deadline', 'Add without deadline']);
       expect(deadlineToggle('Schedule')).toHaveAttribute(
         'aria-expanded',
         'false',
@@ -509,6 +551,31 @@ describe('Deadline strip while adding a task', () => {
         /^Book flights.*DUE SOON/,
       );
       await expectNoAxeViolations();
+    });
+
+    it('has × to cancel adding at the other end from Add, also folded', async () => {
+      const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
+
+      await user.click(list('Schedule'));
+      await user.keyboard('Book flights');
+
+      expect(
+        within(strip('Schedule'))
+          .getAllByRole('button')
+          .map(
+            (button) => button.getAttribute('aria-label') ?? button.textContent,
+          ),
+      ).toEqual(['Cancel adding', 'Deadline', 'Add without deadline']);
+
+      await user.click(
+        within(strip('Schedule')).getByRole('button', {
+          name: 'Cancel adding',
+        }),
+      );
+
+      expect(queryStrip()).not.toBeInTheDocument();
+      // Still full screen: Back to matrix is a step of its own
+      expect(screen.getAllByRole('listbox')).toHaveLength(1);
     });
 
     it('starts folded on each open of the field', async () => {

@@ -37,6 +37,8 @@ interface DeadlineStripProps {
   onAdd: () => void;
   /** Esc, and Shift+Tab from the strip's first element: back to the field */
   onBack: () => void;
+  /** "×": no task after all, the field closes as on Esc in it */
+  onCancel: () => void;
   /** The focus has left the strip for somewhere else than the field */
   onLeave: (next: EventTarget | null) => void;
 }
@@ -58,6 +60,7 @@ export const DeadlineStrip = ({
   onChange,
   onAdd,
   onBack,
+  onCancel,
   onLeave,
 }: DeadlineStripProps) => {
   const now = useNow();
@@ -131,6 +134,27 @@ export const DeadlineStrip = ({
       {!isTouchScreen && <DeadlineKeyHint label="Enter" />}
     </button>
   );
+  // Named for what it does: the strip only follows the field
+  const cancelButton = (
+    <button
+      type="button"
+      aria-label="Cancel adding"
+      onClick={onCancel}
+      className={STRIP_STYLES.CANCEL_BUTTON}
+    >
+      {/* An icon, not the × glyph: the glyph sits low in its line */}
+      <svg
+        aria-hidden="true"
+        className="size-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2.5}
+      >
+        <path strokeLinecap="round" d="M6 6l12 12M18 6 6 18" />
+      </svg>
+    </button>
+  );
   const choices = (
     <>
       <DeadlineChips current={deadlineInput} onPick={pick} phoneLayout="rows" />
@@ -169,8 +193,10 @@ export const DeadlineStrip = ({
     >
       {isPhone ? (
         <>
-          {/* Add above the chips, out of the keyboard's way */}
-          <div className="flex items-center justify-between gap-2">
+          {/* Add above the chips, out of the keyboard's way; × at the
+              other end, away from Add */}
+          <div className="flex items-center gap-2">
+            {cancelButton}
             <button
               type="button"
               aria-expanded={isUnfolded}
@@ -197,7 +223,7 @@ export const DeadlineStrip = ({
                 />
               </svg>
             </button>
-            {addButton}
+            <div className="ml-auto">{addButton}</div>
           </div>
           {isUnfolded && (
             <div id={choicesId} className="mt-2 flex flex-col gap-2">
@@ -207,9 +233,8 @@ export const DeadlineStrip = ({
         </>
       ) : (
         <>
-          <span aria-hidden="true" className={STRIP_STYLES.LABEL}>
-            Deadline
-          </span>
+          {/* In place of a "Deadline" label, on the far side from Add */}
+          {cancelButton}
           {choices}
           <span aria-hidden="true" className="mx-1 h-6 w-px bg-white/20" />
           {addButton}

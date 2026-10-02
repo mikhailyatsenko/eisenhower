@@ -108,6 +108,23 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({
     if (currentText.trim() === '') closeInlineAddAction();
   };
 
+  // Esc in the field and × in the strip: the field goes with its text and
+  // deadline, the focus back where the field was opened from
+  const cancel = () => {
+    const returnFocus = getInlineAddReturnFocus();
+    const lastTaskId = getActiveTasks()[quadrant].at(-1)?.id;
+    closeInlineAddAction();
+    if (returnFocus?.isConnected) {
+      // Back where the keyboard or "Add a task" opened the field from
+      returnFocus.focus();
+    } else if (addTaskButtonQuadrant(returnFocus) === quadrant && lastTaskId) {
+      // "Add a task" has given way to the tasks just added: the last one
+      requestTaskFocusAction(lastTaskId);
+    } else {
+      document.getElementById(addButtonId(quadrant))?.focus();
+    }
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.nativeEvent.isComposing) return;
 
@@ -122,21 +139,7 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({
       target.focus();
     } else if (event.key === 'Escape') {
       event.preventDefault();
-      const returnFocus = getInlineAddReturnFocus();
-      const lastTaskId = getActiveTasks()[quadrant].at(-1)?.id;
-      closeInlineAddAction();
-      if (returnFocus?.isConnected) {
-        // Back where the keyboard or "Add a task" opened the field from
-        returnFocus.focus();
-      } else if (
-        addTaskButtonQuadrant(returnFocus) === quadrant &&
-        lastTaskId
-      ) {
-        // "Add a task" has given way to the tasks just added: the last one
-        requestTaskFocusAction(lastTaskId);
-      } else {
-        document.getElementById(addButtonId(quadrant))?.focus();
-      }
+      cancel();
     }
   };
 
@@ -180,6 +183,7 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({
           focusField();
         }}
         onBack={focusField}
+        onCancel={cancel}
         onLeave={closeIfLeftEmpty}
       />
     </>
