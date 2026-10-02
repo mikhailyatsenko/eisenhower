@@ -13,7 +13,7 @@ export const QUADRANT_STYLES = {
   // 140px) and their m-1 margins (16px), less its own margin (8px). Change
   // with PHONE_HEIGHT.
   FULL_SCREEN:
-    'h-[calc(100dvh_-_var(--top-bars-height,56px)_-_132px)] w-[calc(100%-8px)]',
+    'h-[calc(100dvh_-_var(--top-bars-height,56px)_-_132px)] w-[calc(100%-8px)] scroll-mt-[var(--top-bars-height,56px)]',
   // The cell's m-1 leaves room for the ring. Its colour: DRAG_OVER_RING
   DRAG_OVER: 'ring-4',
 } as const;

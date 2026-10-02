@@ -444,7 +444,12 @@ describe('Deadline strip while adding a task', () => {
   });
 
   describe('on a phone', () => {
-    it('shows the quadrant full screen, the strip title and Add on top, chips without dates', async () => {
+    const deadlineToggle = (title: string) =>
+      within(strip(title)).getByRole('button', {
+        name: `Deadline · new task in ${title}`,
+      });
+
+    it('shows the quadrant full screen and the strip folded to one line with Add', async () => {
       const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
 
       await user.click(list('Schedule'));
@@ -452,19 +457,86 @@ describe('Deadline strip while adding a task', () => {
 
       expect(screen.getAllByRole('listbox')).toHaveLength(1);
       expect(
-        within(strip('Schedule')).getByText('Deadline · new task in Schedule'),
-      ).toBeInTheDocument();
-      const buttons = within(strip('Schedule')).getAllByRole('button');
-      expect(buttons[0]).toHaveAccessibleName('Add without deadline');
+        within(strip('Schedule'))
+          .getAllByRole('button')
+          .map((button) => button.textContent),
+      ).toEqual(['Deadline · new task in Schedule', 'Add without deadline']);
+      expect(deadlineToggle('Schedule')).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+
+      await user.click(addButton('Schedule'));
+
+      expect(lastCardIn('Schedule')).toHaveAccessibleName('Book flights');
+      expect(field('Schedule')).toHaveFocus();
+    });
+
+    it('unfolds the chips and the date, and a chip folds them back', async () => {
+      const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
+
+      await user.click(list('Schedule'));
+      await user.keyboard('Book flights');
+      await user.click(deadlineToggle('Schedule'));
+
+      expect(deadlineToggle('Schedule')).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+      // The focus stays in the field: the keyboard stays up
+      expect(field('Schedule')).toHaveFocus();
       expect(chip('Schedule', /^Tomorrow/)).toHaveAccessibleName('Tomorrow');
+      expect(within(strip('Schedule')).getByLabelText('Date')).toBeVisible();
 
       await user.click(chip('Schedule', /^Tomorrow/));
+
+      expect(deadlineToggle('Schedule')).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+      expect(addButton('Schedule')).toHaveAccessibleName(
+        `Add · ${shown(day(26))}`,
+      );
+      expect(field('Schedule')).toHaveFocus();
+
       await user.click(addButton('Schedule'));
 
       expect(lastCardIn('Schedule')).toHaveAccessibleName(
         /^Book flights.*DUE SOON/,
       );
       await expectNoAxeViolations();
+    });
+
+    it('starts folded on each open of the field', async () => {
+      const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
+
+      await user.click(list('Schedule'));
+      await user.click(deadlineToggle('Schedule'));
+      await user.click(
+        screen.getByRole('button', { name: 'Add a task to Schedule' }),
+      );
+
+      expect(deadlineToggle('Schedule')).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+    });
+
+    it('picks a deadline by its key from the folded strip', async () => {
+      const { user } = await renderHomePage({ tasks: TASKS, viewport: PHONE });
+
+      await user.click(list('Schedule'));
+      await user.keyboard('Book flights');
+      await user.tab();
+
+      expect(deadlineToggle('Schedule')).toHaveFocus();
+
+      await user.keyboard('m');
+
+      expect(field('Schedule')).toHaveFocus();
+      expect(addButton('Schedule')).toHaveAccessibleName(
+        `Add · ${shown(day(26))}`,
+      );
     });
 
     it('has no axe violations with the strip in List view', async () => {

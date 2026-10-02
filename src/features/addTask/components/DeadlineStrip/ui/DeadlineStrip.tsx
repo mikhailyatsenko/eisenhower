@@ -1,5 +1,6 @@
-import { RefObject, useState } from 'react';
+import { RefObject, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { twMerge } from 'tailwind-merge';
 import {
   DeadlineChips,
   DeadlineDateFields,
@@ -44,7 +45,9 @@ interface DeadlineStripProps {
  * The deadline of the task being typed in the inline add field, in place of
  * the action panel at the bottom: the chips (T, M, W, X, Del), a date with
  * "+ Time", and Add. All apply at once, with no Set. On a phone it sits over
- * the on-screen keyboard, Add in its top line. The page's keys stay out.
+ * the on-screen keyboard, Add in its top line, and starts folded to that
+ * line: the chips and the date take half the screen left above the keyboard.
+ * Its title unfolds them, a chip folds them back. The page's keys stay out.
  */
 export const DeadlineStrip = ({
   stripRef,
@@ -63,6 +66,12 @@ export const DeadlineStrip = ({
   const isTouchScreen = useIsTouchScreen();
   const keyboardInset = useKeyboardInset(isPhone);
   useToastClearance(stripRef);
+  const [isUnfolded, setIsUnfolded] = useState(false);
+  const choicesId = useId();
+  const pick = (picked: Deadline | null) => {
+    setIsUnfolded(false);
+    onPick(picked);
+  };
 
   // What the date and time fields hold, a time being typed too; a chip, an
   // add or a move puts the deadline in them
@@ -105,7 +114,7 @@ export const DeadlineStrip = ({
       const picked = deadlineByKey(event.nativeEvent, now);
       if (picked === undefined) return;
       event.preventDefault();
-      onPick(picked);
+      pick(picked);
     }
   };
 
@@ -124,11 +133,7 @@ export const DeadlineStrip = ({
   );
   const choices = (
     <>
-      <DeadlineChips
-        current={deadlineInput}
-        onPick={onPick}
-        phoneLayout="rows"
-      />
+      <DeadlineChips current={deadlineInput} onPick={pick} phoneLayout="rows" />
       <div className="flex items-center gap-2">
         <DeadlineDateFields
           value={input}
@@ -165,13 +170,40 @@ export const DeadlineStrip = ({
       {isPhone ? (
         <>
           {/* Add above the chips, out of the keyboard's way */}
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <p aria-hidden="true" className="px-1 text-xs text-gray-300">
+          <div className="flex items-center justify-between gap-2">
+            <button
+              type="button"
+              aria-expanded={isUnfolded}
+              aria-controls={choicesId}
+              onClick={() => setIsUnfolded(!isUnfolded)}
+              className={STRIP_STYLES.FOLD_BUTTON}
+            >
               Deadline · new task in {quadrantTitle}
-            </p>
+              <svg
+                aria-hidden="true"
+                className={twMerge(
+                  'size-4 shrink-0 transition-transform motion-reduce:transition-none',
+                  isUnfolded && 'rotate-90',
+                )}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m9 6 6 6-6 6"
+                />
+              </svg>
+            </button>
             {addButton}
           </div>
-          <div className="flex flex-col gap-2">{choices}</div>
+          {isUnfolded && (
+            <div id={choicesId} className="mt-2 flex flex-col gap-2">
+              {choices}
+            </div>
+          )}
         </>
       ) : (
         <>

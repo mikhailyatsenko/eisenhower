@@ -1,7 +1,9 @@
 import { useDroppable } from '@dnd-kit/core';
+import { useEffect, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { MatrixKey } from '@/shared/stores/tasksStore';
+import { useUIStore } from '@/shared/stores/uiStore';
 import { useEmptySpaceClick } from '../../../hooks';
 import { FullScreenMode, QuadrantHeader } from '../../quadrantHeader';
 import { DRAG_OVER_RING, QUADRANT_STYLES } from '../consts';
@@ -41,6 +43,19 @@ export const Quadrant: React.FC<QuadrantProps> = ({
   });
 
   const isFullScreen = fullScreen === 'open';
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const addFieldOpenCount = useUIStore((state) =>
+    state.inlineAdd?.quadrant === quadrantKey ? state.inlineAdd.openCount : 0,
+  );
+
+  // Full screen on a phone, the add field and the deadline strip over the
+  // keyboard leave little room: the quadrant goes up under the top bars,
+  // the page's title out of sight
+  useEffect(() => {
+    if (isFullScreen && addFieldOpenCount) {
+      rootRef.current?.scrollIntoView({ block: 'start' });
+    }
+  }, [isFullScreen, addFieldOpenCount]);
 
   const animateByRecentlyAddedQuadrant =
     recentlyAddedQuadrant === quadrantKey
@@ -51,7 +66,10 @@ export const Quadrant: React.FC<QuadrantProps> = ({
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        rootRef.current = node;
+      }}
       className={twMerge(
         quadrantStyles[quadrantKey],
         QUADRANT_STYLES.DEFAULT,

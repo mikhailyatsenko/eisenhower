@@ -164,6 +164,8 @@ export const InlineAddField: React.FC<InlineAddFieldProps> = ({
         <div aria-hidden="true" style={{ height: roomUnderField }} />
       )}
       <DeadlineStrip
+        // Each open starts over, folded on a phone
+        key={inlineAdd.openCount}
         stripRef={stripRef}
         quadrantTitle={title}
         deadline={inlineAdd.deadline}
